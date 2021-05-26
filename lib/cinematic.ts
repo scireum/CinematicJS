@@ -10,6 +10,14 @@ class Cinematic {
 
    options: Options;
 
+   defaults: Options = {
+      selector: '',
+      poster: '',
+      subtitles: '',
+      autoplay: false,
+      startTime: 0
+   };
+
    _container: any;
    _video: HTMLVideoElement;
    _cues: HTMLElement;
@@ -24,7 +32,7 @@ class Cinematic {
    _qualityOptions: NodeListOf<ChildNode>;
    _captionsButton: HTMLElement;
    _fullScreenButton: HTMLElement;
-   
+
    totalSeconds = 0;
    playedSeconds = 0;
    volume = 0;
@@ -34,8 +42,9 @@ class Cinematic {
 
    fullScreenEnabled = false;
 
-   constructor (options: Options) {
-      this.options = options;
+   constructor(options: Options) {
+      this.options = { ...this.defaults, ...options };
+
       const _passedContainer = document.querySelector(this.options.selector);
       if (!_passedContainer) {
          throw new Error('passed selector does not point to a DOM element.');
@@ -253,7 +262,7 @@ class Cinematic {
          me._cues.textContent = this.text;
          me._cues.classList.remove('hidden');
       };
-      
+
       const onCueExit = function () {
          me._cues.textContent = '';
          me._cues.classList.add('hidden');
@@ -270,7 +279,7 @@ class Cinematic {
          }
 
          if (me.cues) {
-            for (let i = 0; i < me.cues.length; i ++) {
+            for (let i = 0; i < me.cues.length; i++) {
                let cue = me.cues[i];
                cue.onenter = onCueEnter;
                cue.onexit = onCueExit;
@@ -281,20 +290,20 @@ class Cinematic {
       this._video.addEventListener('timeupdate', function () {
          me.playedSeconds = this.currentTime;
          me._progressBar.value = me.playedSeconds;
-      
+
          me.updateTimer();
       });
-      
+
       this._video.addEventListener('play', function () {
          //me._endcard.classList.add('hidden');
          me._playButton.textContent = 'pause';
       });
-      
+
       this._video.addEventListener('pause', function () {
          //me._endcard.classList.remove('hidden');
          me._playButton.textContent = 'play_arrow';
       });
-      
+
       this._video.addEventListener('ended', function () {
          //me._endcard.classList.remove('hidden');
          me._playButton.textContent = 'restart_alt';
@@ -308,10 +317,10 @@ class Cinematic {
                const bufferEnd = this.buffered.end(bufferRangeIndex);
                if (bufferStart <= this.currentTime) {
                   const buffered = (bufferEnd / this.duration) * 100;
-                   me._bufferBar.value = buffered;
-                   break;
+                  me._bufferBar.value = buffered;
+                  break;
                }
-           }
+            }
          }
       });
 
@@ -340,15 +349,15 @@ class Cinematic {
             if (!newQuality) {
                return;
             }
-      
+
             me._qualityOptions.forEach(function (_qualityOption: HTMLElement) {
                _qualityOption.classList.remove('active');
             });
             _qualityOption.classList.add('active');
-      
+
             if (newQuality !== currentQuality) {
                const currentTime = me._video.currentTime;
-      
+
                const _mp4Source = me._video.querySelector('source[type="video/mp4"]') as HTMLSourceElement;
                if (_mp4Source) {
                   _mp4Source.src = '../video/' + newQuality + '.mp4';
