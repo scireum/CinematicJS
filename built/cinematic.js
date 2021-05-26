@@ -1,11 +1,41 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var Cinematic = /** @class */ (function () {
     function Cinematic(options) {
+        this.defaults = {
+            selector: '',
+            poster: '',
+            subtitles: '',
+            autoplay: false,
+            startTime: 0,
+            translations: {
+                pause: 'Pause',
+                play: 'Play',
+                restart: 'Restart',
+                mute: 'Mute',
+                unmute: 'Unmute',
+                quality: 'Quality',
+                fullscreen: 'Fullscreen',
+                exitFullscreen: 'Exit Fullscreen',
+                showSubtitles: 'Show Subtitles',
+                hideSubtitles: 'Hide Subtitles',
+            }
+        };
         this.totalSeconds = 0;
         this.playedSeconds = 0;
         this.volume = 0;
         this.quality = '720';
         this.fullScreenEnabled = false;
-        this.options = options;
+        this.options = __assign(__assign({}, this.defaults), options);
         var _passedContainer = document.querySelector(this.options.selector);
         if (!_passedContainer) {
             throw new Error('passed selector does not point to a DOM element.');
@@ -99,6 +129,7 @@ var Cinematic = /** @class */ (function () {
         _volumeButton.classList.add('video-control-button');
         _volumeButton.classList.add('material-icons');
         _volumeButton.textContent = 'volume_up';
+        _volumeButton.title = this.options.translations.mute;
         _volumeWrapper.appendChild(_volumeButton);
         this._volumeButton = _volumeButton;
         var _qualityWrapper = document.createElement('div');
@@ -108,6 +139,7 @@ var Cinematic = /** @class */ (function () {
         _qualityButton.classList.add('video-control-button');
         _qualityButton.classList.add('material-icons');
         _qualityButton.textContent = 'settings';
+        _qualityButton.title = this.options.translations.quality;
         _qualityWrapper.appendChild(_qualityButton);
         var _dropDownContent = document.createElement('div');
         _dropDownContent.classList.add('video-dropdown-content');
@@ -132,6 +164,7 @@ var Cinematic = /** @class */ (function () {
         _captionsButton.classList.add('video-control-button');
         _captionsButton.classList.add('material-icons-outlined');
         _captionsButton.textContent = 'subtitles';
+        _captionsButton.title = this.options.translations.showSubtitles;
         _controls.appendChild(_captionsButton);
         this._captionsButton = _captionsButton;
         if (this.fullScreenEnabled) {
@@ -139,6 +172,7 @@ var Cinematic = /** @class */ (function () {
             _fullScreenButton.classList.add('video-control-button');
             _fullScreenButton.classList.add('material-icons');
             _fullScreenButton.textContent = 'fullscreen';
+            _fullScreenButton.title = this.options.translations.fullscreen;
             _controls.appendChild(_fullScreenButton);
             this._fullScreenButton = _fullScreenButton;
         }
@@ -159,8 +193,10 @@ var Cinematic = /** @class */ (function () {
             me._volumeSlider.value = me._video.muted ? '0' : me.volume.toString();
             if (me._video.muted) {
                 me._volumeButton.textContent = 'volume_off';
+                me._volumeButton.title = me.options.translations.unmute;
             }
             else {
+                me._volumeButton.title = me.options.translations.mute;
                 if (me.volume > 50) {
                     me._volumeButton.textContent = 'volume_up';
                 }
@@ -211,14 +247,17 @@ var Cinematic = /** @class */ (function () {
         this._video.addEventListener('play', function () {
             //me._endcard.classList.add('hidden');
             me._playButton.textContent = 'pause';
+            me._playButton.title = me.options.translations.pause;
         });
         this._video.addEventListener('pause', function () {
             //me._endcard.classList.remove('hidden');
             me._playButton.textContent = 'play_arrow';
+            me._playButton.title = me.options.translations.play;
         });
         this._video.addEventListener('ended', function () {
             //me._endcard.classList.remove('hidden');
             me._playButton.textContent = 'restart_alt';
+            me._playButton.title = me.options.translations.restart;
         });
         this._video.addEventListener('progress', function () {
             if (this.duration > 0) {
@@ -277,9 +316,17 @@ var Cinematic = /** @class */ (function () {
             });
         });
         this._captionsButton.addEventListener('click', function (e) {
+            var wasEnabled = me._container.dataset.captions;
+            me._container.dataset.captions = !wasEnabled;
             this.classList.toggle('material-icons');
             this.classList.toggle('material-icons-outlined');
             me._cuesContainer.classList.toggle('hidden');
+            if (wasEnabled) {
+                this.title = me.options.translations.showSubtitles;
+            }
+            else {
+                this.title = me.options.translations.hideSubtitles;
+            }
         });
     };
     Cinematic.prototype.formatTime = function (seconds) {
@@ -293,11 +340,13 @@ var Cinematic = /** @class */ (function () {
             document.exitFullscreen();
             this._container.dataset.fullscreen = false;
             this._fullScreenButton.textContent = 'fullscreen';
+            this._fullScreenButton.title = this.options.translations.fullscreen;
         }
         else {
             this._container.requestFullscreen();
             this._container.dataset.fullscreen = true;
             this._fullScreenButton.textContent = 'fullscreen_exit';
+            this._fullScreenButton.title = this.options.translations.exitFullscreen;
         }
     };
     Cinematic.prototype.isFullScreen = function () {

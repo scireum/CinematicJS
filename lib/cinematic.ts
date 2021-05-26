@@ -4,6 +4,20 @@ interface Options {
    subtitles: string;
    autoplay: boolean;
    startTime: number;
+   translations: Translations;
+}
+
+interface Translations {
+   pause: string;
+   play: string;
+   restart: string;
+   mute: string;
+   unmute: string;
+   quality: string;
+   fullscreen: string;
+   exitFullscreen: string;
+   showSubtitles: string;
+   hideSubtitles: string;
 }
 
 class Cinematic {
@@ -15,7 +29,19 @@ class Cinematic {
       poster: '',
       subtitles: '',
       autoplay: false,
-      startTime: 0
+      startTime: 0,
+      translations: {
+         pause: 'Pause',
+         play: 'Play',
+         restart: 'Restart',
+         mute: 'Mute',
+         unmute: 'Unmute',
+         quality: 'Quality',
+         fullscreen: 'Fullscreen',
+         exitFullscreen: 'Exit Fullscreen',
+         showSubtitles: 'Show Subtitles',
+         hideSubtitles: 'Hide Subtitles',
+      }
    };
 
    _container: any;
@@ -166,6 +192,7 @@ class Cinematic {
       _volumeButton.classList.add('video-control-button');
       _volumeButton.classList.add('material-icons');
       _volumeButton.textContent = 'volume_up';
+      _volumeButton.title = this.options.translations.mute;
       _volumeWrapper.appendChild(_volumeButton);
 
       this._volumeButton = _volumeButton;
@@ -178,6 +205,7 @@ class Cinematic {
       _qualityButton.classList.add('video-control-button');
       _qualityButton.classList.add('material-icons');
       _qualityButton.textContent = 'settings';
+      _qualityButton.title = this.options.translations.quality;
       _qualityWrapper.appendChild(_qualityButton);
 
       const _dropDownContent = document.createElement('div');
@@ -208,6 +236,7 @@ class Cinematic {
       _captionsButton.classList.add('video-control-button');
       _captionsButton.classList.add('material-icons-outlined');
       _captionsButton.textContent = 'subtitles';
+      _captionsButton.title = this.options.translations.showSubtitles;
       _controls.appendChild(_captionsButton);
 
       this._captionsButton = _captionsButton;
@@ -217,6 +246,7 @@ class Cinematic {
          _fullScreenButton.classList.add('video-control-button');
          _fullScreenButton.classList.add('material-icons');
          _fullScreenButton.textContent = 'fullscreen';
+         _fullScreenButton.title = this.options.translations.fullscreen;
          _controls.appendChild(_fullScreenButton);
 
          this._fullScreenButton = _fullScreenButton;
@@ -239,7 +269,9 @@ class Cinematic {
          me._volumeSlider.value = me._video.muted ? '0' : me.volume.toString();
          if (me._video.muted) {
             me._volumeButton.textContent = 'volume_off';
+            me._volumeButton.title = me.options.translations.unmute;
          } else {
+            me._volumeButton.title = me.options.translations.mute;
             if (me.volume > 50) {
                me._volumeButton.textContent = 'volume_up';
             } else {
@@ -297,16 +329,19 @@ class Cinematic {
       this._video.addEventListener('play', function () {
          //me._endcard.classList.add('hidden');
          me._playButton.textContent = 'pause';
+         me._playButton.title = me.options.translations.pause;
       });
 
       this._video.addEventListener('pause', function () {
          //me._endcard.classList.remove('hidden');
          me._playButton.textContent = 'play_arrow';
+         me._playButton.title = me.options.translations.play;
       });
 
       this._video.addEventListener('ended', function () {
          //me._endcard.classList.remove('hidden');
          me._playButton.textContent = 'restart_alt';
+         me._playButton.title = me.options.translations.restart;
       });
 
       this._video.addEventListener('progress', function () {
@@ -375,9 +410,16 @@ class Cinematic {
       });
 
       this._captionsButton.addEventListener('click', function (e) {
+         const wasEnabled = me._container.dataset.captions;
+         me._container.dataset.captions = !wasEnabled;
          this.classList.toggle('material-icons');
          this.classList.toggle('material-icons-outlined');
          me._cuesContainer.classList.toggle('hidden');
+         if (wasEnabled) {
+             this.title = me.options.translations.showSubtitles;
+         } else {
+            this.title = me.options.translations.hideSubtitles;
+         }
       });
    }
 
@@ -394,10 +436,12 @@ class Cinematic {
          document.exitFullscreen();
          this._container.dataset.fullscreen = false;
          this._fullScreenButton.textContent = 'fullscreen';
+         this._fullScreenButton.title = this.options.translations.fullscreen;
       } else {
          this._container.requestFullscreen();
          this._container.dataset.fullscreen = true;
          this._fullScreenButton.textContent = 'fullscreen_exit';
+         this._fullScreenButton.title = this.options.translations.exitFullscreen;
       }
    }
 
