@@ -192,6 +192,9 @@ var Cinematic = /** @class */ (function () {
             me._progressBar.setAttribute('max', me.totalSeconds.toString());
             me._bufferBar.setAttribute('max', me.totalSeconds.toString());
             me.updateTimer();
+            if (me.options.startTime > 0) {
+                this.currentTime = me.options.startTime;
+            }
             if (me.cues) {
                 for (var i = 0; i < me.cues.length; i++) {
                     var cue = me.cues[i];

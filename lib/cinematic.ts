@@ -3,6 +3,7 @@ interface Options {
    poster: string;
    subtitles: string;
    autoplay: boolean;
+   startTime: number;
 }
 
 class Cinematic {
@@ -263,6 +264,10 @@ class Cinematic {
          me._progressBar.setAttribute('max', me.totalSeconds.toString());
          me._bufferBar.setAttribute('max', me.totalSeconds.toString());
          me.updateTimer();
+
+         if (me.options.startTime > 0) {
+            this.currentTime = me.options.startTime;
+         }
 
          if (me.cues) {
             for (let i = 0; i < me.cues.length; i ++) {

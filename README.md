@@ -22,3 +22,4 @@ Still heavily work in progress :)
 | poster | The relative or absolute URL pointing to the video preview image | '' |
 | subtitles | The relative or absolute URL pointing to the video captions VTT file | null |
 | autoplay | Starts the video playback directly when 'true' is passed | false |
+| startTime | Starts the video playback offset by the given number of seconds | 0 |
