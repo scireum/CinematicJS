@@ -21,6 +21,9 @@ var Cinematic = /** @class */ (function () {
         var _video = document.createElement('video');
         _video.preload = 'metadata';
         _video.poster = this.options.poster;
+        if (this.options.autoplay) {
+            _video.autoplay = true;
+        }
         this._container.appendChild(_video);
         this._video = _video;
         // TODO as option
