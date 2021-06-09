@@ -4,6 +4,7 @@ interface Options {
    subtitles: string;
    autoplay: boolean;
    startTime: number;
+   deeplink: string;
    translations: Translations;
 }
 
@@ -15,6 +16,8 @@ interface Translations {
    unmute: string;
    quality: string;
    fullscreen: string;
+   deeplink: string;
+   deeplinkCopied: string;
    exitFullscreen: string;
    showSubtitles: string;
    hideSubtitles: string;
@@ -30,6 +33,7 @@ class Cinematic {
       subtitles: '',
       autoplay: false,
       startTime: 0,
+      deeplink: '',
       translations: {
          pause: 'Pause',
          play: 'Play',
@@ -38,6 +42,8 @@ class Cinematic {
          unmute: 'Unmute',
          quality: 'Quality',
          fullscreen: 'Fullscreen',
+         deeplink: 'Copy deeplink to clipboard',
+         deeplinkCopied: 'Link was copied',
          exitFullscreen: 'Exit Fullscreen',
          showSubtitles: 'Show Subtitles',
          hideSubtitles: 'Hide Subtitles',
@@ -57,6 +63,7 @@ class Cinematic {
    _volumeButton: HTMLElement;
    _qualityOptions: NodeListOf<ChildNode>;
    _captionsButton: HTMLElement;
+   _deeplinkButton: HTMLElement;
    _fullScreenButton: HTMLElement;
 
    totalSeconds = 0;
@@ -231,6 +238,18 @@ class Cinematic {
       _dropDownContent.appendChild(_option360p);
 
       this._qualityOptions = _dropDownContent.childNodes;
+
+      if (this.options.deeplink) {
+         const _deeplinkButton = document.createElement('i');
+         _deeplinkButton.classList.add('video-control-button');
+         _deeplinkButton.classList.add('material-icons');
+         _deeplinkButton.textContent = 'link';
+         _deeplinkButton.title = this.options.translations.deeplink;
+         _deeplinkButton.dataset.copiedText = this.options.translations.deeplinkCopied;
+         _controls.appendChild(_deeplinkButton);
+
+         this._deeplinkButton = _deeplinkButton;
+      }
 
       const _captionsButton = document.createElement('i');
       _captionsButton.classList.add('video-control-button');
@@ -409,6 +428,10 @@ class Cinematic {
          });
       });
 
+      this._deeplinkButton.addEventListener('click', event => {
+         me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
+      });
+
       this._captionsButton.addEventListener('click', function (e) {
          const wasEnabled = me._container.dataset.captions;
          me._container.dataset.captions = !wasEnabled;
@@ -448,4 +471,59 @@ class Cinematic {
    isFullScreen() {
       return document.fullscreenElement;
    }
+
+   copyToClipboard(text: string, _element: HTMLElement) {
+      /*
+       * inspired by clipboard.js v1.5.12
+       * https://zenorocha.github.io/clipboard.js
+       *
+       * Licensed MIT © Zeno Rocha
+       */
+      var fakeElem = document.createElement('textarea');
+      fakeElem.contentEditable = 'true';
+      // Prevent zooming on iOS
+      fakeElem.style.fontSize = '12pt';
+      // Reset box model
+      fakeElem.style.border = '0';
+      fakeElem.style.padding = '0';
+      fakeElem.style.margin = '0';
+      // Move element out of screen horizontally
+      fakeElem.style.position = 'absolute';
+      fakeElem.style[document.documentElement.getAttribute('dir') == 'rtl' ? 'right' : 'left'] = '-9999px';
+      // Move element to the same position vertically
+      fakeElem.style.top = (window.pageYOffset || document.documentElement.scrollTop) + 'px';
+      fakeElem.setAttribute('readonly', '');
+      fakeElem.value = text;
+      document.body.appendChild(fakeElem);
+      fakeElem.focus();
+      
+      var range = document.createRange();
+      range.selectNodeContents(fakeElem);
+      var selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      fakeElem.setSelectionRange(0, text.length);
+      
+      if (document.execCommand('copy') && typeof _element !== 'undefined') {
+          _element.classList.add('copied');
+          setTimeout(function () {
+              _element.classList.remove('copied');
+          }, 2000);
+      }
+      document.body.removeChild(fakeElem);
+
+      /* Try alternative */
+      var copy = function (event: ClipboardEvent) {
+          if (event.clipboardData) {
+            event.clipboardData.setData('text/plain', text);
+          } else if ((<any>window).clipboardData) {
+            (<any>window).clipboardData.setData('Text', text);
+          }
+          event.preventDefault();
+      }
+
+      window.addEventListener('copy', copy);
+      document.execCommand('copy');
+      window.removeEventListener('copy', copy);
+  }
 }
