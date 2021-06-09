@@ -22,6 +22,7 @@ interface Translations {
    quality: string;
    fullscreen: string;
    deeplink: string;
+   close: string;
    deeplinkCopied: string;
    exitFullscreen: string;
    showSubtitles: string;
@@ -47,6 +48,7 @@ class Cinematic {
          unmute: 'Unmute',
          quality: 'Quality',
          fullscreen: 'Fullscreen',
+         close: 'Close',
          deeplink: 'Copy deeplink to clipboard',
          deeplinkCopied: 'Link was copied',
          exitFullscreen: 'Exit Fullscreen',
@@ -156,6 +158,7 @@ class Cinematic {
          const _closeButton = document.createElement('i');
          _closeButton.classList.add('video-close-button');
          _closeButton.classList.add('material-icons');
+         _closeButton.title = this.options.translations.close;
          _closeButton.textContent = 'close';
          _header.appendChild(_closeButton);
 
