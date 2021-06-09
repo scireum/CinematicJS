@@ -187,9 +187,10 @@ class Cinematic {
 
       const _volumeSlider = document.createElement('input');
       _volumeSlider.type = 'range';
-      _volumeSlider.min = '1';
-      _volumeSlider.max = '100';
-      _volumeSlider.value = '50';
+      _volumeSlider.min = '0';
+      _volumeSlider.max = '1';
+      _volumeSlider.step = '0.05';
+      _volumeSlider.value = '0.5';
       _volumeSlider.classList.add('video-volume-slider');
       _volumeWrapper.appendChild(_volumeSlider);
 
@@ -291,7 +292,7 @@ class Cinematic {
             me._volumeButton.title = me.options.translations.unmute;
          } else {
             me._volumeButton.title = me.options.translations.mute;
-            if (me.volume > 50) {
+            if (me.volume > 0.5) {
                me._volumeButton.textContent = 'volume_up';
             } else {
                me._volumeButton.textContent = 'volume_down';
@@ -300,9 +301,8 @@ class Cinematic {
       });
 
       this._volumeSlider.addEventListener('change', function (e) {
-         me.volume = parseInt(this.value);
-         me._video.volume = me.volume / 100;
-         if (me.volume > 50) {
+         me._video.volume = me.volume = parseFloat(this.value);
+         if (me.volume > 0.5) {
             me._volumeButton.textContent = 'volume_up';
          } else {
             me._volumeButton.textContent = 'volume_down';
