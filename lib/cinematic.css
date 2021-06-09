@@ -148,6 +148,12 @@ video {
     color: #ffffff;
 }
 
+@media only screen and (max-width: 378px) {
+    .video-controls .video-control-timer {
+        display: none;
+    }
+}
+
 .video-controls>* {
     margin: 4px;
 }
