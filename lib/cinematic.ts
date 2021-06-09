@@ -204,6 +204,10 @@ class Cinematic {
 
       this._timer = _timer;
 
+      const _spacer = document.createElement('div');
+      _spacer.classList.add('video-control-spacer');
+      _controls.appendChild(_spacer);
+
       const _volumeWrapper = document.createElement('div');
       _volumeWrapper.classList.add('video-volume-wrapper');
       _controls.appendChild(_volumeWrapper);

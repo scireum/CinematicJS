@@ -130,6 +130,9 @@ var Cinematic = /** @class */ (function () {
         _timer.textContent = '00:00:00 / 00:00:00';
         _controls.appendChild(_timer);
         this._timer = _timer;
+        var _spacer = document.createElement('div');
+        _spacer.classList.add('video-control-spacer');
+        _controls.appendChild(_spacer);
         var _volumeWrapper = document.createElement('div');
         _volumeWrapper.classList.add('video-volume-wrapper');
         _controls.appendChild(_volumeWrapper);

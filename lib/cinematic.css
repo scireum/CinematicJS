@@ -64,6 +64,10 @@ video {
     flex-wrap: wrap;
 }
 
+.video-controls .video-control-spacer {
+    flex-grow: 1;
+}
+
 .video-controls .video-progress-wrapper {
     position: relative;
     width: 100%;
@@ -148,7 +152,7 @@ video {
     color: #ffffff;
 }
 
-@media only screen and (max-width: 378px) {
+@media only screen and (max-width: 386px) {
     .video-controls .video-control-timer {
         display: none;
     }
