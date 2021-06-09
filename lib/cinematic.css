@@ -32,6 +32,25 @@ video {
     border-radius: 4px;
 }
 
+.video-header {
+    display: flex;
+    flex-direction: row-reverse;
+    list-style-type: none;
+    background: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 4px;
+    align-items: center;
+}
+
+.video-header .video-close-button {
+    color: #ffffff;
+    cursor: pointer;
+    flex-grow: 0;
+}
+
 .video-controls {
     display: flex;
     list-style-type: none;

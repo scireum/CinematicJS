@@ -5,7 +5,12 @@ interface Options {
    autoplay: boolean;
    startTime: number;
    deeplink: string;
+   closeCallback?: CloseCallback;
    translations: Translations;
+}
+
+interface CloseCallback {
+   (): void;
 }
 
 interface Translations {
@@ -65,6 +70,7 @@ class Cinematic {
    _captionsButton: HTMLElement;
    _deeplinkButton: HTMLElement;
    _fullScreenButton: HTMLElement;
+   _closeButton: HTMLElement;
 
    totalSeconds = 0;
    playedSeconds = 0;
@@ -141,6 +147,20 @@ class Cinematic {
       this._cues = _cues;
 
       this._cuesContainer = _cuesContainer;
+
+      const _header = document.createElement('div');
+      _header.classList.add('video-header');
+      this._container.appendChild(_header);
+
+      if (this.options.closeCallback) {
+         const _closeButton = document.createElement('i');
+         _closeButton.classList.add('video-close-button');
+         _closeButton.classList.add('material-icons');
+         _closeButton.textContent = 'close';
+         _header.appendChild(_closeButton);
+
+         this._closeButton = _closeButton;
+      }
 
       const _controls = document.createElement('div');
       _controls.classList.add('video-controls');
@@ -444,6 +464,12 @@ class Cinematic {
             this.title = me.options.translations.hideSubtitles;
          }
       });
+
+      if (this.options.closeCallback) {
+         this._closeButton.addEventListener('click', event => {
+            this.options.closeCallback?.apply(this);
+         });
+      }
 
       document.addEventListener('keyup', event => {
          const { key } = event;

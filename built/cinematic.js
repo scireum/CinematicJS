@@ -89,6 +89,17 @@ var Cinematic = /** @class */ (function () {
         _cuesContainer.appendChild(_cues);
         this._cues = _cues;
         this._cuesContainer = _cuesContainer;
+        var _header = document.createElement('div');
+        _header.classList.add('video-header');
+        this._container.appendChild(_header);
+        if (this.options.closeCallback) {
+            var _closeButton = document.createElement('i');
+            _closeButton.classList.add('video-close-button');
+            _closeButton.classList.add('material-icons');
+            _closeButton.textContent = 'close';
+            _header.appendChild(_closeButton);
+            this._closeButton = _closeButton;
+        }
         var _controls = document.createElement('div');
         _controls.classList.add('video-controls');
         this._container.appendChild(_controls);
@@ -345,6 +356,12 @@ var Cinematic = /** @class */ (function () {
                 this.title = me.options.translations.hideSubtitles;
             }
         });
+        if (this.options.closeCallback) {
+            this._closeButton.addEventListener('click', function (event) {
+                var _a;
+                (_a = _this.options.closeCallback) === null || _a === void 0 ? void 0 : _a.apply(_this);
+            });
+        }
         document.addEventListener('keyup', function (event) {
             var key = event.key;
             switch (key) {
