@@ -444,6 +444,47 @@ class Cinematic {
             this.title = me.options.translations.hideSubtitles;
          }
       });
+
+      document.addEventListener('keyup', event => {
+         const { key } = event;
+
+         switch (key) {
+            // Spacebar allows to pause/resume the video
+            case ' ': 
+               if (this._video.paused) {
+                  this._video.play();
+               } else {
+                  this._video.pause();
+               }
+               break;
+            // Left Arrow skips 10 seconds into the past
+            case 'ArrowLeft':
+               this._video.currentTime -= 10;
+               break;
+            // Right Arrow skips 10 seconds into the future
+            case 'ArrowRight':
+               this._video.currentTime += 10;
+               break;
+            // Down Arrow decreases the volume by 5%
+            case 'ArrowDown':
+               if (this._video.volume > 0) {
+                  let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                  this.volume = (currentVolume - 5) / 100;
+                  this._video.volume = this.volume;
+                  this._volumeSlider.value = this.volume.toString();
+               }
+               break;
+            // Up Arrow increases the volume by 5%
+            case 'ArrowUp':
+               if (this._video.volume < 1) {
+                  let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                  this.volume = (currentVolume + 5) / 100;
+                  this._video.volume = this.volume;
+                  this._volumeSlider.value = this.volume.toString();
+               }
+               break;
+         }
+      });
    }
 
    formatTime(seconds: number) {
