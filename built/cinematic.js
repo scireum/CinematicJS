@@ -106,12 +106,6 @@ var Cinematic = /** @class */ (function () {
         _controls.classList.add('video-controls');
         this._container.appendChild(_controls);
         this._controls = _controls;
-        var _playButton = document.createElement('i');
-        _playButton.classList.add('video-control-button');
-        _playButton.classList.add('material-icons');
-        _playButton.textContent = 'play_arrow';
-        _controls.appendChild(_playButton);
-        this._playButton = _playButton;
         var _progressWrapper = document.createElement('div');
         _progressWrapper.classList.add('video-progress-wrapper');
         _controls.appendChild(_progressWrapper);
@@ -125,6 +119,12 @@ var Cinematic = /** @class */ (function () {
         _progressBar.value = 0;
         _progressWrapper.appendChild(_progressBar);
         this._progressBar = _progressBar;
+        var _playButton = document.createElement('i');
+        _playButton.classList.add('video-control-button');
+        _playButton.classList.add('material-icons');
+        _playButton.textContent = 'play_arrow';
+        _controls.appendChild(_playButton);
+        this._playButton = _playButton;
         var _timer = document.createElement('span');
         _timer.classList.add('video-control-timer');
         _timer.textContent = '00:00:00 / 00:00:00';

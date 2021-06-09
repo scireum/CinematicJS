@@ -171,14 +171,6 @@ class Cinematic {
 
       this._controls = _controls;
 
-      const _playButton = document.createElement('i');
-      _playButton.classList.add('video-control-button');
-      _playButton.classList.add('material-icons');
-      _playButton.textContent = 'play_arrow';
-      _controls.appendChild(_playButton);
-
-      this._playButton = _playButton;
-
       const _progressWrapper = document.createElement('div');
       _progressWrapper.classList.add('video-progress-wrapper');
       _controls.appendChild(_progressWrapper);
@@ -196,6 +188,14 @@ class Cinematic {
       _progressWrapper.appendChild(_progressBar);
 
       this._progressBar = _progressBar;
+
+      const _playButton = document.createElement('i');
+      _playButton.classList.add('video-control-button');
+      _playButton.classList.add('material-icons');
+      _playButton.textContent = 'play_arrow';
+      _controls.appendChild(_playButton);
+
+      this._playButton = _playButton;
 
       const _timer = document.createElement('span');
       _timer.classList.add('video-control-timer');
