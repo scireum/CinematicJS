@@ -439,7 +439,7 @@ class Cinematic {
          this.classList.toggle('material-icons-outlined');
          me._cuesContainer.classList.toggle('hidden');
          if (wasEnabled) {
-             this.title = me.options.translations.showSubtitles;
+            this.title = me.options.translations.showSubtitles;
          } else {
             this.title = me.options.translations.hideSubtitles;
          }
@@ -450,7 +450,7 @@ class Cinematic {
 
          switch (key) {
             // Spacebar allows to pause/resume the video
-            case ' ': 
+            case ' ':
                if (this._video.paused) {
                   this._video.play();
                } else {
@@ -537,34 +537,34 @@ class Cinematic {
       fakeElem.value = text;
       document.body.appendChild(fakeElem);
       fakeElem.focus();
-      
+
       var range = document.createRange();
       range.selectNodeContents(fakeElem);
       var selection = window.getSelection();
       selection?.removeAllRanges();
       selection?.addRange(range);
       fakeElem.setSelectionRange(0, text.length);
-      
+
       if (document.execCommand('copy') && typeof _element !== 'undefined') {
-          _element.classList.add('copied');
-          setTimeout(function () {
-              _element.classList.remove('copied');
-          }, 2000);
+         _element.classList.add('copied');
+         setTimeout(function () {
+            _element.classList.remove('copied');
+         }, 2000);
       }
       document.body.removeChild(fakeElem);
 
       /* Try alternative */
       var copy = function (event: ClipboardEvent) {
-          if (event.clipboardData) {
+         if (event.clipboardData) {
             event.clipboardData.setData('text/plain', text);
-          } else if ((<any>window).clipboardData) {
+         } else if ((<any>window).clipboardData) {
             (<any>window).clipboardData.setData('Text', text);
-          }
-          event.preventDefault();
+         }
+         event.preventDefault();
       }
 
       window.addEventListener('copy', copy);
       document.execCommand('copy');
       window.removeEventListener('copy', copy);
-  }
+   }
 }
