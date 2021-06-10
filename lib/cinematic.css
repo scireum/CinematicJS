@@ -49,6 +49,12 @@ video {
     color: #ffffff;
     cursor: pointer;
     flex-grow: 0;
+    opacity: 0.9;
+    transition: opacity .1s ease-in-out;
+}
+
+.video-header .video-close-button:hover {
+    opacity: 1;
 }
 
 .video-controls {
@@ -105,6 +111,12 @@ video {
     color: #ffffff;
     cursor: pointer;
     flex-grow: 0;
+    opacity: 0.9;
+    transition: opacity .1s ease-in-out;
+}
+
+.video-controls .video-control-button:hover {
+    opacity: 1;
 }
 
 .video-controls .video-control-button.copied {
@@ -140,6 +152,14 @@ video {
     border-radius: 4px;
     -webkit-appearance: none;
     appearance: none;
+}
+
+.video-controls .video-progress-bar:hover,
+.video-controls .video-buffer-bar:hover {
+    height: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
 }
 
 .video-controls .video-buffer-bar {
