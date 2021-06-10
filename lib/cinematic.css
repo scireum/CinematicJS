@@ -49,6 +49,12 @@ video {
     color: #ffffff;
     cursor: pointer;
     flex-grow: 0;
+    opacity: 0.9;
+    transition: opacity .1s ease-in-out;
+}
+
+.video-header .video-close-button:hover {
+    opacity: 1;
 }
 
 .video-controls {
@@ -105,6 +111,12 @@ video {
     color: #ffffff;
     cursor: pointer;
     flex-grow: 0;
+    opacity: 0.9;
+    transition: opacity .1s ease-in-out;
+}
+
+.video-controls .video-control-button:hover {
+    opacity: 1;
 }
 
 .video-controls .video-control-button.copied {

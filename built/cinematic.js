@@ -18,6 +18,7 @@ var Cinematic = /** @class */ (function () {
             autoplay: false,
             startTime: 0,
             deeplink: '',
+            rememberVolume: false,
             translations: {
                 pause: 'Pause',
                 play: 'Play',
@@ -49,6 +50,16 @@ var Cinematic = /** @class */ (function () {
         this.renderPlayer();
         this.setupEvents();
         this._video.load();
+        if (this.options.rememberVolume) {
+            var storedVolume = this.readFromLocalStore('volume');
+            if (storedVolume) {
+                this._video.volume = Number.parseFloat(storedVolume);
+            }
+            var storedMuteState = this.readFromLocalStore('muted');
+            if (storedMuteState) {
+                this._video.muted = storedMuteState === 'true';
+            }
+        }
     }
     Cinematic.prototype.renderPlayer = function () {
         this._container.classList.add('video-container');
@@ -141,7 +152,7 @@ var Cinematic = /** @class */ (function () {
         _volumeSlider.min = '0';
         _volumeSlider.max = '1';
         _volumeSlider.step = '0.05';
-        _volumeSlider.value = '0.5';
+        _volumeSlider.value = '1';
         _volumeSlider.classList.add('video-volume-slider');
         _volumeWrapper.appendChild(_volumeSlider);
         this._volumeSlider = _volumeSlider;
@@ -221,29 +232,11 @@ var Cinematic = /** @class */ (function () {
         });
         this._volumeButton.addEventListener('click', function (e) {
             me._video.muted = !me._video.muted;
-            me._volumeSlider.value = me._video.muted ? '0' : me.volume.toString();
-            if (me._video.muted) {
-                me._volumeButton.textContent = 'volume_off';
-                me._volumeButton.title = me.options.translations.unmute;
-            }
-            else {
-                me._volumeButton.title = me.options.translations.mute;
-                if (me.volume > 0.5) {
-                    me._volumeButton.textContent = 'volume_up';
-                }
-                else {
-                    me._volumeButton.textContent = 'volume_down';
-                }
-            }
         });
         this._volumeSlider.addEventListener('change', function (e) {
+            // To allow the user to change from mute to a specific volume via the slider.
+            me._video.muted = false;
             me._video.volume = me.volume = parseFloat(this.value);
-            if (me.volume > 0.5) {
-                me._volumeButton.textContent = 'volume_up';
-            }
-            else {
-                me._volumeButton.textContent = 'volume_down';
-            }
         });
         var onCueEnter = function () {
             me._cues.textContent = this.text;
@@ -273,6 +266,28 @@ var Cinematic = /** @class */ (function () {
             me.playedSeconds = this.currentTime;
             me._progressBar.value = me.playedSeconds;
             me.updateTimer();
+        });
+        this._video.addEventListener('volumechange', function () {
+            if (me.options.rememberVolume) {
+                me.writeToLocalStore('volume', this.volume.toString());
+                me.writeToLocalStore('muted', String(this.muted));
+            }
+            if (me._video.muted) {
+                // Set the volume slider to its min value to indicate the mute.
+                me._volumeSlider.value = '0';
+                me._volumeButton.textContent = 'volume_off';
+                me._volumeButton.title = me.options.translations.unmute;
+            }
+            else {
+                me._volumeSlider.value = me._video.volume.toString();
+                me._volumeButton.title = me.options.translations.mute;
+                if (me.volume > 0.5) {
+                    me._volumeButton.textContent = 'volume_up';
+                }
+                else {
+                    me._volumeButton.textContent = 'volume_down';
+                }
+            }
         });
         this._video.addEventListener('play', function () {
             //me._endcard.classList.add('hidden');
@@ -413,6 +428,27 @@ var Cinematic = /** @class */ (function () {
     };
     Cinematic.prototype.updateTimer = function () {
         this._timer.textContent = this.formatTime(this.playedSeconds) + ' / ' + this.formatTime(this.totalSeconds);
+    };
+    Cinematic.prototype.writeToLocalStore = function (name, value) {
+        try {
+            if (window.localStorage) {
+                window.localStorage.setItem('cinematic-js-' + name, value);
+            }
+        }
+        catch (e) {
+            console.log('CinematicJS: Cannot write to local store', { name: name, value: value, error: e });
+        }
+    };
+    Cinematic.prototype.readFromLocalStore = function (name) {
+        try {
+            if (window.localStorage) {
+                return window.localStorage.getItem('cinematic-js-' + name);
+            }
+        }
+        catch (e) {
+            console.log('CinematicJS: Cannot read from local store', { name: name, error: e });
+        }
+        return null;
     };
     Cinematic.prototype.handleFullscreen = function () {
         if (this.isFullScreen()) {
