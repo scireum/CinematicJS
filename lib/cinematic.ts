@@ -5,6 +5,7 @@ interface Options {
    autoplay: boolean;
    startTime: number;
    deeplink: string;
+   rememberVolume: boolean;
    closeCallback?: CloseCallback;
    translations: Translations;
 }
@@ -40,6 +41,7 @@ class Cinematic {
       autoplay: false,
       startTime: 0,
       deeplink: '',
+      rememberVolume: false,
       translations: {
          pause: 'Pause',
          play: 'Play',
@@ -357,8 +359,10 @@ class Cinematic {
       });
 
       this._video.addEventListener('volumechange', function () {
-         me.writeToLocalStore('volume', this.volume.toString());
-         me.writeToLocalStore('muted', String(this.muted));
+         if (me.options.rememberVolume) {
+            me.writeToLocalStore('volume', this.volume.toString());
+            me.writeToLocalStore('muted', String(this.muted));
+         }
 
          if (me._video.muted) {
             me._volumeButton.textContent = 'volume_off';

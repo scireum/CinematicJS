@@ -22,6 +22,7 @@ Still heavily work in progress :)
 | poster | The relative or absolute URL pointing to the video preview image | string | '' |
 | subtitles | The relative or absolute URL pointing to the video captions VTT file | string | null |
 | autoplay | Starts the video playback directly when 'true' is passed | boolean | false |
+| rememberVolume | Saves and Restores the volume and mute state via local storage when 'true' is passed | boolean | false |
 | startTime | Starts the video playback offset by the given number of seconds | number | 0 |
 | deeplink | Shows a deeplink button that copies the url to clipboard on click when filled | string | '' |
 | closeCallback | Shows a close button that invokes the provided callback on clicked when filled | function | - |

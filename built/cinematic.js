@@ -18,6 +18,7 @@ var Cinematic = /** @class */ (function () {
             autoplay: false,
             startTime: 0,
             deeplink: '',
+            rememberVolume: false,
             translations: {
                 pause: 'Pause',
                 play: 'Play',
@@ -256,8 +257,10 @@ var Cinematic = /** @class */ (function () {
             me.updateTimer();
         });
         this._video.addEventListener('volumechange', function () {
-            me.writeToLocalStore('volume', this.volume.toString());
-            me.writeToLocalStore('muted', String(this.muted));
+            if (me.options.rememberVolume) {
+                me.writeToLocalStore('volume', this.volume.toString());
+                me.writeToLocalStore('muted', String(this.muted));
+            }
             if (me._video.muted) {
                 me._volumeButton.textContent = 'volume_off';
                 me._volumeButton.title = me.options.translations.unmute;
