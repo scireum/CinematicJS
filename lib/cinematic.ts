@@ -5,7 +5,12 @@ interface Options {
    autoplay: boolean;
    startTime: number;
    deeplink: string;
+   closeCallback?: CloseCallback;
    translations: Translations;
+}
+
+interface CloseCallback {
+   (): void;
 }
 
 interface Translations {
@@ -17,6 +22,7 @@ interface Translations {
    quality: string;
    fullscreen: string;
    deeplink: string;
+   close: string;
    deeplinkCopied: string;
    exitFullscreen: string;
    showSubtitles: string;
@@ -42,6 +48,7 @@ class Cinematic {
          unmute: 'Unmute',
          quality: 'Quality',
          fullscreen: 'Fullscreen',
+         close: 'Close',
          deeplink: 'Copy deeplink to clipboard',
          deeplinkCopied: 'Link was copied',
          exitFullscreen: 'Exit Fullscreen',
@@ -65,6 +72,7 @@ class Cinematic {
    _captionsButton: HTMLElement;
    _deeplinkButton: HTMLElement;
    _fullScreenButton: HTMLElement;
+   _closeButton: HTMLElement;
 
    totalSeconds = 0;
    playedSeconds = 0;
@@ -142,19 +150,26 @@ class Cinematic {
 
       this._cuesContainer = _cuesContainer;
 
+      const _header = document.createElement('div');
+      _header.classList.add('video-header');
+      this._container.appendChild(_header);
+
+      if (this.options.closeCallback) {
+         const _closeButton = document.createElement('i');
+         _closeButton.classList.add('video-close-button');
+         _closeButton.classList.add('material-icons');
+         _closeButton.title = this.options.translations.close;
+         _closeButton.textContent = 'close';
+         _header.appendChild(_closeButton);
+
+         this._closeButton = _closeButton;
+      }
+
       const _controls = document.createElement('div');
       _controls.classList.add('video-controls');
       this._container.appendChild(_controls);
 
       this._controls = _controls;
-
-      const _playButton = document.createElement('i');
-      _playButton.classList.add('video-control-button');
-      _playButton.classList.add('material-icons');
-      _playButton.textContent = 'play_arrow';
-      _controls.appendChild(_playButton);
-
-      this._playButton = _playButton;
 
       const _progressWrapper = document.createElement('div');
       _progressWrapper.classList.add('video-progress-wrapper');
@@ -174,12 +189,24 @@ class Cinematic {
 
       this._progressBar = _progressBar;
 
+      const _playButton = document.createElement('i');
+      _playButton.classList.add('video-control-button');
+      _playButton.classList.add('material-icons');
+      _playButton.textContent = 'play_arrow';
+      _controls.appendChild(_playButton);
+
+      this._playButton = _playButton;
+
       const _timer = document.createElement('span');
       _timer.classList.add('video-control-timer');
       _timer.textContent = '00:00:00 / 00:00:00';
       _controls.appendChild(_timer);
 
       this._timer = _timer;
+
+      const _spacer = document.createElement('div');
+      _spacer.classList.add('video-control-spacer');
+      _controls.appendChild(_spacer);
 
       const _volumeWrapper = document.createElement('div');
       _volumeWrapper.classList.add('video-volume-wrapper');
@@ -444,6 +471,12 @@ class Cinematic {
             this.title = me.options.translations.hideSubtitles;
          }
       });
+
+      if (this.options.closeCallback) {
+         this._closeButton.addEventListener('click', event => {
+            this.options.closeCallback?.apply(this);
+         });
+      }
 
       document.addEventListener('keyup', event => {
          const { key } = event;
