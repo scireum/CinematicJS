@@ -122,9 +122,10 @@ var Cinematic = /** @class */ (function () {
         _controls.appendChild(_volumeWrapper);
         var _volumeSlider = document.createElement('input');
         _volumeSlider.type = 'range';
-        _volumeSlider.min = '1';
-        _volumeSlider.max = '100';
-        _volumeSlider.value = '50';
+        _volumeSlider.min = '0';
+        _volumeSlider.max = '1';
+        _volumeSlider.step = '0.05';
+        _volumeSlider.value = '0.5';
         _volumeSlider.classList.add('video-volume-slider');
         _volumeWrapper.appendChild(_volumeSlider);
         this._volumeSlider = _volumeSlider;
@@ -192,6 +193,7 @@ var Cinematic = /** @class */ (function () {
     };
     ;
     Cinematic.prototype.setupEvents = function () {
+        var _this = this;
         var me = this;
         this._playButton.addEventListener('click', function (e) {
             if (me._video.paused || me._video.ended) {
@@ -210,7 +212,7 @@ var Cinematic = /** @class */ (function () {
             }
             else {
                 me._volumeButton.title = me.options.translations.mute;
-                if (me.volume > 50) {
+                if (me.volume > 0.5) {
                     me._volumeButton.textContent = 'volume_up';
                 }
                 else {
@@ -219,9 +221,8 @@ var Cinematic = /** @class */ (function () {
             }
         });
         this._volumeSlider.addEventListener('change', function (e) {
-            me.volume = parseInt(this.value);
-            me._video.volume = me.volume / 100;
-            if (me.volume > 50) {
+            me._video.volume = me.volume = parseFloat(this.value);
+            if (me.volume > 0.5) {
                 me._volumeButton.textContent = 'volume_up';
             }
             else {
@@ -342,6 +343,46 @@ var Cinematic = /** @class */ (function () {
             }
             else {
                 this.title = me.options.translations.hideSubtitles;
+            }
+        });
+        document.addEventListener('keyup', function (event) {
+            var key = event.key;
+            switch (key) {
+                // Spacebar allows to pause/resume the video
+                case ' ':
+                    if (_this._video.paused) {
+                        _this._video.play();
+                    }
+                    else {
+                        _this._video.pause();
+                    }
+                    break;
+                // Left Arrow skips 10 seconds into the past
+                case 'ArrowLeft':
+                    _this._video.currentTime -= 10;
+                    break;
+                // Right Arrow skips 10 seconds into the future
+                case 'ArrowRight':
+                    _this._video.currentTime += 10;
+                    break;
+                // Down Arrow decreases the volume by 5%
+                case 'ArrowDown':
+                    if (_this._video.volume > 0) {
+                        var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
+                        _this.volume = (currentVolume - 5) / 100;
+                        _this._video.volume = _this.volume;
+                        _this._volumeSlider.value = _this.volume.toString();
+                    }
+                    break;
+                // Up Arrow increases the volume by 5%
+                case 'ArrowUp':
+                    if (_this._video.volume < 1) {
+                        var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
+                        _this.volume = (currentVolume + 5) / 100;
+                        _this._video.volume = _this.volume;
+                        _this._volumeSlider.value = _this.volume.toString();
+                    }
+                    break;
             }
         });
     };

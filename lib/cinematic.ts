@@ -187,9 +187,10 @@ class Cinematic {
 
       const _volumeSlider = document.createElement('input');
       _volumeSlider.type = 'range';
-      _volumeSlider.min = '1';
-      _volumeSlider.max = '100';
-      _volumeSlider.value = '50';
+      _volumeSlider.min = '0';
+      _volumeSlider.max = '1';
+      _volumeSlider.step = '0.05';
+      _volumeSlider.value = '0.5';
       _volumeSlider.classList.add('video-volume-slider');
       _volumeWrapper.appendChild(_volumeSlider);
 
@@ -291,7 +292,7 @@ class Cinematic {
             me._volumeButton.title = me.options.translations.unmute;
          } else {
             me._volumeButton.title = me.options.translations.mute;
-            if (me.volume > 50) {
+            if (me.volume > 0.5) {
                me._volumeButton.textContent = 'volume_up';
             } else {
                me._volumeButton.textContent = 'volume_down';
@@ -300,9 +301,8 @@ class Cinematic {
       });
 
       this._volumeSlider.addEventListener('change', function (e) {
-         me.volume = parseInt(this.value);
-         me._video.volume = me.volume / 100;
-         if (me.volume > 50) {
+         me._video.volume = me.volume = parseFloat(this.value);
+         if (me.volume > 0.5) {
             me._volumeButton.textContent = 'volume_up';
          } else {
             me._volumeButton.textContent = 'volume_down';
@@ -439,9 +439,50 @@ class Cinematic {
          this.classList.toggle('material-icons-outlined');
          me._cuesContainer.classList.toggle('hidden');
          if (wasEnabled) {
-             this.title = me.options.translations.showSubtitles;
+            this.title = me.options.translations.showSubtitles;
          } else {
             this.title = me.options.translations.hideSubtitles;
+         }
+      });
+
+      document.addEventListener('keyup', event => {
+         const { key } = event;
+
+         switch (key) {
+            // Spacebar allows to pause/resume the video
+            case ' ':
+               if (this._video.paused) {
+                  this._video.play();
+               } else {
+                  this._video.pause();
+               }
+               break;
+            // Left Arrow skips 10 seconds into the past
+            case 'ArrowLeft':
+               this._video.currentTime -= 10;
+               break;
+            // Right Arrow skips 10 seconds into the future
+            case 'ArrowRight':
+               this._video.currentTime += 10;
+               break;
+            // Down Arrow decreases the volume by 5%
+            case 'ArrowDown':
+               if (this._video.volume > 0) {
+                  let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                  this.volume = (currentVolume - 5) / 100;
+                  this._video.volume = this.volume;
+                  this._volumeSlider.value = this.volume.toString();
+               }
+               break;
+            // Up Arrow increases the volume by 5%
+            case 'ArrowUp':
+               if (this._video.volume < 1) {
+                  let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                  this.volume = (currentVolume + 5) / 100;
+                  this._video.volume = this.volume;
+                  this._volumeSlider.value = this.volume.toString();
+               }
+               break;
          }
       });
    }
@@ -496,34 +537,34 @@ class Cinematic {
       fakeElem.value = text;
       document.body.appendChild(fakeElem);
       fakeElem.focus();
-      
+
       var range = document.createRange();
       range.selectNodeContents(fakeElem);
       var selection = window.getSelection();
       selection?.removeAllRanges();
       selection?.addRange(range);
       fakeElem.setSelectionRange(0, text.length);
-      
+
       if (document.execCommand('copy') && typeof _element !== 'undefined') {
-          _element.classList.add('copied');
-          setTimeout(function () {
-              _element.classList.remove('copied');
-          }, 2000);
+         _element.classList.add('copied');
+         setTimeout(function () {
+            _element.classList.remove('copied');
+         }, 2000);
       }
       document.body.removeChild(fakeElem);
 
       /* Try alternative */
       var copy = function (event: ClipboardEvent) {
-          if (event.clipboardData) {
+         if (event.clipboardData) {
             event.clipboardData.setData('text/plain', text);
-          } else if ((<any>window).clipboardData) {
+         } else if ((<any>window).clipboardData) {
             (<any>window).clipboardData.setData('Text', text);
-          }
-          event.preventDefault();
+         }
+         event.preventDefault();
       }
 
       window.addEventListener('copy', copy);
       document.execCommand('copy');
       window.removeEventListener('copy', copy);
-  }
+   }
 }
