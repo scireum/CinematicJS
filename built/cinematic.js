@@ -232,9 +232,9 @@ var Cinematic = /** @class */ (function () {
         });
         this._volumeButton.addEventListener('click', function (e) {
             me._video.muted = !me._video.muted;
-            me._volumeSlider.value = me._video.muted ? '0' : me.volume.toString();
         });
         this._volumeSlider.addEventListener('change', function (e) {
+            // To allow the user to change from mute to a specific volume via the slider.
             me._video.muted = false;
             me._video.volume = me.volume = parseFloat(this.value);
         });
@@ -273,6 +273,7 @@ var Cinematic = /** @class */ (function () {
                 me.writeToLocalStore('muted', String(this.muted));
             }
             if (me._video.muted) {
+                // Set the volume slider to its min value to indicate the mute.
                 me._volumeSlider.value = '0';
                 me._volumeButton.textContent = 'volume_off';
                 me._volumeButton.title = me.options.translations.unmute;
