@@ -330,6 +330,7 @@ class Cinematic {
       });
 
       this._volumeSlider.addEventListener('change', function (e) {
+         me._video.muted = false;
          me._video.volume = me.volume = parseFloat(this.value);
       });
 

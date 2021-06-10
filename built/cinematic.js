@@ -235,6 +235,7 @@ var Cinematic = /** @class */ (function () {
             me._volumeSlider.value = me._video.muted ? '0' : me.volume.toString();
         });
         this._volumeSlider.addEventListener('change', function (e) {
+            me._video.muted = false;
             me._video.volume = me.volume = parseFloat(this.value);
         });
         var onCueEnter = function () {
