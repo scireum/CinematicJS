@@ -314,26 +314,10 @@ class Cinematic {
       this._volumeButton.addEventListener('click', function (e) {
          me._video.muted = !me._video.muted;
          me._volumeSlider.value = me._video.muted ? '0' : me.volume.toString();
-         if (me._video.muted) {
-            me._volumeButton.textContent = 'volume_off';
-            me._volumeButton.title = me.options.translations.unmute;
-         } else {
-            me._volumeButton.title = me.options.translations.mute;
-            if (me.volume > 0.5) {
-               me._volumeButton.textContent = 'volume_up';
-            } else {
-               me._volumeButton.textContent = 'volume_down';
-            }
-         }
       });
 
       this._volumeSlider.addEventListener('change', function (e) {
          me._video.volume = me.volume = parseFloat(this.value);
-         if (me.volume > 0.5) {
-            me._volumeButton.textContent = 'volume_up';
-         } else {
-            me._volumeButton.textContent = 'volume_down';
-         }
       });
 
       const onCueEnter = function (this: any) {
@@ -375,6 +359,18 @@ class Cinematic {
       this._video.addEventListener('volumechange', function () {
          me.writeToLocalStore('volume', this.volume.toString());
          me.writeToLocalStore('muted', String(this.muted));
+
+         if (me._video.muted) {
+            me._volumeButton.textContent = 'volume_off';
+            me._volumeButton.title = me.options.translations.unmute;
+         } else {
+            me._volumeButton.title = me.options.translations.mute;
+            if (me.volume > 0.5) {
+               me._volumeButton.textContent = 'volume_up';
+            } else {
+               me._volumeButton.textContent = 'volume_down';
+            }
+         }
       });
 
       this._video.addEventListener('play', function () {
