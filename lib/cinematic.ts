@@ -372,6 +372,11 @@ class Cinematic {
          me.updateTimer();
       });
 
+      this._video.addEventListener('volumechange', function () {
+         me.writeToLocalStore('volume', this.volume.toString());
+         me.writeToLocalStore('muted', String(this.muted));
+      });
+
       this._video.addEventListener('play', function () {
          //me._endcard.classList.add('hidden');
          me._playButton.textContent = 'pause';
@@ -526,6 +531,27 @@ class Cinematic {
 
    updateTimer() {
       this._timer.textContent = this.formatTime(this.playedSeconds) + ' / ' + this.formatTime(this.totalSeconds);
+   }
+
+   writeToLocalStore(name: string, value: string) {
+      try {
+         if (window.localStorage) {
+            window.localStorage.setItem('cinematic-js-' + name, value);
+         }
+      } catch (e) {
+         console.log('CinematicJS: Cannot write to local store', { name: name, value: value, error: e });
+      }
+   }
+
+   readFromLocalStore(name: string, value: string): string | null {
+      try {
+         if (window.localStorage) {
+            return window.localStorage.getItem('cinematic-js-' + name);
+         }
+      } catch (e) {
+         console.log('CinematicJS: Cannot read from local store', { name: name, error: e });
+      }
+      return null;
    }
 
    handleFullscreen() {
