@@ -6,12 +6,24 @@ interface Options {
    startTime: number;
    deeplink: string;
    rememberVolume: boolean;
+   quality: string;
+   sources: VideoQuality[];
    closeCallback?: CloseCallback;
    translations: Translations;
 }
 
 interface CloseCallback {
    (): void;
+}
+
+interface VideoQuality {
+   quality: string;
+   sources: VideoSource[];
+}
+
+interface VideoSource {
+   type: string;
+   source: string;
 }
 
 interface Translations {
@@ -42,6 +54,8 @@ class Cinematic {
       startTime: 0,
       deeplink: '',
       rememberVolume: false,
+      quality: '720p',
+      sources: [],
       translations: {
          pause: 'Pause',
          play: 'Play',
@@ -79,7 +93,7 @@ class Cinematic {
    totalSeconds = 0;
    playedSeconds = 0;
    volume = 0;
-   quality = '720';
+   quality = '';
    tracks: TextTrack;
    cues: TextTrackCueList | null;
 
@@ -95,6 +109,8 @@ class Cinematic {
       this._container = _passedContainer;
 
       this.fullScreenEnabled = document.fullscreenEnabled;
+
+      this.quality = this.options.quality;
 
       this.renderPlayer();
       this.setupEvents();
@@ -126,15 +142,18 @@ class Cinematic {
 
       this._video = _video;
 
-      // TODO as option
-      const _mp4 = document.createElement('source');
-      _mp4.src = '../video/720.mp4';
-      _mp4.type = 'video/mp4';
-      _video.appendChild(_mp4);
-      const _webM = document.createElement('source');
-      _webM.src = '../video/720.webm';
-      _webM.type = 'video/webm';
-      _video.appendChild(_webM);
+      const startSource = this.options.sources.find(source => this.quality === source.quality);
+      if (!startSource) {
+         // log error
+         return;
+      }
+
+      startSource.sources.forEach(source => {
+         const _source = document.createElement('source');
+         _source.src = source.source;
+         _source.type = source.type;
+         _video.appendChild(_source);
+      });
 
       if (this.options.subtitles) {
          const _subtitles = document.createElement('track');
@@ -260,23 +279,16 @@ class Cinematic {
       _dropDownContent.classList.add('video-dropdown-content');
       _qualityWrapper.appendChild(_dropDownContent);
 
-      const _option1080p = document.createElement('div');
-      _option1080p.classList.add('video-quality-option');
-      _option1080p.dataset.quality = '1080';
-      _option1080p.textContent = '1080p';
-      _dropDownContent.appendChild(_option1080p);
-
-      const _option720p = document.createElement('div');
-      _option720p.classList.add('video-quality-option');
-      _option720p.dataset.quality = '720';
-      _option720p.textContent = '720p';
-      _dropDownContent.appendChild(_option720p);
-
-      const _option360p = document.createElement('div');
-      _option360p.classList.add('video-quality-option');
-      _option360p.dataset.quality = '360';
-      _option360p.textContent = '360p';
-      _dropDownContent.appendChild(_option360p);
+      this.options.sources.forEach(source => {
+         const _option = document.createElement('div');
+         _option.classList.add('video-quality-option');
+         if (this.quality === source.quality) {
+            _option.classList.add('active');
+         }
+         _option.dataset.quality = source.quality;
+         _option.textContent = source.quality;
+         _dropDownContent.appendChild(_option);
+      });
 
       this._qualityOptions = _dropDownContent.childNodes;
 
@@ -447,7 +459,7 @@ class Cinematic {
             const newQuality = _qualityOption.dataset.quality;
             const currentQuality = me.quality;
 
-            if (!newQuality) {
+            if (!newQuality || newQuality === currentQuality) {
                return;
             }
 
@@ -456,22 +468,24 @@ class Cinematic {
             });
             _qualityOption.classList.add('active');
 
-            if (newQuality !== currentQuality) {
-               const currentTime = me._video.currentTime;
+            const currentTime = me._video.currentTime;
 
-               const _mp4Source = me._video.querySelector('source[type="video/mp4"]') as HTMLSourceElement;
-               if (_mp4Source) {
-                  _mp4Source.src = '../video/' + newQuality + '.mp4';
-               }
-               const _webmSource = me._video.querySelector('source[type="video/webm"]') as HTMLSourceElement;
-               if (_webmSource) {
-                  _webmSource.src = '../video/' + newQuality + '.webm';
-               }
-               me._video.load();
-               me._video.currentTime = currentTime;
-               me._video.play();
-               me.quality = newQuality;
+            const newSource = me.options.sources.find(source => newQuality === source.quality);
+            if (!newSource) {
+               return;
             }
+
+            newSource.sources.forEach(source => {
+               const _source = me._video.querySelector('source[type="' + source.type + '"]') as HTMLSourceElement;
+               if (_source) {
+                  _source.src = source.source;
+               }
+            });
+
+            me._video.load();
+            me._video.currentTime = currentTime;
+            me._video.play();
+            me.quality = newQuality;
          });
       });
 
