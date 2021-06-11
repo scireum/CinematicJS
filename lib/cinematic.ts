@@ -104,7 +104,7 @@ class Cinematic {
 
       const _passedContainer = document.querySelector(this.options.selector);
       if (!_passedContainer) {
-         throw new Error('passed selector does not point to a DOM element.');
+         throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
       }
       this._container = _passedContainer;
 
@@ -144,8 +144,7 @@ class Cinematic {
 
       const startSource = this.options.sources.find(source => this.quality === source.quality);
       if (!startSource) {
-         // log error
-         return;
+         throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
       }
 
       startSource.sources.forEach(source => {

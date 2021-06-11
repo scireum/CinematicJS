@@ -45,7 +45,7 @@ var Cinematic = /** @class */ (function () {
         this.options = __assign(__assign({}, this.defaults), options);
         var _passedContainer = document.querySelector(this.options.selector);
         if (!_passedContainer) {
-            throw new Error('passed selector does not point to a DOM element.');
+            throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
         }
         this._container = _passedContainer;
         this.fullScreenEnabled = document.fullscreenEnabled;
@@ -77,8 +77,7 @@ var Cinematic = /** @class */ (function () {
         this._video = _video;
         var startSource = this.options.sources.find(function (source) { return _this.quality === source.quality; });
         if (!startSource) {
-            // log error
-            return;
+            throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
         }
         startSource.sources.forEach(function (source) {
             var _source = document.createElement('source');
