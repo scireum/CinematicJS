@@ -19,6 +19,8 @@ var Cinematic = /** @class */ (function () {
             startTime: 0,
             deeplink: '',
             rememberVolume: false,
+            quality: '720p',
+            sources: [],
             translations: {
                 pause: 'Pause',
                 play: 'Play',
@@ -38,15 +40,16 @@ var Cinematic = /** @class */ (function () {
         this.totalSeconds = 0;
         this.playedSeconds = 0;
         this.volume = 0;
-        this.quality = '720';
+        this.quality = '';
         this.fullScreenEnabled = false;
         this.options = __assign(__assign({}, this.defaults), options);
         var _passedContainer = document.querySelector(this.options.selector);
         if (!_passedContainer) {
-            throw new Error('passed selector does not point to a DOM element.');
+            throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
         }
         this._container = _passedContainer;
         this.fullScreenEnabled = document.fullscreenEnabled;
+        this.quality = this.options.quality;
         this.renderPlayer();
         this.setupEvents();
         this._video.load();
@@ -62,6 +65,7 @@ var Cinematic = /** @class */ (function () {
         }
     }
     Cinematic.prototype.renderPlayer = function () {
+        var _this = this;
         this._container.classList.add('video-container');
         var _video = document.createElement('video');
         _video.preload = 'metadata';
@@ -71,15 +75,16 @@ var Cinematic = /** @class */ (function () {
         }
         this._container.appendChild(_video);
         this._video = _video;
-        // TODO as option
-        var _mp4 = document.createElement('source');
-        _mp4.src = '../video/720.mp4';
-        _mp4.type = 'video/mp4';
-        _video.appendChild(_mp4);
-        var _webM = document.createElement('source');
-        _webM.src = '../video/720.webm';
-        _webM.type = 'video/webm';
-        _video.appendChild(_webM);
+        var startSource = this.options.sources.find(function (source) { return _this.quality === source.quality; });
+        if (!startSource) {
+            throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
+        }
+        startSource.sources.forEach(function (source) {
+            var _source = document.createElement('source');
+            _source.src = source.source;
+            _source.type = source.type;
+            _video.appendChild(_source);
+        });
         if (this.options.subtitles) {
             var _subtitles = document.createElement('track');
             _subtitles.label = 'subtitles';
@@ -175,21 +180,16 @@ var Cinematic = /** @class */ (function () {
         var _dropDownContent = document.createElement('div');
         _dropDownContent.classList.add('video-dropdown-content');
         _qualityWrapper.appendChild(_dropDownContent);
-        var _option1080p = document.createElement('div');
-        _option1080p.classList.add('video-quality-option');
-        _option1080p.dataset.quality = '1080';
-        _option1080p.textContent = '1080p';
-        _dropDownContent.appendChild(_option1080p);
-        var _option720p = document.createElement('div');
-        _option720p.classList.add('video-quality-option');
-        _option720p.dataset.quality = '720';
-        _option720p.textContent = '720p';
-        _dropDownContent.appendChild(_option720p);
-        var _option360p = document.createElement('div');
-        _option360p.classList.add('video-quality-option');
-        _option360p.dataset.quality = '360';
-        _option360p.textContent = '360p';
-        _dropDownContent.appendChild(_option360p);
+        this.options.sources.forEach(function (source) {
+            var _option = document.createElement('div');
+            _option.classList.add('video-quality-option');
+            if (_this.quality === source.quality) {
+                _option.classList.add('active');
+            }
+            _option.dataset.quality = source.quality;
+            _option.textContent = source.quality;
+            _dropDownContent.appendChild(_option);
+        });
         this._qualityOptions = _dropDownContent.childNodes;
         if (this.options.deeplink) {
             var _deeplinkButton = document.createElement('i');
@@ -336,28 +336,28 @@ var Cinematic = /** @class */ (function () {
             _qualityOption.addEventListener('click', function (e) {
                 var newQuality = _qualityOption.dataset.quality;
                 var currentQuality = me.quality;
-                if (!newQuality) {
+                if (!newQuality || newQuality === currentQuality) {
                     return;
                 }
                 me._qualityOptions.forEach(function (_qualityOption) {
                     _qualityOption.classList.remove('active');
                 });
                 _qualityOption.classList.add('active');
-                if (newQuality !== currentQuality) {
-                    var currentTime = me._video.currentTime;
-                    var _mp4Source = me._video.querySelector('source[type="video/mp4"]');
-                    if (_mp4Source) {
-                        _mp4Source.src = '../video/' + newQuality + '.mp4';
-                    }
-                    var _webmSource = me._video.querySelector('source[type="video/webm"]');
-                    if (_webmSource) {
-                        _webmSource.src = '../video/' + newQuality + '.webm';
-                    }
-                    me._video.load();
-                    me._video.currentTime = currentTime;
-                    me._video.play();
-                    me.quality = newQuality;
+                var currentTime = me._video.currentTime;
+                var newSource = me.options.sources.find(function (source) { return newQuality === source.quality; });
+                if (!newSource) {
+                    return;
                 }
+                newSource.sources.forEach(function (source) {
+                    var _source = me._video.querySelector('source[type="' + source.type + '"]');
+                    if (_source) {
+                        _source.src = source.source;
+                    }
+                });
+                me._video.load();
+                me._video.currentTime = currentTime;
+                me._video.play();
+                me.quality = newQuality;
             });
         });
         this._deeplinkButton.addEventListener('click', function (event) {
