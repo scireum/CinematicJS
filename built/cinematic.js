@@ -369,9 +369,11 @@ var Cinematic = /** @class */ (function () {
                 me.quality = newQuality;
             });
         });
-        this._deeplinkButton.addEventListener('click', function (event) {
-            me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
-        });
+        if (this.options.deeplink) {
+            this._deeplinkButton.addEventListener('click', function (event) {
+                me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
+            });
+        }
         this._captionsButton.addEventListener('click', function (e) {
             var wasEnabled = me._container.dataset.captions;
             me._container.dataset.captions = !wasEnabled;

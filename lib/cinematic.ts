@@ -498,9 +498,11 @@ class Cinematic {
          });
       });
 
-      this._deeplinkButton.addEventListener('click', event => {
-         me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
-      });
+      if (this.options.deeplink) {
+         this._deeplinkButton.addEventListener('click', event => {
+            me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
+         });
+      }
 
       this._captionsButton.addEventListener('click', function (e) {
          const wasEnabled = me._container.dataset.captions;
