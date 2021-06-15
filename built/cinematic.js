@@ -63,6 +63,7 @@ var Cinematic = /** @class */ (function () {
                 this._video.muted = storedMuteState === 'true';
             }
         }
+        this._container.cinematic = this;
     }
     Cinematic.prototype.renderPlayer = function () {
         var _this = this;

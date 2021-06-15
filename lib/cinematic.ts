@@ -127,6 +127,8 @@ class Cinematic {
             this._video.muted = storedMuteState === 'true';
          }
       }
+
+      this._container.cinematic = this as Cinematic;
    }
 
    renderPlayer() {
