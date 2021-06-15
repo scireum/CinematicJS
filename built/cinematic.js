@@ -319,6 +319,14 @@ var Cinematic = /** @class */ (function () {
                 }
             }
         });
+        this._video.addEventListener('click', function (event) {
+            if (me._video.paused || me._video.ended) {
+                me._video.play();
+            }
+            else {
+                me._video.pause();
+            }
+        });
         this._progressBar.addEventListener('click', function (event) {
             var target = event.target;
             var rect = target.getBoundingClientRect();
