@@ -49,6 +49,7 @@ video {
     flex-grow: 0;
     opacity: 0.9;
     transition: opacity .1s ease-in-out;
+    text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
 }
 
 .video-header .video-close-button:hover {
@@ -111,6 +112,7 @@ video {
     flex-grow: 0;
     opacity: 0.9;
     transition: opacity .1s ease-in-out;
+    text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
 }
 
 .video-controls .video-control-button:hover {
@@ -160,6 +162,7 @@ video {
     flex-shrink: 0;
     padding-left: 8px;
     color: #ffffff;
+    text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.3);
 }
 
 @media only screen and (max-width: 386px) {
