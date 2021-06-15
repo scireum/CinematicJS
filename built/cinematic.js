@@ -93,20 +93,20 @@ var Cinematic = /** @class */ (function () {
             _subtitles.src = this.options.subtitles;
             _subtitles.default = true;
             _video.appendChild(_subtitles);
+            this.tracks = _video.textTracks[0];
+            this.tracks.mode = 'hidden';
+            this.cues = this.tracks.cues;
+            var _cuesContainer = document.createElement('div');
+            _cuesContainer.classList.add('video-cues-container');
+            _cuesContainer.classList.add('hidden');
+            this._container.appendChild(_cuesContainer);
+            var _cues = document.createElement('div');
+            _cues.classList.add('video-cues');
+            _cues.classList.add('hidden');
+            _cuesContainer.appendChild(_cues);
+            this._cues = _cues;
+            this._cuesContainer = _cuesContainer;
         }
-        this.tracks = _video.textTracks[0];
-        this.tracks.mode = 'hidden';
-        this.cues = this.tracks.cues;
-        var _cuesContainer = document.createElement('div');
-        _cuesContainer.classList.add('video-cues-container');
-        _cuesContainer.classList.add('hidden');
-        this._container.appendChild(_cuesContainer);
-        var _cues = document.createElement('div');
-        _cues.classList.add('video-cues');
-        _cues.classList.add('hidden');
-        _cuesContainer.appendChild(_cues);
-        this._cues = _cues;
-        this._cuesContainer = _cuesContainer;
         var _header = document.createElement('div');
         _header.classList.add('video-header');
         this._container.appendChild(_header);
@@ -202,13 +202,15 @@ var Cinematic = /** @class */ (function () {
             _controls.appendChild(_deeplinkButton);
             this._deeplinkButton = _deeplinkButton;
         }
-        var _captionsButton = document.createElement('i');
-        _captionsButton.classList.add('video-control-button');
-        _captionsButton.classList.add('material-icons-outlined');
-        _captionsButton.textContent = 'subtitles';
-        _captionsButton.title = this.options.translations.showSubtitles;
-        _controls.appendChild(_captionsButton);
-        this._captionsButton = _captionsButton;
+        if (this.options.subtitles) {
+            var _captionsButton = document.createElement('i');
+            _captionsButton.classList.add('video-control-button');
+            _captionsButton.classList.add('material-icons-outlined');
+            _captionsButton.textContent = 'subtitles';
+            _captionsButton.title = this.options.translations.showSubtitles;
+            _controls.appendChild(_captionsButton);
+            this._captionsButton = _captionsButton;
+        }
         if (this.fullScreenEnabled) {
             var _fullScreenButton = document.createElement('i');
             _fullScreenButton.classList.add('video-control-button');
@@ -374,19 +376,21 @@ var Cinematic = /** @class */ (function () {
                 me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
             });
         }
-        this._captionsButton.addEventListener('click', function (e) {
-            var wasEnabled = me._container.dataset.captions;
-            me._container.dataset.captions = !wasEnabled;
-            this.classList.toggle('material-icons');
-            this.classList.toggle('material-icons-outlined');
-            me._cuesContainer.classList.toggle('hidden');
-            if (wasEnabled) {
-                this.title = me.options.translations.showSubtitles;
-            }
-            else {
-                this.title = me.options.translations.hideSubtitles;
-            }
-        });
+        if (this.options.subtitles) {
+            this._captionsButton.addEventListener('click', function (e) {
+                var wasEnabled = me._container.dataset.captions;
+                me._container.dataset.captions = !wasEnabled;
+                this.classList.toggle('material-icons');
+                this.classList.toggle('material-icons-outlined');
+                me._cuesContainer.classList.toggle('hidden');
+                if (wasEnabled) {
+                    this.title = me.options.translations.showSubtitles;
+                }
+                else {
+                    this.title = me.options.translations.hideSubtitles;
+                }
+            });
+        }
         if (this.options.closeCallback) {
             this._closeButton.addEventListener('click', function (event) {
                 var _a;
