@@ -42,6 +42,7 @@ var Cinematic = /** @class */ (function () {
         this.volume = 0;
         this.quality = '';
         this.fullScreenEnabled = false;
+        this.userActive = false;
         this.options = __assign(__assign({}, this.defaults), options);
         var _passedContainer = document.querySelector(this.options.selector);
         if (!_passedContainer) {
@@ -112,6 +113,7 @@ var Cinematic = /** @class */ (function () {
         var _header = document.createElement('div');
         _header.classList.add('video-header');
         this._container.appendChild(_header);
+        this._header = _header;
         if (this.options.closeCallback) {
             var _closeButton = document.createElement('i');
             _closeButton.classList.add('video-close-button');
@@ -330,7 +332,23 @@ var Cinematic = /** @class */ (function () {
             else {
                 me._video.pause();
             }
+            _this.userActive = true;
         });
+        this._container.addEventListener('mousemove', function () { return _this.userActive = true; });
+        this.userActiveCheck = window.setInterval(function () {
+            if (!_this.userActive) {
+                return;
+            }
+            _this.userActive = false;
+            _this.showControls();
+            clearTimeout(_this.userInactiveTimeout);
+            _this.userInactiveTimeout = window.setTimeout(function () {
+                if (!_this.userActive) {
+                    _this.hideControls();
+                }
+            }, 2000);
+        }, 250);
+        //this.resetHideControlsDelay();
         this._progressBar.addEventListener('click', function (event) {
             var target = event.target;
             var rect = target.getBoundingClientRect();
@@ -486,6 +504,17 @@ var Cinematic = /** @class */ (function () {
             this._fullScreenButton.textContent = 'fullscreen_exit';
             this._fullScreenButton.title = this.options.translations.exitFullscreen;
         }
+    };
+    Cinematic.prototype.showControls = function () {
+        this._header.classList.remove('hidden');
+        this._controls.classList.remove('hidden');
+    };
+    Cinematic.prototype.hideControls = function () {
+        if (this._video.paused) {
+            return;
+        }
+        this._header.classList.add('hidden');
+        this._controls.classList.add('hidden');
     };
     Cinematic.prototype.isFullScreen = function () {
         return document.fullscreenElement;
