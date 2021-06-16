@@ -71,6 +71,8 @@ var Cinematic = /** @class */ (function () {
         var _video = document.createElement('video');
         _video.preload = 'metadata';
         _video.poster = this.options.poster;
+        // Supress the unwanted right click context menu of the video element itself
+        _video.oncontextmenu = function () { return false; };
         if (this.options.autoplay) {
             _video.autoplay = true;
         }

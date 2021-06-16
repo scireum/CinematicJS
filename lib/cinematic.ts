@@ -137,6 +137,8 @@ class Cinematic {
       const _video = document.createElement('video');
       _video.preload = 'metadata';
       _video.poster = this.options.poster;
+      // Supress the unwanted right click context menu of the video element itself
+      _video.oncontextmenu = () => {return false};
       if (this.options.autoplay) {
          _video.autoplay = true;
       }
