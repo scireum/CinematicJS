@@ -409,6 +409,12 @@ var Cinematic = /** @class */ (function () {
                         _this._video.pause();
                     }
                     break;
+                // Escape leaves the fullscreen when currently enabled
+                case 'Escape':
+                    if (_this.fullScreenEnabled && _this.isFullScreen()) {
+                        _this.handleFullscreen();
+                    }
+                    break;
                 // Left Arrow skips 10 seconds into the past
                 case 'ArrowLeft':
                     _this._video.currentTime -= 10;
