@@ -592,6 +592,10 @@ class Cinematic {
                   let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
                   this.volume = (currentVolume - 5) / 100;
                   this._video.volume = this.volume;
+                  if (this.volume === 0) {
+                     // Also switch on mute when we reach 0% volume
+                     this._video.muted = true;
+                  }
                   this._volumeSlider.value = this.volume.toString();
                }
                break;
@@ -601,6 +605,9 @@ class Cinematic {
                   let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
                   this.volume = (currentVolume + 5) / 100;
                   this._video.volume = this.volume;
+                  if (this.volume >= 0) {
+                     this._video.muted = false;
+                  }
                   this._volumeSlider.value = this.volume.toString();
                }
                break;

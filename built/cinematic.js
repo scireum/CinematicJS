@@ -449,6 +449,10 @@ var Cinematic = /** @class */ (function () {
                         var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
                         _this.volume = (currentVolume - 5) / 100;
                         _this._video.volume = _this.volume;
+                        if (_this.volume === 0) {
+                            // Also switch on mute when we reach 0% volume
+                            _this._video.muted = true;
+                        }
                         _this._volumeSlider.value = _this.volume.toString();
                     }
                     break;
@@ -458,6 +462,9 @@ var Cinematic = /** @class */ (function () {
                         var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
                         _this.volume = (currentVolume + 5) / 100;
                         _this._video.volume = _this.volume;
+                        if (_this.volume >= 0) {
+                            _this._video.muted = false;
+                        }
                         _this._volumeSlider.value = _this.volume.toString();
                     }
                     break;
