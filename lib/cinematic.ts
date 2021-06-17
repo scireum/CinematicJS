@@ -77,6 +77,7 @@ class Cinematic {
    _video: HTMLVideoElement;
    _cues: HTMLElement;
    _cuesContainer: HTMLElement;
+   _header: HTMLElement;
    _controls: HTMLElement;
    _playButton: HTMLElement;
    _bufferBar: HTMLProgressElement;
@@ -98,6 +99,9 @@ class Cinematic {
    cues: TextTrackCueList | null;
 
    fullScreenEnabled = false;
+   userActive = false;
+   userActiveCheck: number;
+   userInactiveTimeout: number;
 
    constructor(options: Options) {
       this.options = { ...this.defaults, ...options };
@@ -137,6 +141,8 @@ class Cinematic {
       const _video = document.createElement('video');
       _video.preload = 'metadata';
       _video.poster = this.options.poster;
+      // Supress the unwanted right click context menu of the video element itself
+      _video.oncontextmenu = () => {return false};
       if (this.options.autoplay) {
          _video.autoplay = true;
       }
@@ -186,6 +192,8 @@ class Cinematic {
       const _header = document.createElement('div');
       _header.classList.add('video-header');
       this._container.appendChild(_header);
+
+      this._header = _header;
 
       if (this.options.closeCallback) {
          const _closeButton = document.createElement('i');
@@ -446,7 +454,32 @@ class Cinematic {
          } else {
             me._video.pause();
          }
-      })
+         this.userActive = true;
+      });
+
+      this._container.addEventListener('mousemove', () => this.userActive = true);
+      
+      this.userActiveCheck = window.setInterval(() => {
+            if (!this.userActive) {
+               return;
+            }
+
+            this.userActive = false;
+
+            this.showControls();
+
+            clearTimeout(this.userInactiveTimeout);
+
+            this.userInactiveTimeout = window.setTimeout(() => {
+               if (!this.userActive) {
+                  this.hideControls();
+               }
+            }, 2000);
+
+
+      }, 250);
+
+      //this.resetHideControlsDelay();
 
       this._progressBar.addEventListener('click', function (event) {
          const target = event.target as HTMLElement;
@@ -616,6 +649,20 @@ class Cinematic {
          this._fullScreenButton.textContent = 'fullscreen_exit';
          this._fullScreenButton.title = this.options.translations.exitFullscreen;
       }
+   }
+
+   showControls() {
+      this._header.classList.remove('hidden');
+      this._controls.classList.remove('hidden');
+   }
+
+   hideControls() {
+      if (this._video.paused) {
+         return;
+      }
+
+      this._header.classList.add('hidden');
+      this._controls.classList.add('hidden');
    }
 
    isFullScreen() {

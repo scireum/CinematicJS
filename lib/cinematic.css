@@ -41,6 +41,8 @@ video {
     right: 0;
     padding: 4px;
     align-items: center;
+    
+    transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
 
 .video-header .video-close-button {
@@ -67,6 +69,8 @@ video {
     padding: 4px;
     align-items: center;
     flex-wrap: wrap;
+
+    transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
 
 .video-controls .video-control-spacer {
@@ -212,7 +216,8 @@ html:-ms-fullscreen {
 }
 
 .hidden {
-    display: none !important;
+    visibility: hidden;
+    opacity: 0;
 }
 
 .video-volume-wrapper {
