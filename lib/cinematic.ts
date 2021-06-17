@@ -75,6 +75,7 @@ class Cinematic {
 
    _container: any;
    _video: HTMLVideoElement;
+   _sources: HTMLSourceElement[] = [];
    _cues: HTMLElement;
    _cuesContainer: HTMLElement;
    _header: HTMLElement;
@@ -160,6 +161,7 @@ class Cinematic {
          _source.src = source.source;
          _source.type = source.type;
          _video.appendChild(_source);
+         this._sources.push(_source);
       });
 
       if (this.options.subtitles) {
@@ -519,8 +521,8 @@ class Cinematic {
                return;
             }
 
-            newSource.sources.forEach(source => {
-               const _source = me._video.querySelector('source[type="' + source.type + '"]') as HTMLSourceElement;
+            newSource.sources.forEach((source, index) => {
+               const _source = me._sources[index];
                if (_source) {
                   _source.src = source.source;
                }

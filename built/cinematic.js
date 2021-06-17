@@ -37,6 +37,7 @@ var Cinematic = /** @class */ (function () {
                 hideSubtitles: 'Hide Subtitles',
             }
         };
+        this._sources = [];
         this.totalSeconds = 0;
         this.playedSeconds = 0;
         this.volume = 0;
@@ -88,6 +89,7 @@ var Cinematic = /** @class */ (function () {
             _source.src = source.source;
             _source.type = source.type;
             _video.appendChild(_source);
+            _this._sources.push(_source);
         });
         if (this.options.subtitles) {
             var _subtitles = document.createElement('track');
@@ -379,8 +381,8 @@ var Cinematic = /** @class */ (function () {
                 if (!newSource) {
                     return;
                 }
-                newSource.sources.forEach(function (source) {
-                    var _source = me._video.querySelector('source[type="' + source.type + '"]');
+                newSource.sources.forEach(function (source, index) {
+                    var _source = me._sources[index];
                     if (_source) {
                         _source.src = source.source;
                     }
