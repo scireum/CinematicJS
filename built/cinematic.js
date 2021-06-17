@@ -359,10 +359,19 @@ var Cinematic = /** @class */ (function () {
         });
         if (this.fullScreenEnabled) {
             this._fullScreenButton.addEventListener('click', function (e) {
-                me.handleFullscreen();
+                me.toggleFullScreen();
             });
-            document.addEventListener('fullscreenchange', function (e) {
-                me._container.dataset.fullscreen = document.fullscreenElement;
+            document.addEventListener('fullscreenchange', function () {
+                if (_this.isFullScreen()) {
+                    _this._container.dataset.fullscreen = true;
+                    _this._fullScreenButton.textContent = 'fullscreen_exit';
+                    _this._fullScreenButton.title = _this.options.translations.exitFullscreen;
+                }
+                else {
+                    _this._container.dataset.fullscreen = false;
+                    _this._fullScreenButton.textContent = 'fullscreen';
+                    _this._fullScreenButton.title = _this.options.translations.fullscreen;
+                }
             });
         }
         this._qualityOptions.forEach(function (_qualityOption) {
@@ -436,7 +445,7 @@ var Cinematic = /** @class */ (function () {
                 case 'Escape':
                     _this.userActive = true;
                     if (_this.fullScreenEnabled && _this.isFullScreen()) {
-                        _this.handleFullscreen();
+                        _this.toggleFullScreen();
                     }
                     break;
                 // Left Arrow skips 10 seconds into the past
@@ -506,18 +515,12 @@ var Cinematic = /** @class */ (function () {
         }
         return null;
     };
-    Cinematic.prototype.handleFullscreen = function () {
+    Cinematic.prototype.toggleFullScreen = function () {
         if (this.isFullScreen()) {
             document.exitFullscreen();
-            this._container.dataset.fullscreen = false;
-            this._fullScreenButton.textContent = 'fullscreen';
-            this._fullScreenButton.title = this.options.translations.fullscreen;
         }
         else {
             this._container.requestFullscreen();
-            this._container.dataset.fullscreen = true;
-            this._fullScreenButton.textContent = 'fullscreen_exit';
-            this._fullScreenButton.title = this.options.translations.exitFullscreen;
         }
     };
     Cinematic.prototype.showControls = function () {

@@ -492,11 +492,19 @@ class Cinematic {
 
       if (this.fullScreenEnabled) {
          this._fullScreenButton.addEventListener('click', function (e) {
-            me.handleFullscreen();
+            me.toggleFullScreen();
          });
 
-         document.addEventListener('fullscreenchange', function (e) {
-            me._container.dataset.fullscreen = document.fullscreenElement;
+         document.addEventListener('fullscreenchange', () => {
+            if (this.isFullScreen()) {
+               this._container.dataset.fullscreen = true;
+               this._fullScreenButton.textContent = 'fullscreen_exit';
+               this._fullScreenButton.title = this.options.translations.exitFullscreen;
+            } else {
+               this._container.dataset.fullscreen = false;
+               this._fullScreenButton.textContent = 'fullscreen';
+               this._fullScreenButton.title = this.options.translations.fullscreen;
+            }
          });
       }
 
@@ -579,7 +587,7 @@ class Cinematic {
             case 'Escape':
                this.userActive = true;
                if (this.fullScreenEnabled && this.isFullScreen()) {
-                  this.handleFullscreen();
+                  this.toggleFullScreen();
                }
                break;
             // Left Arrow skips 10 seconds into the past
@@ -652,17 +660,11 @@ class Cinematic {
       return null;
    }
 
-   handleFullscreen() {
+   toggleFullScreen() {
       if (this.isFullScreen()) {
          document.exitFullscreen();
-         this._container.dataset.fullscreen = false;
-         this._fullScreenButton.textContent = 'fullscreen';
-         this._fullScreenButton.title = this.options.translations.fullscreen;
       } else {
          this._container.requestFullscreen();
-         this._container.dataset.fullscreen = true;
-         this._fullScreenButton.textContent = 'fullscreen_exit';
-         this._fullScreenButton.title = this.options.translations.exitFullscreen;
       }
    }
 
