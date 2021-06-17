@@ -1,3 +1,9 @@
+interface Document {
+    webkitExitFullscreen: any;
+    webkitFullscreenElement: any;
+    webkitFullscreenEnabled: any;
+}
+
 interface Options {
    selector: string;
    poster: string;
@@ -113,7 +119,7 @@ class Cinematic {
       }
       this._container = _passedContainer;
 
-      this.fullScreenEnabled = document.fullscreenEnabled;
+      this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
 
       this.quality = this.options.quality;
 
@@ -495,17 +501,8 @@ class Cinematic {
             me.toggleFullScreen();
          });
 
-         document.addEventListener('fullscreenchange', () => {
-            if (this.isFullScreen()) {
-               this._container.dataset.fullscreen = true;
-               this._fullScreenButton.textContent = 'fullscreen_exit';
-               this._fullScreenButton.title = this.options.translations.exitFullscreen;
-            } else {
-               this._container.dataset.fullscreen = false;
-               this._fullScreenButton.textContent = 'fullscreen';
-               this._fullScreenButton.title = this.options.translations.fullscreen;
-            }
-         });
+         document.addEventListener('fullscreenchange', () => () => this.handleFullScreenChange());
+         document.addEventListener('webkitfullscreenchange', () => this.handleFullScreenChange());
       }
 
       this._qualityOptions.forEach(function (_qualityOption: HTMLElement) {
@@ -661,10 +658,28 @@ class Cinematic {
    }
 
    toggleFullScreen() {
-      if (this.isFullScreen()) {
+      if (document.fullscreenElement) {
          document.exitFullscreen();
+      } else if (document.webkitFullscreenElement) {
+         // Need this to support Safaris
+         document.webkitExitFullscreen();
+      } else if (this._container.webkitRequestFullscreen) {
+         // Need this to support Safari
+         this._container.webkitRequestFullscreen();
       } else {
          this._container.requestFullscreen();
+      }
+   }
+   
+   handleFullScreenChange() {
+      if (this.isFullScreen()) {
+         this._container.dataset.fullscreen = true;
+         this._fullScreenButton.textContent = 'fullscreen_exit';
+         this._fullScreenButton.title = this.options.translations.exitFullscreen;
+      } else {
+         this._container.dataset.fullscreen = false;
+         this._fullScreenButton.textContent = 'fullscreen';
+         this._fullScreenButton.title = this.options.translations.fullscreen;
       }
    }
 
@@ -683,7 +698,7 @@ class Cinematic {
    }
 
    isFullScreen() {
-      return document.fullscreenElement;
+      return document.fullscreenElement || document.webkitFullscreenElement;
    }
 
    copyToClipboard(text: string, _element: HTMLElement) {

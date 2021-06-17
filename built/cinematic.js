@@ -50,7 +50,7 @@ var Cinematic = /** @class */ (function () {
             throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
         }
         this._container = _passedContainer;
-        this.fullScreenEnabled = document.fullscreenEnabled;
+        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
         this.quality = this.options.quality;
         this.renderPlayer();
         this.setupEvents();
@@ -361,18 +361,8 @@ var Cinematic = /** @class */ (function () {
             this._fullScreenButton.addEventListener('click', function (e) {
                 me.toggleFullScreen();
             });
-            document.addEventListener('fullscreenchange', function () {
-                if (_this.isFullScreen()) {
-                    _this._container.dataset.fullscreen = true;
-                    _this._fullScreenButton.textContent = 'fullscreen_exit';
-                    _this._fullScreenButton.title = _this.options.translations.exitFullscreen;
-                }
-                else {
-                    _this._container.dataset.fullscreen = false;
-                    _this._fullScreenButton.textContent = 'fullscreen';
-                    _this._fullScreenButton.title = _this.options.translations.fullscreen;
-                }
-            });
+            document.addEventListener('fullscreenchange', function () { return function () { return _this.handleFullScreenChange(); }; });
+            document.addEventListener('webkitfullscreenchange', function () { return _this.handleFullScreenChange(); });
         }
         this._qualityOptions.forEach(function (_qualityOption) {
             _qualityOption.addEventListener('click', function (e) {
@@ -516,11 +506,31 @@ var Cinematic = /** @class */ (function () {
         return null;
     };
     Cinematic.prototype.toggleFullScreen = function () {
-        if (this.isFullScreen()) {
+        if (document.fullscreenElement) {
             document.exitFullscreen();
+        }
+        else if (document.webkitFullscreenElement) {
+            // Need this to support Safaris
+            document.webkitExitFullscreen();
+        }
+        else if (this._container.webkitRequestFullscreen) {
+            // Need this to support Safari
+            this._container.webkitRequestFullscreen();
         }
         else {
             this._container.requestFullscreen();
+        }
+    };
+    Cinematic.prototype.handleFullScreenChange = function () {
+        if (this.isFullScreen()) {
+            this._container.dataset.fullscreen = true;
+            this._fullScreenButton.textContent = 'fullscreen_exit';
+            this._fullScreenButton.title = this.options.translations.exitFullscreen;
+        }
+        else {
+            this._container.dataset.fullscreen = false;
+            this._fullScreenButton.textContent = 'fullscreen';
+            this._fullScreenButton.title = this.options.translations.fullscreen;
         }
     };
     Cinematic.prototype.showControls = function () {
@@ -535,7 +545,7 @@ var Cinematic = /** @class */ (function () {
         this._controls.classList.add('hidden');
     };
     Cinematic.prototype.isFullScreen = function () {
-        return document.fullscreenElement;
+        return document.fullscreenElement || document.webkitFullscreenElement;
     };
     Cinematic.prototype.copyToClipboard = function (text, _element) {
         /*
