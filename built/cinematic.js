@@ -422,6 +422,7 @@ var Cinematic = /** @class */ (function () {
             switch (key) {
                 // Spacebar allows to pause/resume the video
                 case ' ':
+                    _this.userActive = true;
                     if (_this._video.paused) {
                         _this._video.play();
                     }
@@ -431,20 +432,24 @@ var Cinematic = /** @class */ (function () {
                     break;
                 // Escape leaves the fullscreen when currently enabled
                 case 'Escape':
+                    _this.userActive = true;
                     if (_this.fullScreenEnabled && _this.isFullScreen()) {
                         _this.handleFullscreen();
                     }
                     break;
                 // Left Arrow skips 10 seconds into the past
                 case 'ArrowLeft':
+                    _this.userActive = true;
                     _this._video.currentTime -= 10;
                     break;
                 // Right Arrow skips 10 seconds into the future
                 case 'ArrowRight':
+                    _this.userActive = true;
                     _this._video.currentTime += 10;
                     break;
                 // Down Arrow decreases the volume by 5%
                 case 'ArrowDown':
+                    _this.userActive = true;
                     if (_this._video.volume > 0) {
                         var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
                         _this.volume = (currentVolume - 5) / 100;
@@ -458,6 +463,7 @@ var Cinematic = /** @class */ (function () {
                     break;
                 // Up Arrow increases the volume by 5%
                 case 'ArrowUp':
+                    _this.userActive = true;
                     if (_this._video.volume < 1) {
                         var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
                         _this.volume = (currentVolume + 5) / 100;

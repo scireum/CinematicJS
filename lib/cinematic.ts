@@ -566,6 +566,7 @@ class Cinematic {
          switch (key) {
             // Spacebar allows to pause/resume the video
             case ' ':
+               this.userActive = true;
                if (this._video.paused) {
                   this._video.play();
                } else {
@@ -574,20 +575,24 @@ class Cinematic {
                break;
             // Escape leaves the fullscreen when currently enabled
             case 'Escape':
+               this.userActive = true;
                if (this.fullScreenEnabled && this.isFullScreen()) {
                   this.handleFullscreen();
                }
                break;
             // Left Arrow skips 10 seconds into the past
             case 'ArrowLeft':
+               this.userActive = true;
                this._video.currentTime -= 10;
                break;
             // Right Arrow skips 10 seconds into the future
             case 'ArrowRight':
+               this.userActive = true;
                this._video.currentTime += 10;
                break;
             // Down Arrow decreases the volume by 5%
             case 'ArrowDown':
+               this.userActive = true;
                if (this._video.volume > 0) {
                   let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
                   this.volume = (currentVolume - 5) / 100;
@@ -601,6 +606,7 @@ class Cinematic {
                break;
             // Up Arrow increases the volume by 5%
             case 'ArrowUp':
+               this.userActive = true;
                if (this._video.volume < 1) {
                   let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
                   this.volume = (currentVolume + 5) / 100;
