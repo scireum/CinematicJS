@@ -485,8 +485,8 @@ class Cinematic {
                   
                   const _activeElement = document.activeElement;
                   if (_activeElement && _activeElement.parentElement == this._controls) {
-                     // We out focus on the video element so hotkeys work again after a control bar button is pressed
-                     // and the inactive user is inactive again.
+                     // We put focus on the video element so hotkeys work again after a control bar button is pressed
+                     // and the user is inactive again.
                      this._video.focus();
                   }
                }
