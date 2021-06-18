@@ -73,6 +73,7 @@ var Cinematic = /** @class */ (function () {
         var _video = document.createElement('video');
         _video.preload = 'metadata';
         _video.poster = this.options.poster;
+        _video.tabIndex = -1;
         // Supress the unwanted right click context menu of the video element itself
         _video.oncontextmenu = function () { return false; };
         if (this.options.autoplay) {
@@ -301,6 +302,7 @@ var Cinematic = /** @class */ (function () {
             //me._endcard.classList.add('hidden');
             me._playButton.textContent = 'pause';
             me._playButton.title = me.options.translations.pause;
+            me._video.focus();
         });
         this._video.addEventListener('pause', function () {
             //me._endcard.classList.remove('hidden');
@@ -345,6 +347,12 @@ var Cinematic = /** @class */ (function () {
             _this.userInactiveTimeout = window.setTimeout(function () {
                 if (!_this.userActive) {
                     _this.hideControls();
+                    var _activeElement = document.activeElement;
+                    if (_activeElement && _activeElement.parentElement == _this._controls) {
+                        // We put focus on the video element so hotkeys work again after a control bar button is pressed
+                        // and the user is inactive again.
+                        _this._video.focus();
+                    }
                 }
             }, 2000);
         }, 250);
@@ -413,7 +421,7 @@ var Cinematic = /** @class */ (function () {
                 (_a = _this.options.closeCallback) === null || _a === void 0 ? void 0 : _a.apply(_this);
             });
         }
-        document.addEventListener('keyup', function (event) {
+        this._video.addEventListener('keyup', function (event) {
             var key = event.key;
             switch (key) {
                 // Space bar allows to pause/resume the video
