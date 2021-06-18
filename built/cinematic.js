@@ -37,6 +37,7 @@ var Cinematic = /** @class */ (function () {
                 hideSubtitles: 'Hide Subtitles',
             }
         };
+        this._sources = [];
         this.totalSeconds = 0;
         this.playedSeconds = 0;
         this.volume = 0;
@@ -49,7 +50,7 @@ var Cinematic = /** @class */ (function () {
             throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
         }
         this._container = _passedContainer;
-        this.fullScreenEnabled = document.fullscreenEnabled;
+        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
         this.quality = this.options.quality;
         this.renderPlayer();
         this.setupEvents();
@@ -88,6 +89,7 @@ var Cinematic = /** @class */ (function () {
             _source.src = source.source;
             _source.type = source.type;
             _video.appendChild(_source);
+            _this._sources.push(_source);
         });
         if (this.options.subtitles) {
             var _subtitles = document.createElement('track');
@@ -225,7 +227,6 @@ var Cinematic = /** @class */ (function () {
             this._fullScreenButton = _fullScreenButton;
         }
     };
-    ;
     Cinematic.prototype.setupEvents = function () {
         var _this = this;
         var me = this;
@@ -318,14 +319,13 @@ var Cinematic = /** @class */ (function () {
                     var bufferStart = this.buffered.start(bufferRangeIndex);
                     var bufferEnd = this.buffered.end(bufferRangeIndex);
                     if (bufferStart <= this.currentTime) {
-                        var buffered = (bufferEnd / this.duration) * 100;
-                        me._bufferBar.value = buffered;
+                        me._bufferBar.value = (bufferEnd / this.duration) * 100;
                         break;
                     }
                 }
             }
         });
-        this._video.addEventListener('click', function (event) {
+        this._video.addEventListener('click', function () {
             if (me._video.paused || me._video.ended) {
                 me._video.play();
             }
@@ -348,7 +348,6 @@ var Cinematic = /** @class */ (function () {
                 }
             }, 2000);
         }, 250);
-        //this.resetHideControlsDelay();
         this._progressBar.addEventListener('click', function (event) {
             var target = event.target;
             var rect = target.getBoundingClientRect();
@@ -356,15 +355,12 @@ var Cinematic = /** @class */ (function () {
             me._video.currentTime = pos * me._video.duration;
         });
         if (this.fullScreenEnabled) {
-            this._fullScreenButton.addEventListener('click', function (e) {
-                me.handleFullscreen();
-            });
-            document.addEventListener('fullscreenchange', function (e) {
-                me._container.dataset.fullscreen = document.fullscreenElement;
-            });
+            this._fullScreenButton.addEventListener('click', function () { return me.toggleFullScreen(); });
+            document.addEventListener('fullscreenchange', function () { return _this.handleFullScreenChange(); });
+            document.addEventListener('webkitfullscreenchange', function () { return _this.handleFullScreenChange(); });
         }
         this._qualityOptions.forEach(function (_qualityOption) {
-            _qualityOption.addEventListener('click', function (e) {
+            _qualityOption.addEventListener('click', function () {
                 var newQuality = _qualityOption.dataset.quality;
                 var currentQuality = me.quality;
                 if (!newQuality || newQuality === currentQuality) {
@@ -379,8 +375,8 @@ var Cinematic = /** @class */ (function () {
                 if (!newSource) {
                     return;
                 }
-                newSource.sources.forEach(function (source) {
-                    var _source = me._video.querySelector('source[type="' + source.type + '"]');
+                newSource.sources.forEach(function (source, index) {
+                    var _source = me._sources[index];
                     if (_source) {
                         _source.src = source.source;
                     }
@@ -392,12 +388,12 @@ var Cinematic = /** @class */ (function () {
             });
         });
         if (this.options.deeplink) {
-            this._deeplinkButton.addEventListener('click', function (event) {
+            this._deeplinkButton.addEventListener('click', function () {
                 me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
             });
         }
         if (this.options.subtitles) {
-            this._captionsButton.addEventListener('click', function (e) {
+            this._captionsButton.addEventListener('click', function () {
                 var wasEnabled = me._container.dataset.captions;
                 me._container.dataset.captions = !wasEnabled;
                 this.classList.toggle('material-icons');
@@ -412,7 +408,7 @@ var Cinematic = /** @class */ (function () {
             });
         }
         if (this.options.closeCallback) {
-            this._closeButton.addEventListener('click', function (event) {
+            this._closeButton.addEventListener('click', function () {
                 var _a;
                 (_a = _this.options.closeCallback) === null || _a === void 0 ? void 0 : _a.apply(_this);
             });
@@ -420,8 +416,9 @@ var Cinematic = /** @class */ (function () {
         document.addEventListener('keyup', function (event) {
             var key = event.key;
             switch (key) {
-                // Spacebar allows to pause/resume the video
+                // Space bar allows to pause/resume the video
                 case ' ':
+                    _this.userActive = true;
                     if (_this._video.paused) {
                         _this._video.play();
                     }
@@ -431,33 +428,44 @@ var Cinematic = /** @class */ (function () {
                     break;
                 // Escape leaves the fullscreen when currently enabled
                 case 'Escape':
+                    _this.userActive = true;
                     if (_this.fullScreenEnabled && _this.isFullScreen()) {
-                        _this.handleFullscreen();
+                        _this.toggleFullScreen();
                     }
                     break;
                 // Left Arrow skips 10 seconds into the past
                 case 'ArrowLeft':
+                    _this.userActive = true;
                     _this._video.currentTime -= 10;
                     break;
                 // Right Arrow skips 10 seconds into the future
                 case 'ArrowRight':
+                    _this.userActive = true;
                     _this._video.currentTime += 10;
                     break;
                 // Down Arrow decreases the volume by 5%
                 case 'ArrowDown':
+                    _this.userActive = true;
                     if (_this._video.volume > 0) {
                         var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
                         _this.volume = (currentVolume - 5) / 100;
                         _this._video.volume = _this.volume;
+                        if (_this.volume === 0) {
+                            // Also switch on mute when we reach 0% volume
+                            _this._video.muted = true;
+                        }
                         _this._volumeSlider.value = _this.volume.toString();
                     }
                     break;
                 // Up Arrow increases the volume by 5%
                 case 'ArrowUp':
+                    _this.userActive = true;
                     if (_this._video.volume < 1) {
                         var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
                         _this.volume = (currentVolume + 5) / 100;
                         _this._video.volume = _this.volume;
+                        // Unmute if we previously were muted
+                        _this._video.muted = false;
                         _this._volumeSlider.value = _this.volume.toString();
                     }
                     break;
@@ -491,18 +499,32 @@ var Cinematic = /** @class */ (function () {
         }
         return null;
     };
-    Cinematic.prototype.handleFullscreen = function () {
-        if (this.isFullScreen()) {
+    Cinematic.prototype.toggleFullScreen = function () {
+        if (document.fullscreenElement) {
             document.exitFullscreen();
-            this._container.dataset.fullscreen = false;
-            this._fullScreenButton.textContent = 'fullscreen';
-            this._fullScreenButton.title = this.options.translations.fullscreen;
+        }
+        else if (document.webkitFullscreenElement) {
+            // Need this to support Safari
+            document.webkitExitFullscreen();
+        }
+        else if (this._container.webkitRequestFullscreen) {
+            // Need this to support Safari
+            this._container.webkitRequestFullscreen();
         }
         else {
             this._container.requestFullscreen();
+        }
+    };
+    Cinematic.prototype.handleFullScreenChange = function () {
+        if (this.isFullScreen()) {
             this._container.dataset.fullscreen = true;
             this._fullScreenButton.textContent = 'fullscreen_exit';
             this._fullScreenButton.title = this.options.translations.exitFullscreen;
+        }
+        else {
+            this._container.dataset.fullscreen = false;
+            this._fullScreenButton.textContent = 'fullscreen';
+            this._fullScreenButton.title = this.options.translations.fullscreen;
         }
     };
     Cinematic.prototype.showControls = function () {
@@ -517,7 +539,7 @@ var Cinematic = /** @class */ (function () {
         this._controls.classList.add('hidden');
     };
     Cinematic.prototype.isFullScreen = function () {
-        return document.fullscreenElement;
+        return document.fullscreenElement || document.webkitFullscreenElement;
     };
     Cinematic.prototype.copyToClipboard = function (text, _element) {
         /*

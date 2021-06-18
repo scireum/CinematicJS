@@ -1,3 +1,9 @@
+interface Document {
+    webkitExitFullscreen: any;
+    webkitFullscreenElement: any;
+    webkitFullscreenEnabled: any;
+}
+
 interface Options {
    selector: string;
    poster: string;
@@ -75,6 +81,7 @@ class Cinematic {
 
    _container: any;
    _video: HTMLVideoElement;
+   _sources: HTMLSourceElement[] = [];
    _cues: HTMLElement;
    _cuesContainer: HTMLElement;
    _header: HTMLElement;
@@ -112,7 +119,7 @@ class Cinematic {
       }
       this._container = _passedContainer;
 
-      this.fullScreenEnabled = document.fullscreenEnabled;
+      this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
 
       this.quality = this.options.quality;
 
@@ -160,6 +167,7 @@ class Cinematic {
          _source.src = source.source;
          _source.type = source.type;
          _video.appendChild(_source);
+         this._sources.push(_source);
       });
 
       if (this.options.subtitles) {
@@ -334,7 +342,7 @@ class Cinematic {
 
          this._fullScreenButton = _fullScreenButton;
       }
-   };
+   }
 
    setupEvents() {
       const me = this;
@@ -435,20 +443,19 @@ class Cinematic {
 
       this._video.addEventListener('progress', function () {
          if (this.duration > 0) {
-            for (var i = 0; i < this.buffered.length; i++) {
+            for (let i = 0; i < this.buffered.length; i++) {
                const bufferRangeIndex = this.buffered.length - 1 - i;
                const bufferStart = this.buffered.start(bufferRangeIndex);
                const bufferEnd = this.buffered.end(bufferRangeIndex);
                if (bufferStart <= this.currentTime) {
-                  const buffered = (bufferEnd / this.duration) * 100;
-                  me._bufferBar.value = buffered;
+                  me._bufferBar.value = (bufferEnd / this.duration) * 100;
                   break;
                }
             }
          }
       });
 
-      this._video.addEventListener('click', event => {
+      this._video.addEventListener('click', () => {
          if (me._video.paused || me._video.ended) {
             me._video.play();
          } else {
@@ -479,8 +486,6 @@ class Cinematic {
 
       }, 250);
 
-      //this.resetHideControlsDelay();
-
       this._progressBar.addEventListener('click', function (event) {
          const target = event.target as HTMLElement;
          const rect = target.getBoundingClientRect();
@@ -489,17 +494,14 @@ class Cinematic {
       });
 
       if (this.fullScreenEnabled) {
-         this._fullScreenButton.addEventListener('click', function (e) {
-            me.handleFullscreen();
-         });
+         this._fullScreenButton.addEventListener('click', () => me.toggleFullScreen());
 
-         document.addEventListener('fullscreenchange', function (e) {
-            me._container.dataset.fullscreen = document.fullscreenElement;
-         });
+         document.addEventListener('fullscreenchange', () => this.handleFullScreenChange());
+         document.addEventListener('webkitfullscreenchange', () => this.handleFullScreenChange());
       }
 
       this._qualityOptions.forEach(function (_qualityOption: HTMLElement) {
-         _qualityOption.addEventListener('click', function (e) {
+         _qualityOption.addEventListener('click', function () {
             const newQuality = _qualityOption.dataset.quality;
             const currentQuality = me.quality;
 
@@ -519,8 +521,8 @@ class Cinematic {
                return;
             }
 
-            newSource.sources.forEach(source => {
-               const _source = me._video.querySelector('source[type="' + source.type + '"]') as HTMLSourceElement;
+            newSource.sources.forEach((source, index) => {
+               const _source = me._sources[index];
                if (_source) {
                   _source.src = source.source;
                }
@@ -534,13 +536,13 @@ class Cinematic {
       });
 
       if (this.options.deeplink) {
-         this._deeplinkButton.addEventListener('click', event => {
+         this._deeplinkButton.addEventListener('click', () => {
             me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
          });
       }
 
       if (this.options.subtitles) {
-         this._captionsButton.addEventListener('click', function (e) {
+         this._captionsButton.addEventListener('click', function () {
             const wasEnabled = me._container.dataset.captions;
             me._container.dataset.captions = !wasEnabled;
             this.classList.toggle('material-icons');
@@ -555,7 +557,7 @@ class Cinematic {
       }
 
       if (this.options.closeCallback) {
-         this._closeButton.addEventListener('click', event => {
+         this._closeButton.addEventListener('click', () => {
             this.options.closeCallback?.apply(this);
          });
       }
@@ -564,8 +566,9 @@ class Cinematic {
          const { key } = event;
 
          switch (key) {
-            // Spacebar allows to pause/resume the video
+            // Space bar allows to pause/resume the video
             case ' ':
+               this.userActive = true;
                if (this._video.paused) {
                   this._video.play();
                } else {
@@ -574,33 +577,44 @@ class Cinematic {
                break;
             // Escape leaves the fullscreen when currently enabled
             case 'Escape':
+               this.userActive = true;
                if (this.fullScreenEnabled && this.isFullScreen()) {
-                  this.handleFullscreen();
+                  this.toggleFullScreen();
                }
                break;
             // Left Arrow skips 10 seconds into the past
             case 'ArrowLeft':
+               this.userActive = true;
                this._video.currentTime -= 10;
                break;
             // Right Arrow skips 10 seconds into the future
             case 'ArrowRight':
+               this.userActive = true;
                this._video.currentTime += 10;
                break;
             // Down Arrow decreases the volume by 5%
             case 'ArrowDown':
+               this.userActive = true;
                if (this._video.volume > 0) {
                   let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
                   this.volume = (currentVolume - 5) / 100;
                   this._video.volume = this.volume;
+                  if (this.volume === 0) {
+                     // Also switch on mute when we reach 0% volume
+                     this._video.muted = true;
+                  }
                   this._volumeSlider.value = this.volume.toString();
                }
                break;
             // Up Arrow increases the volume by 5%
             case 'ArrowUp':
+               this.userActive = true;
                if (this._video.volume < 1) {
                   let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
                   this.volume = (currentVolume + 5) / 100;
                   this._video.volume = this.volume;
+                  // Unmute if we previously were muted
+                  this._video.muted = false;
                   this._volumeSlider.value = this.volume.toString();
                }
                break;
@@ -637,17 +651,29 @@ class Cinematic {
       return null;
    }
 
-   handleFullscreen() {
-      if (this.isFullScreen()) {
+   toggleFullScreen() {
+      if (document.fullscreenElement) {
          document.exitFullscreen();
-         this._container.dataset.fullscreen = false;
-         this._fullScreenButton.textContent = 'fullscreen';
-         this._fullScreenButton.title = this.options.translations.fullscreen;
+      } else if (document.webkitFullscreenElement) {
+         // Need this to support Safari
+         document.webkitExitFullscreen();
+      } else if (this._container.webkitRequestFullscreen) {
+         // Need this to support Safari
+         this._container.webkitRequestFullscreen();
       } else {
          this._container.requestFullscreen();
+      }
+   }
+   
+   handleFullScreenChange() {
+      if (this.isFullScreen()) {
          this._container.dataset.fullscreen = true;
          this._fullScreenButton.textContent = 'fullscreen_exit';
          this._fullScreenButton.title = this.options.translations.exitFullscreen;
+      } else {
+         this._container.dataset.fullscreen = false;
+         this._fullScreenButton.textContent = 'fullscreen';
+         this._fullScreenButton.title = this.options.translations.fullscreen;
       }
    }
 
@@ -666,7 +692,7 @@ class Cinematic {
    }
 
    isFullScreen() {
-      return document.fullscreenElement;
+      return document.fullscreenElement || document.webkitFullscreenElement;
    }
 
    copyToClipboard(text: string, _element: HTMLElement) {
@@ -676,7 +702,7 @@ class Cinematic {
        *
        * Licensed MIT © Zeno Rocha
        */
-      var fakeElem = document.createElement('textarea');
+      const fakeElem = document.createElement('textarea');
       fakeElem.contentEditable = 'true';
       // Prevent zooming on iOS
       fakeElem.style.fontSize = '12pt';
@@ -694,9 +720,9 @@ class Cinematic {
       document.body.appendChild(fakeElem);
       fakeElem.focus();
 
-      var range = document.createRange();
+      const range = document.createRange();
       range.selectNodeContents(fakeElem);
-      var selection = window.getSelection();
+      const selection = window.getSelection();
       selection?.removeAllRanges();
       selection?.addRange(range);
       fakeElem.setSelectionRange(0, text.length);
@@ -710,7 +736,7 @@ class Cinematic {
       document.body.removeChild(fakeElem);
 
       /* Try alternative */
-      var copy = function (event: ClipboardEvent) {
+      const copy = function (event: ClipboardEvent) {
          if (event.clipboardData) {
             event.clipboardData.setData('text/plain', text);
          } else if ((<any>window).clipboardData) {
