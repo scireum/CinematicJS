@@ -342,7 +342,7 @@ class Cinematic {
 
          this._fullScreenButton = _fullScreenButton;
       }
-   };
+   }
 
    setupEvents() {
       const me = this;
@@ -443,20 +443,19 @@ class Cinematic {
 
       this._video.addEventListener('progress', function () {
          if (this.duration > 0) {
-            for (var i = 0; i < this.buffered.length; i++) {
+            for (let i = 0; i < this.buffered.length; i++) {
                const bufferRangeIndex = this.buffered.length - 1 - i;
                const bufferStart = this.buffered.start(bufferRangeIndex);
                const bufferEnd = this.buffered.end(bufferRangeIndex);
                if (bufferStart <= this.currentTime) {
-                  const buffered = (bufferEnd / this.duration) * 100;
-                  me._bufferBar.value = buffered;
+                  me._bufferBar.value = (bufferEnd / this.duration) * 100;
                   break;
                }
             }
          }
       });
 
-      this._video.addEventListener('click', event => {
+      this._video.addEventListener('click', () => {
          if (me._video.paused || me._video.ended) {
             me._video.play();
          } else {
@@ -487,8 +486,6 @@ class Cinematic {
 
       }, 250);
 
-      //this.resetHideControlsDelay();
-
       this._progressBar.addEventListener('click', function (event) {
          const target = event.target as HTMLElement;
          const rect = target.getBoundingClientRect();
@@ -497,16 +494,14 @@ class Cinematic {
       });
 
       if (this.fullScreenEnabled) {
-         this._fullScreenButton.addEventListener('click', function (e) {
-            me.toggleFullScreen();
-         });
+         this._fullScreenButton.addEventListener('click', () => me.toggleFullScreen());
 
-         document.addEventListener('fullscreenchange', () => () => this.handleFullScreenChange());
+         document.addEventListener('fullscreenchange', () => this.handleFullScreenChange());
          document.addEventListener('webkitfullscreenchange', () => this.handleFullScreenChange());
       }
 
       this._qualityOptions.forEach(function (_qualityOption: HTMLElement) {
-         _qualityOption.addEventListener('click', function (e) {
+         _qualityOption.addEventListener('click', function () {
             const newQuality = _qualityOption.dataset.quality;
             const currentQuality = me.quality;
 
@@ -541,13 +536,13 @@ class Cinematic {
       });
 
       if (this.options.deeplink) {
-         this._deeplinkButton.addEventListener('click', event => {
+         this._deeplinkButton.addEventListener('click', () => {
             me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
          });
       }
 
       if (this.options.subtitles) {
-         this._captionsButton.addEventListener('click', function (e) {
+         this._captionsButton.addEventListener('click', function () {
             const wasEnabled = me._container.dataset.captions;
             me._container.dataset.captions = !wasEnabled;
             this.classList.toggle('material-icons');
@@ -562,7 +557,7 @@ class Cinematic {
       }
 
       if (this.options.closeCallback) {
-         this._closeButton.addEventListener('click', event => {
+         this._closeButton.addEventListener('click', () => {
             this.options.closeCallback?.apply(this);
          });
       }
@@ -571,7 +566,7 @@ class Cinematic {
          const { key } = event;
 
          switch (key) {
-            // Spacebar allows to pause/resume the video
+            // Space bar allows to pause/resume the video
             case ' ':
                this.userActive = true;
                if (this._video.paused) {
@@ -618,9 +613,8 @@ class Cinematic {
                   let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
                   this.volume = (currentVolume + 5) / 100;
                   this._video.volume = this.volume;
-                  if (this.volume >= 0) {
-                     this._video.muted = false;
-                  }
+                  // Unmute if we previously were muted
+                  this._video.muted = false;
                   this._volumeSlider.value = this.volume.toString();
                }
                break;
@@ -661,7 +655,7 @@ class Cinematic {
       if (document.fullscreenElement) {
          document.exitFullscreen();
       } else if (document.webkitFullscreenElement) {
-         // Need this to support Safaris
+         // Need this to support Safari
          document.webkitExitFullscreen();
       } else if (this._container.webkitRequestFullscreen) {
          // Need this to support Safari
@@ -708,7 +702,7 @@ class Cinematic {
        *
        * Licensed MIT © Zeno Rocha
        */
-      var fakeElem = document.createElement('textarea');
+      const fakeElem = document.createElement('textarea');
       fakeElem.contentEditable = 'true';
       // Prevent zooming on iOS
       fakeElem.style.fontSize = '12pt';
@@ -726,9 +720,9 @@ class Cinematic {
       document.body.appendChild(fakeElem);
       fakeElem.focus();
 
-      var range = document.createRange();
+      const range = document.createRange();
       range.selectNodeContents(fakeElem);
-      var selection = window.getSelection();
+      const selection = window.getSelection();
       selection?.removeAllRanges();
       selection?.addRange(range);
       fakeElem.setSelectionRange(0, text.length);
@@ -742,7 +736,7 @@ class Cinematic {
       document.body.removeChild(fakeElem);
 
       /* Try alternative */
-      var copy = function (event: ClipboardEvent) {
+      const copy = function (event: ClipboardEvent) {
          if (event.clipboardData) {
             event.clipboardData.setData('text/plain', text);
          } else if ((<any>window).clipboardData) {

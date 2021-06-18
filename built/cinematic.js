@@ -227,7 +227,6 @@ var Cinematic = /** @class */ (function () {
             this._fullScreenButton = _fullScreenButton;
         }
     };
-    ;
     Cinematic.prototype.setupEvents = function () {
         var _this = this;
         var me = this;
@@ -320,14 +319,13 @@ var Cinematic = /** @class */ (function () {
                     var bufferStart = this.buffered.start(bufferRangeIndex);
                     var bufferEnd = this.buffered.end(bufferRangeIndex);
                     if (bufferStart <= this.currentTime) {
-                        var buffered = (bufferEnd / this.duration) * 100;
-                        me._bufferBar.value = buffered;
+                        me._bufferBar.value = (bufferEnd / this.duration) * 100;
                         break;
                     }
                 }
             }
         });
-        this._video.addEventListener('click', function (event) {
+        this._video.addEventListener('click', function () {
             if (me._video.paused || me._video.ended) {
                 me._video.play();
             }
@@ -350,7 +348,6 @@ var Cinematic = /** @class */ (function () {
                 }
             }, 2000);
         }, 250);
-        //this.resetHideControlsDelay();
         this._progressBar.addEventListener('click', function (event) {
             var target = event.target;
             var rect = target.getBoundingClientRect();
@@ -358,14 +355,12 @@ var Cinematic = /** @class */ (function () {
             me._video.currentTime = pos * me._video.duration;
         });
         if (this.fullScreenEnabled) {
-            this._fullScreenButton.addEventListener('click', function (e) {
-                me.toggleFullScreen();
-            });
-            document.addEventListener('fullscreenchange', function () { return function () { return _this.handleFullScreenChange(); }; });
+            this._fullScreenButton.addEventListener('click', function () { return me.toggleFullScreen(); });
+            document.addEventListener('fullscreenchange', function () { return _this.handleFullScreenChange(); });
             document.addEventListener('webkitfullscreenchange', function () { return _this.handleFullScreenChange(); });
         }
         this._qualityOptions.forEach(function (_qualityOption) {
-            _qualityOption.addEventListener('click', function (e) {
+            _qualityOption.addEventListener('click', function () {
                 var newQuality = _qualityOption.dataset.quality;
                 var currentQuality = me.quality;
                 if (!newQuality || newQuality === currentQuality) {
@@ -393,12 +388,12 @@ var Cinematic = /** @class */ (function () {
             });
         });
         if (this.options.deeplink) {
-            this._deeplinkButton.addEventListener('click', function (event) {
+            this._deeplinkButton.addEventListener('click', function () {
                 me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
             });
         }
         if (this.options.subtitles) {
-            this._captionsButton.addEventListener('click', function (e) {
+            this._captionsButton.addEventListener('click', function () {
                 var wasEnabled = me._container.dataset.captions;
                 me._container.dataset.captions = !wasEnabled;
                 this.classList.toggle('material-icons');
@@ -413,7 +408,7 @@ var Cinematic = /** @class */ (function () {
             });
         }
         if (this.options.closeCallback) {
-            this._closeButton.addEventListener('click', function (event) {
+            this._closeButton.addEventListener('click', function () {
                 var _a;
                 (_a = _this.options.closeCallback) === null || _a === void 0 ? void 0 : _a.apply(_this);
             });
@@ -421,7 +416,7 @@ var Cinematic = /** @class */ (function () {
         document.addEventListener('keyup', function (event) {
             var key = event.key;
             switch (key) {
-                // Spacebar allows to pause/resume the video
+                // Space bar allows to pause/resume the video
                 case ' ':
                     _this.userActive = true;
                     if (_this._video.paused) {
@@ -469,9 +464,8 @@ var Cinematic = /** @class */ (function () {
                         var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
                         _this.volume = (currentVolume + 5) / 100;
                         _this._video.volume = _this.volume;
-                        if (_this.volume >= 0) {
-                            _this._video.muted = false;
-                        }
+                        // Unmute if we previously were muted
+                        _this._video.muted = false;
                         _this._volumeSlider.value = _this.volume.toString();
                     }
                     break;
@@ -510,7 +504,7 @@ var Cinematic = /** @class */ (function () {
             document.exitFullscreen();
         }
         else if (document.webkitFullscreenElement) {
-            // Need this to support Safaris
+            // Need this to support Safari
             document.webkitExitFullscreen();
         }
         else if (this._container.webkitRequestFullscreen) {
