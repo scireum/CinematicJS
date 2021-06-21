@@ -632,7 +632,22 @@ class Cinematic {
    }
 
    formatTime(seconds: number) {
-      return new Date(seconds * 1000).toISOString().substr(11, 8);
+      let hourComponent = Math.floor(seconds / 3600);
+      let minuteComponent = Math.floor((seconds - (hourComponent * 3600)) / 60);
+      let secondComponent = Math.floor(seconds - (hourComponent * 3600) - (minuteComponent * 60));
+
+      let timer = this.toTimerComponent(minuteComponent) + ':' + this.toTimerComponent(secondComponent);
+
+      if (this.totalSeconds >= (60 * 60)) {
+          // Include the hours in both timers when the video is at least an hour long
+         return this.toTimerComponent(hourComponent) + ':' + timer;
+      }
+      
+      return timer;
+   }
+
+   toTimerComponent(value: number) {
+      return value <= 10 ? "0" + value : value;
    }
 
    updateTimer() {

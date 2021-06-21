@@ -481,7 +481,18 @@ var Cinematic = /** @class */ (function () {
         });
     };
     Cinematic.prototype.formatTime = function (seconds) {
-        return new Date(seconds * 1000).toISOString().substr(11, 8);
+        var hourComponent = Math.floor(seconds / 3600);
+        var minuteComponent = Math.floor((seconds - (hourComponent * 3600)) / 60);
+        var secondComponent = Math.floor(seconds - (hourComponent * 3600) - (minuteComponent * 60));
+        var timer = this.toTimerComponent(minuteComponent) + ':' + this.toTimerComponent(secondComponent);
+        if (this.totalSeconds >= (60 * 60)) {
+            // Include the hours in both timers when the video is at least an hour long
+            return this.toTimerComponent(hourComponent) + ':' + timer;
+        }
+        return timer;
+    };
+    Cinematic.prototype.toTimerComponent = function (value) {
+        return value <= 10 ? "0" + value : value;
     };
     Cinematic.prototype.updateTimer = function () {
         this._timer.textContent = this.formatTime(this.playedSeconds) + ' / ' + this.formatTime(this.totalSeconds);
