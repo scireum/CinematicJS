@@ -586,6 +586,9 @@ class Cinematic {
 
       this._video.addEventListener('keyup', event => {
          const { key } = event;
+         
+         event.preventDefault();
+         event.stopPropagation();
 
          switch (key) {
             // Space bar allows to pause/resume the video
@@ -642,6 +645,8 @@ class Cinematic {
                break;
          }
       });
+      
+      return true;
    }
 
    formatTime(seconds: number) {

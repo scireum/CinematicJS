@@ -436,6 +436,8 @@ var Cinematic = /** @class */ (function () {
         }
         this._video.addEventListener('keyup', function (event) {
             var key = event.key;
+            event.preventDefault();
+            event.stopPropagation();
             switch (key) {
                 // Space bar allows to pause/resume the video
                 case ' ':
@@ -492,6 +494,7 @@ var Cinematic = /** @class */ (function () {
                     break;
             }
         });
+        return true;
     };
     Cinematic.prototype.formatTime = function (seconds) {
         var hourComponent = Math.floor(seconds / 3600);
