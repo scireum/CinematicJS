@@ -89,7 +89,7 @@ var Cinematic = /** @class */ (function () {
             startSource = this.options.sources[0];
         }
         else {
-            startSource = this.options.sources.find(function (source) { return _this.quality === source.quality; });
+            startSource = this.getSourcesForQuality(this.quality);
         }
         if (!startSource) {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
@@ -495,6 +495,15 @@ var Cinematic = /** @class */ (function () {
             }
         });
         return true;
+    };
+    Cinematic.prototype.getSourcesForQuality = function (quality) {
+        for (var _i = 0, _a = this.options.sources; _i < _a.length; _i++) {
+            var source = _a[_i];
+            if (source.quality === quality) {
+                return source;
+            }
+        }
+        return null;
     };
     Cinematic.prototype.formatTime = function (seconds) {
         var hourComponent = Math.floor(seconds / 3600);

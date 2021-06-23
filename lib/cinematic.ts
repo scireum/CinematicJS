@@ -166,7 +166,7 @@ class Cinematic {
       if (this.options.sources.length === 1) {
          startSource = this.options.sources[0];
       } else {
-         startSource = this.options.sources.find(source => this.quality === source.quality);
+         startSource = this.getSourcesForQuality(this.quality);
       }
       if (!startSource) {
          throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
@@ -647,6 +647,15 @@ class Cinematic {
       });
       
       return true;
+   }
+
+   getSourcesForQuality(quality: string): VideoQuality | null {
+      for (let source of this.options.sources) {
+         if (source.quality === quality) {
+            return source;
+         }
+      }
+      return null;
    }
 
    formatTime(seconds: number) {
