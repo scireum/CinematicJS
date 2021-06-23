@@ -14,6 +14,16 @@ Still heavily work in progress :)
 - Basic fullscreen capabilities
 - Progress and buffering indicator
 
+## Dependencies
+
+### Modern browsers
+
+None :)
+
+### Internet Explorer 11
+
+Polyfills for Array.prototype.forEach and NodeList.prototype.forEach.
+
 ## Parameters
 
 | Name | Description | Type | Default |
