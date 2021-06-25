@@ -3,11 +3,13 @@
         "outDir": "./dist",
         "allowJs": true,
         "target": "es5",
+        "sourceMap": true,
+        "inlineSources": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
         "noImplicitThis": true,
-        "sourceMap": true,
-        "inlineSources": true
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true
     },
     "include": [
         "./lib/**/*"
