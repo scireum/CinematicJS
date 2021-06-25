@@ -517,7 +517,7 @@ var Cinematic = /** @class */ (function () {
         return timer;
     };
     Cinematic.prototype.toTimerComponent = function (value) {
-        return value <= 10 ? "0" + value : value;
+        return value < 10 ? "0" + value : value;
     };
     Cinematic.prototype.updateTimer = function () {
         this._timer.textContent = this.formatTime(this.playedSeconds) + ' / ' + this.formatTime(this.totalSeconds);
