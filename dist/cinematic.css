@@ -63,34 +63,36 @@
     opacity: 1;
 }
 
-.video-controls {
+.video-footer {
     display: flex;
-    list-style-type: none;
-    background: transparent;
+    flex-direction: column;
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     padding: 4px;
-    align-items: center;
-    flex-wrap: wrap;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 30%, rgba(0,0,0,0) 100%);
-
     transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
+}
+
+.video-controls {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
 }
 
 .video-controls .video-control-spacer {
     flex-grow: 1;
 }
 
-.video-controls .video-progress-wrapper {
+.video-footer .video-progress-wrapper {
     position: relative;
     width: 100%;
     flex-grow: 1;
 }
 
-.video-controls .video-progress-bar,
-.video-controls .video-buffer-bar {
+.video-footer .video-progress-wrapper .video-progress-bar,
+.video-footer .video-progress-wrapper .video-buffer-bar {
     position: absolute;
     top: -3px;
     left: 0;
@@ -98,27 +100,27 @@
     cursor: pointer;
 }
 
-.video-controls .video-progress-bar::-webkit-progress-bar {
+.video-footer .video-progress-wrapper .video-progress-bar::-webkit-progress-bar {
     background: transparent;
 }
 
-.video-controls .video-progress-bar::-webkit-progress-value {
+.video-footer .video-progress-wrapper .video-progress-bar::-webkit-progress-value {
     background: #ffffff;
 }
 
-.video-controls .video-progress-bar::-moz-progress-bar {
+.video-footer .video-progress-wrapper .video-progress-bar::-moz-progress-bar {
     background: #ffffff;
 }
 
-.video-controls .video-buffer-bar::-webkit-progress-bar {
+.video-footer .video-progress-wrapper .video-buffer-bar::-webkit-progress-bar {
     background: #ffffff20;
 }
 
-.video-controls .video-buffer-bar::-webkit-progress-value {
+.video-footer .video-progress-wrapper .video-buffer-bar::-webkit-progress-value {
     background: #ffffff3a;
 }
 
-.video-controls .video-buffer-bar::-moz-progress-bar {
+.video-footer .video-progress-wrapper .video-buffer-bar::-moz-progress-bar {
     background: #ffffff3a;
 }
 
@@ -156,8 +158,8 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
 }
 
-.video-controls .video-progress-bar,
-.video-controls .video-buffer-bar {
+.video-footer .video-progress-wrapper .video-progress-bar,
+.video-footer .video-progress-wrapper .video-buffer-bar {
     display: block;
     width: 100%;
     height: 4px;
@@ -171,7 +173,7 @@
     appearance: none;
 }
 
-.video-controls .video-buffer-bar {
+.video-footer .video-progress-wrapper .video-buffer-bar {
     background: #ffffff20;
 }
 

@@ -154,13 +154,13 @@ var Cinematic = /** @class */ (function () {
             _header.appendChild(_closeButton);
             this._closeButton = _closeButton;
         }
-        var _controls = document.createElement('div');
-        _controls.classList.add('video-controls');
-        this._container.appendChild(_controls);
-        this._controls = _controls;
+        var _footer = document.createElement('div');
+        _footer.classList.add('video-footer');
+        this._container.appendChild(_footer);
+        this._footer = _footer;
         var _progressWrapper = document.createElement('div');
         _progressWrapper.classList.add('video-progress-wrapper');
-        _controls.appendChild(_progressWrapper);
+        _footer.appendChild(_progressWrapper);
         var _bufferBar = document.createElement('progress');
         _bufferBar.classList.add('video-buffer-bar');
         _bufferBar.value = 0;
@@ -171,6 +171,10 @@ var Cinematic = /** @class */ (function () {
         _progressBar.value = 0;
         _progressWrapper.appendChild(_progressBar);
         this._progressBar = _progressBar;
+        var _controls = document.createElement('div');
+        _controls.classList.add('video-controls');
+        _footer.appendChild(_controls);
+        this._controls = _controls;
         var _playButton = document.createElement('div');
         _playButton.classList.add('video-control-button');
         this.renderButtonIcon(_playButton, 'play');
@@ -598,14 +602,14 @@ var Cinematic = /** @class */ (function () {
     };
     Cinematic.prototype.showControls = function () {
         this._header.classList.remove('hidden');
-        this._controls.classList.remove('hidden');
+        this._footer.classList.remove('hidden');
     };
     Cinematic.prototype.hideControls = function () {
         if (this._video.paused) {
             return;
         }
         this._header.classList.add('hidden');
-        this._controls.classList.add('hidden');
+        this._footer.classList.add('hidden');
     };
     Cinematic.prototype.isFullScreen = function () {
         return document.fullscreenElement || document.webkitFullscreenElement;

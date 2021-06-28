@@ -87,6 +87,7 @@ class Cinematic {
    _cues: HTMLElement;
    _cuesContainer: HTMLElement;
    _header: HTMLElement;
+   _footer: HTMLElement;
    _controls: HTMLElement;
    _playButton: HTMLDivElement;
    _bufferBar: HTMLProgressElement;
@@ -244,16 +245,16 @@ class Cinematic {
 
          this._closeButton = _closeButton;
       }
-
-      const _controls = document.createElement('div');
-      _controls.classList.add('video-controls');
-      this._container.appendChild(_controls);
-
-      this._controls = _controls;
+      
+      const _footer = document.createElement('div');
+      _footer.classList.add('video-footer');
+      this._container.appendChild(_footer);
+      
+      this._footer = _footer;
 
       const _progressWrapper = document.createElement('div');
       _progressWrapper.classList.add('video-progress-wrapper');
-      _controls.appendChild(_progressWrapper);
+      _footer.appendChild(_progressWrapper);
 
       const _bufferBar = document.createElement('progress');
       _bufferBar.classList.add('video-buffer-bar');
@@ -268,6 +269,12 @@ class Cinematic {
       _progressWrapper.appendChild(_progressBar);
 
       this._progressBar = _progressBar;
+
+      const _controls = document.createElement('div');
+      _controls.classList.add('video-controls');
+      _footer.appendChild(_controls);
+
+      this._controls = _controls;
 
       const _playButton = document.createElement('div');
       _playButton.classList.add('video-control-button');
@@ -758,7 +765,7 @@ class Cinematic {
 
    showControls() {
       this._header.classList.remove('hidden');
-      this._controls.classList.remove('hidden');
+      this._footer.classList.remove('hidden');
    }
 
    hideControls() {
@@ -767,7 +774,7 @@ class Cinematic {
       }
 
       this._header.classList.add('hidden');
-      this._controls.classList.add('hidden');
+      this._footer.classList.add('hidden');
    }
 
    isFullScreen() {
