@@ -6,6 +6,7 @@ interface Document {
 
 interface Options {
    selector: string;
+   baseUri: string;
    poster: string;
    subtitles: string;
    autoplay: boolean;
@@ -54,6 +55,7 @@ class Cinematic {
 
    defaults: Options = {
       selector: '',
+      baseUri: '../dist',
       poster: '',
       subtitles: '',
       autoplay: false,
@@ -149,7 +151,7 @@ class Cinematic {
       document.body.appendChild(_iconContainer);
 
       const request = new XMLHttpRequest();
-      request.open("GET", '../dist/icons.svg', true);
+      request.open("GET", this.options.baseUri + '/icons.svg', true);
       request.responseType = "document";
       request.onload = function (e) {
          const svg = request?.responseXML?.documentElement;

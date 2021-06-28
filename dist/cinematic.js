@@ -13,6 +13,7 @@ var Cinematic = /** @class */ (function () {
     function Cinematic(options) {
         this.defaults = {
             selector: '',
+            baseUri: '../dist',
             poster: '',
             subtitles: '',
             autoplay: false,
@@ -73,7 +74,7 @@ var Cinematic = /** @class */ (function () {
         _iconContainer.classList.add('token-autocomplete-suggestion-thumbnail');
         document.body.appendChild(_iconContainer);
         var request = new XMLHttpRequest();
-        request.open("GET", '../dist/icons.svg', true);
+        request.open("GET", this.options.baseUri + '/icons.svg', true);
         request.responseType = "document";
         request.onload = function (e) {
             var _a;
