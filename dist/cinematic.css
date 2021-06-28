@@ -27,7 +27,7 @@
     justify-content: center;
 }
 
-.video-cues-container>div {
+.video-cues-container > div {
     color: white;
     background-color: #00000094;
     padding: 4px 8px;
@@ -45,8 +45,7 @@
     right: 0;
     padding: 4px;
     align-items: center;
-    background: linear-gradient(rgba(0, 0, 0, 0.7) 30%, rgba(0,0,0,0) 100%);
-    
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.15) 82%, rgba(0, 0, 0, 0) 100%);
     transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
 
@@ -63,34 +62,36 @@
     opacity: 1;
 }
 
-.video-controls {
+.video-footer {
     display: flex;
-    list-style-type: none;
-    background: transparent;
+    flex-direction: column;
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     padding: 4px;
-    align-items: center;
-    flex-wrap: wrap;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 30%, rgba(0,0,0,0) 100%);
-
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.15) 82%, rgba(0, 0, 0, 0) 100%);
     transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
+}
+
+.video-controls {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
 }
 
 .video-controls .video-control-spacer {
     flex-grow: 1;
 }
 
-.video-controls .video-progress-wrapper {
+.video-footer .video-progress-wrapper {
     position: relative;
     width: 100%;
     flex-grow: 1;
 }
 
-.video-controls .video-progress-bar,
-.video-controls .video-buffer-bar {
+.video-footer .video-progress-wrapper .video-progress-bar,
+.video-footer .video-progress-wrapper .video-buffer-bar {
     position: absolute;
     top: -3px;
     left: 0;
@@ -98,32 +99,32 @@
     cursor: pointer;
 }
 
-.video-controls .video-progress-bar::-webkit-progress-bar {
+.video-footer .video-progress-wrapper .video-progress-bar::-webkit-progress-bar {
     background: transparent;
 }
 
-.video-controls .video-progress-bar::-webkit-progress-value {
+.video-footer .video-progress-wrapper .video-progress-bar::-webkit-progress-value {
     background: #ffffff;
 }
 
-.video-controls .video-progress-bar::-moz-progress-bar {
+.video-footer .video-progress-wrapper .video-progress-bar::-moz-progress-bar {
     background: #ffffff;
 }
 
-.video-controls .video-buffer-bar::-webkit-progress-bar {
+.video-footer .video-progress-wrapper .video-buffer-bar::-webkit-progress-bar {
     background: #ffffff20;
 }
 
-.video-controls .video-buffer-bar::-webkit-progress-value {
+.video-footer .video-progress-wrapper .video-buffer-bar::-webkit-progress-value {
     background: #ffffff3a;
 }
 
-.video-controls .video-buffer-bar::-moz-progress-bar {
+.video-footer .video-progress-wrapper .video-buffer-bar::-moz-progress-bar {
     background: #ffffff3a;
 }
 
 .video-controls .video-control-button {
-    display:flex;
+    display: flex;
     align-items: center;
     color: #ffffff;
     cursor: pointer;
@@ -156,8 +157,8 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
 }
 
-.video-controls .video-progress-bar,
-.video-controls .video-buffer-bar {
+.video-footer .video-progress-wrapper .video-progress-bar,
+.video-footer .video-progress-wrapper .video-buffer-bar {
     display: block;
     width: 100%;
     height: 4px;
@@ -171,7 +172,7 @@
     appearance: none;
 }
 
-.video-controls .video-buffer-bar {
+.video-footer .video-progress-wrapper .video-buffer-bar {
     background: #ffffff20;
 }
 
@@ -188,7 +189,7 @@
     }
 }
 
-.video-controls>* {
+.video-controls > * {
     margin: 4px;
 }
 
@@ -331,4 +332,44 @@ html:-ms-fullscreen {
     margin: 3px;
     fill: #ffffff;
     pointer-events: none;
+}
+
+.video-overlay-wrapper {
+    display: flex;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    align-items: center;
+    justify-content: center;
+
+    transition: visibility 0.1s ease-in, opacity 0.1s ease-out;
+}
+
+.video-overlay-container {
+    width: 56px;
+    height: 56px;
+    fill: #ffffff;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 40px;
+    border-radius: 50%;
+
+    transition: transform 0.1s ease-in;
+}
+
+.video-overlay-wrapper.hidden .video-overlay-container {
+    transform: scale(0.7);
+}
+
+.video-overlay-container .video-overlay-icon svg {
+    width: 56px;
+    height: 56px;
+    fill: #ffffff;
+}
+
+.video-overlay-container .video-overlay-text {
+    margin-top: 4px;
+    text-align: center;
+    color: #ffffff;
 }
