@@ -45,6 +45,7 @@
     right: 0;
     padding: 4px;
     align-items: center;
+    background: linear-gradient(rgba(0, 0, 0, 0.7) 30%, rgba(0,0,0,0) 100%);
     
     transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
@@ -73,6 +74,7 @@
     padding: 4px;
     align-items: center;
     flex-wrap: wrap;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 30%, rgba(0,0,0,0) 100%);
 
     transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
@@ -128,7 +130,6 @@
     flex-grow: 0;
     opacity: 0.9;
     transition: opacity .1s ease-in-out;
-    text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
 }
 
 .video-controls .video-control-button:hover {
