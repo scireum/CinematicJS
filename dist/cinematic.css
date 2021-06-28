@@ -27,7 +27,7 @@
     justify-content: center;
 }
 
-.video-cues-container>div {
+.video-cues-container > div {
     color: white;
     background-color: #00000094;
     padding: 4px 8px;
@@ -45,8 +45,7 @@
     right: 0;
     padding: 4px;
     align-items: center;
-    background: linear-gradient(rgba(0, 0, 0, 0.7) 30%, rgba(0,0,0,0) 100%);
-    
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.15) 82%, rgba(0, 0, 0, 0) 100%);
     transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
 
@@ -71,7 +70,7 @@
     left: 0;
     right: 0;
     padding: 4px;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 30%, rgba(0,0,0,0) 100%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.15) 82%, rgba(0, 0, 0, 0) 100%);
     transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
 
@@ -125,7 +124,7 @@
 }
 
 .video-controls .video-control-button {
-    display:flex;
+    display: flex;
     align-items: center;
     color: #ffffff;
     cursor: pointer;
@@ -190,7 +189,7 @@
     }
 }
 
-.video-controls>* {
+.video-controls > * {
     margin: 4px;
 }
 
@@ -352,7 +351,7 @@ html:-ms-fullscreen {
     width: 56px;
     height: 56px;
     fill: #ffffff;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     padding: 40px;
     border-radius: 50%;
 
