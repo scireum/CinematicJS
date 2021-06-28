@@ -5,7 +5,6 @@
     <meta name="viewport"
         content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
     <link rel="stylesheet" type="text/css" href="../dist/cinematic.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
     <style>
         .endcard {
             display: grid;
@@ -129,15 +128,11 @@
                     quality: '1080p',
                     sources: [
                         {
-                            type: 'video/webm',
-                            source: '../video/1080.webm'
-                        },
-                        {
-                            type: 'video/mp4; codec="hvc1"',
+                            type: 'video/mp4; codecs="hvc1"',
                             source: '../video/1080.mp4'
                         },
                         {
-                            type: 'video/mp4; codec="avc1"',
+                            type: 'video/mp4; codecs="avc1.64001F"',
                             source: '../video/1080.mp4'
                         }
                     ]
@@ -146,15 +141,11 @@
                     quality: '720p',
                     sources: [
                         {
-                            type: 'video/webm',
-                            source: '../video/720.webm'
-                        },
-                        {
-                            type: 'video/mp4; codec="hvc1"',
+                            type: 'video/mp4; codecs="hvc1"',
                             source: '../video/720.mp4'
                         },
                         {
-                            type: 'video/mp4; codec="avc1"',
+                            type: 'video/mp4; codecs="avc1.64001F"',
                             source: '../video/720.mp4'
                         }
                     ]

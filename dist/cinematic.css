@@ -10,6 +10,7 @@
 .video-container video {
     flex-basis: 0;
     flex-shrink: 1;
+    flex-grow: 1;
     width: 100%;
     background-size: cover;
     outline: none;
@@ -120,6 +121,8 @@
 }
 
 .video-controls .video-control-button {
+    display:flex;
+    align-items: center;
     color: #ffffff;
     cursor: pointer;
     flex-grow: 0;
@@ -132,8 +135,8 @@
     opacity: 1;
 }
 
-.video-controls .video-control-button.copied {
-    color: #69f0ae;
+.video-controls .video-control-button.copied svg {
+    fill: #69f0ae;
 }
 
 .video-controls .video-control-button.copied:before {
@@ -318,4 +321,13 @@ html:-ms-fullscreen {
 
 .video-control-dropdown .video-dropdown-content div.active {
     font-weight: 600;
+}
+
+.video-control-button svg, .video-close-button svg {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin: 3px;
+    fill: #ffffff;
+    pointer-events: none;
 }

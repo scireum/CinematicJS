@@ -1,7 +1,7 @@
 interface Document {
-    webkitExitFullscreen: any;
-    webkitFullscreenElement: any;
-    webkitFullscreenEnabled: any;
+   webkitExitFullscreen: any;
+   webkitFullscreenElement: any;
+   webkitFullscreenEnabled: any;
 }
 
 interface Options {
@@ -86,16 +86,16 @@ class Cinematic {
    _cuesContainer: HTMLElement;
    _header: HTMLElement;
    _controls: HTMLElement;
-   _playButton: HTMLElement;
+   _playButton: HTMLDivElement;
    _bufferBar: HTMLProgressElement;
    _progressBar: HTMLProgressElement;
    _timer: HTMLElement;
    _volumeSlider: HTMLInputElement;
-   _volumeButton: HTMLElement;
+   _volumeButton: HTMLDivElement;
    _qualityOptions: NodeListOf<ChildNode>;
    _captionsButton: HTMLElement;
    _deeplinkButton: HTMLElement;
-   _fullScreenButton: HTMLElement;
+   _fullScreenButton: HTMLDivElement;
    _closeButton: HTMLElement;
 
    totalSeconds = 0;
@@ -123,6 +123,7 @@ class Cinematic {
 
       this.quality = this.options.quality;
 
+      this.loadIcons();
       this.renderPlayer();
       this.setupEvents();
 
@@ -142,6 +143,24 @@ class Cinematic {
       this._container.cinematic = this as Cinematic;
    }
 
+   loadIcons() {
+      const _iconContainer = document.createElement('span');
+      _iconContainer.classList.add('token-autocomplete-suggestion-thumbnail');
+      document.body.appendChild(_iconContainer);
+
+      const request = new XMLHttpRequest();
+      request.open("GET", '../dist/icons.svg', true);
+      request.responseType = "document";
+      request.onload = function (e) {
+         const svg = request?.responseXML?.documentElement;
+         // Don't render anything that is not an SVG, e.g. a HTML error page
+         if (svg && svg.nodeName === 'svg') {
+            _iconContainer.appendChild(svg);
+         }
+      }
+      request.send();
+   }
+
    renderPlayer() {
       this._container.classList.add('video-container');
 
@@ -149,6 +168,7 @@ class Cinematic {
       _video.preload = 'metadata';
       _video.poster = this.options.poster;
       _video.tabIndex = -1;
+      _video.playsInline = true;
       // Suppress the unwanted right click context menu of the video element itself
       _video.oncontextmenu = () => {return false};
       if (this.options.autoplay) {
@@ -214,11 +234,10 @@ class Cinematic {
       this._header = _header;
 
       if (this.options.closeCallback) {
-         const _closeButton = document.createElement('i');
+         const _closeButton = document.createElement('div');
          _closeButton.classList.add('video-close-button');
-         _closeButton.classList.add('material-icons');
          _closeButton.title = this.options.translations.close;
-         _closeButton.textContent = 'close';
+          this.renderButtonIcon(_closeButton, 'close');
          _header.appendChild(_closeButton);
 
          this._closeButton = _closeButton;
@@ -248,10 +267,9 @@ class Cinematic {
 
       this._progressBar = _progressBar;
 
-      const _playButton = document.createElement('i');
+      const _playButton = document.createElement('div');
       _playButton.classList.add('video-control-button');
-      _playButton.classList.add('material-icons');
-      _playButton.textContent = 'play_arrow';
+       this.renderButtonIcon(_playButton, 'play');
       _controls.appendChild(_playButton);
 
       this._playButton = _playButton;
@@ -282,11 +300,10 @@ class Cinematic {
 
       this._volumeSlider = _volumeSlider;
 
-      const _volumeButton = document.createElement('i');
+      const _volumeButton = document.createElement('div');
       _volumeButton.classList.add('video-control-button');
-      _volumeButton.classList.add('material-icons');
-      _volumeButton.textContent = 'volume_up';
       _volumeButton.title = this.options.translations.mute;
+       this.renderButtonIcon(_volumeButton, 'sound');
       _volumeWrapper.appendChild(_volumeButton);
 
       this._volumeButton = _volumeButton;
@@ -296,11 +313,10 @@ class Cinematic {
          _qualityWrapper.classList.add('video-control-dropdown');
          _controls.appendChild(_qualityWrapper);
 
-         const _qualityButton = document.createElement('i');
+         const _qualityButton = document.createElement('div');
          _qualityButton.classList.add('video-control-button');
-         _qualityButton.classList.add('material-icons');
-         _qualityButton.textContent = 'settings';
          _qualityButton.title = this.options.translations.quality;
+         this.renderButtonIcon(_qualityButton, 'settings');
          _qualityWrapper.appendChild(_qualityButton);
 
          const _dropDownContent = document.createElement('div');
@@ -322,34 +338,31 @@ class Cinematic {
       }
 
       if (this.options.deeplink) {
-         const _deeplinkButton = document.createElement('i');
+         const _deeplinkButton = document.createElement('div');
          _deeplinkButton.classList.add('video-control-button');
-         _deeplinkButton.classList.add('material-icons');
-         _deeplinkButton.textContent = 'link';
          _deeplinkButton.title = this.options.translations.deeplink;
          _deeplinkButton.dataset.copiedText = this.options.translations.deeplinkCopied;
+         this.renderButtonIcon(_deeplinkButton, 'deeplink');
          _controls.appendChild(_deeplinkButton);
 
          this._deeplinkButton = _deeplinkButton;
       }
 
       if (this.options.subtitles) {
-         const _captionsButton = document.createElement('i');
+         const _captionsButton = document.createElement('div');
          _captionsButton.classList.add('video-control-button');
-         _captionsButton.classList.add('material-icons-outlined');
-         _captionsButton.textContent = 'subtitles';
          _captionsButton.title = this.options.translations.showSubtitles;
+         this.renderButtonIcon(_captionsButton, 'expanded-cc');
          _controls.appendChild(_captionsButton);
 
          this._captionsButton = _captionsButton;
       }
 
       if (this.fullScreenEnabled) {
-         const _fullScreenButton = document.createElement('i');
+         const _fullScreenButton = document.createElement('div');
          _fullScreenButton.classList.add('video-control-button');
-         _fullScreenButton.classList.add('material-icons');
-         _fullScreenButton.textContent = 'fullscreen';
          _fullScreenButton.title = this.options.translations.fullscreen;
+          this.renderButtonIcon(_fullScreenButton, 'fullscreen');
          _controls.appendChild(_fullScreenButton);
 
          this._fullScreenButton = _fullScreenButton;
@@ -422,35 +435,35 @@ class Cinematic {
          if (me._video.muted) {
             // Set the volume slider to its min value to indicate the mute.
             me._volumeSlider.value = '0';
-            me._volumeButton.textContent = 'volume_off';
+            me.switchButtonIcon(me._volumeButton, 'mute');
             me._volumeButton.title = me.options.translations.unmute;
          } else {
             me._volumeSlider.value = me._video.volume.toString();
             me._volumeButton.title = me.options.translations.mute;
             if (me.volume > 0.5) {
-               me._volumeButton.textContent = 'volume_up';
+               me.switchButtonIcon(me._volumeButton, 'sound');
             } else {
-               me._volumeButton.textContent = 'volume_down';
+               me.switchButtonIcon(me._volumeButton, 'low');
             }
          }
       });
 
       this._video.addEventListener('play', function () {
          //me._endcard.classList.add('hidden');
-         me._playButton.textContent = 'pause';
+         me.switchButtonIcon(me._playButton, 'pause');
          me._playButton.title = me.options.translations.pause;
          me._video.focus();
       });
 
       this._video.addEventListener('pause', function () {
          //me._endcard.classList.remove('hidden');
-         me._playButton.textContent = 'play_arrow';
+         me.switchButtonIcon(me._playButton, 'play');
          me._playButton.title = me.options.translations.play;
       });
 
       this._video.addEventListener('ended', function () {
          //me._endcard.classList.remove('hidden');
-         me._playButton.textContent = 'restart_alt';
+         me.switchButtonIcon(me._playButton, 'repeat');
          me._playButton.title = me.options.translations.restart;
       });
 
@@ -649,6 +662,19 @@ class Cinematic {
       return true;
    }
 
+   private renderButtonIcon(_button: HTMLDivElement, icon: string) {
+      const _icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      _icon.setAttribute('viewBox', '0 0 24 24');
+      const _use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+      _use.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + icon);
+      _icon.appendChild(_use);
+      _button.appendChild(_icon);
+   }
+
+   private switchButtonIcon(_button: HTMLDivElement, newIcon: string) {
+      _button.querySelector('svg use')?.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + newIcon);
+   }
+
    getSourcesForQuality(quality: string): VideoQuality | null {
       for (let source of this.options.sources) {
          if (source.quality === quality) {
@@ -719,11 +745,11 @@ class Cinematic {
    handleFullScreenChange() {
       if (this.isFullScreen()) {
          this._container.dataset.fullscreen = true;
-         this._fullScreenButton.textContent = 'fullscreen_exit';
+         this.switchButtonIcon(this._fullScreenButton, 'closefullscreen');
          this._fullScreenButton.title = this.options.translations.exitFullscreen;
       } else {
          this._container.dataset.fullscreen = false;
-         this._fullScreenButton.textContent = 'fullscreen';
+         this.switchButtonIcon(this._fullScreenButton, 'fullscreen');
          this._fullScreenButton.title = this.options.translations.fullscreen;
       }
    }
