@@ -142,6 +142,23 @@ var Cinematic = /** @class */ (function () {
             this._cues = _cues;
             this._cuesContainer = _cuesContainer;
         }
+        var _overlayWrapper = document.createElement('div');
+        _overlayWrapper.classList.add('video-overlay-wrapper');
+        _overlayWrapper.classList.add('hidden');
+        this._container.appendChild(_overlayWrapper);
+        this._overlayWrapper = _overlayWrapper;
+        var _overlayContainer = document.createElement('div');
+        _overlayContainer.classList.add('video-overlay-container');
+        _overlayWrapper.appendChild(_overlayContainer);
+        var _overlayIcon = document.createElement('div');
+        _overlayIcon.classList.add('video-overlay-icon');
+        _overlayContainer.appendChild(_overlayIcon);
+        this.renderButtonIcon(_overlayIcon, 'mute');
+        this._overlayIcon = _overlayIcon;
+        var _overlayText = document.createElement('div');
+        _overlayText.classList.add('video-overlay-text');
+        _overlayContainer.appendChild(_overlayText);
+        this._overlayText = _overlayText;
         var _header = document.createElement('div');
         _header.classList.add('video-header');
         this._container.appendChild(_header);
@@ -461,9 +478,11 @@ var Cinematic = /** @class */ (function () {
                     _this.userActive = true;
                     if (_this._video.paused) {
                         _this._video.play();
+                        _this.showOverlay('play', null, true);
                     }
                     else {
                         _this._video.pause();
+                        _this.showOverlay('pause', null, true);
                     }
                     break;
                 // Escape leaves the fullscreen when currently enabled
@@ -493,6 +512,10 @@ var Cinematic = /** @class */ (function () {
                         if (_this.volume === 0) {
                             // Also switch on mute when we reach 0% volume
                             _this._video.muted = true;
+                            _this.showOverlay('mute', '0 %', true);
+                        }
+                        else {
+                            _this.showOverlay('low', Math.round(_this.volume * 100) + ' %', true);
                         }
                         _this._volumeSlider.value = _this.volume.toString();
                     }
@@ -506,6 +529,7 @@ var Cinematic = /** @class */ (function () {
                         _this._video.volume = _this.volume;
                         // Unmute if we previously were muted
                         _this._video.muted = false;
+                        _this.showOverlay('sound', Math.round(_this.volume * 100) + ' %', true);
                         _this._volumeSlider.value = _this.volume.toString();
                     }
                     break;
@@ -524,6 +548,18 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.switchButtonIcon = function (_button, newIcon) {
         var _a;
         (_a = _button.querySelector('svg use')) === null || _a === void 0 ? void 0 : _a.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + newIcon);
+    };
+    Cinematic.prototype.showOverlay = function (icon, text, hideAutomatically) {
+        var _this = this;
+        this.switchButtonIcon(this._overlayIcon, icon);
+        this._overlayText.textContent = text;
+        this._overlayWrapper.classList.remove('hidden');
+        clearTimeout(this.overlayHideTimeout);
+        if (hideAutomatically) {
+            this.overlayHideTimeout = window.setTimeout(function () {
+                _this._overlayWrapper.classList.add('hidden');
+            }, 500);
+        }
     };
     Cinematic.prototype.getSourcesForQuality = function (quality) {
         for (var _i = 0, _a = this.options.sources; _i < _a.length; _i++) {

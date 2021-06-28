@@ -334,3 +334,43 @@ html:-ms-fullscreen {
     fill: #ffffff;
     pointer-events: none;
 }
+
+.video-overlay-wrapper {
+    display: flex;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    align-items: center;
+    justify-content: center;
+
+    transition: visibility 0.1s ease-in, opacity 0.1s ease-out;
+}
+
+.video-overlay-container {
+    width: 56px;
+    height: 56px;
+    fill: #ffffff;
+    background: rgba(0,0,0,0.5);
+    padding: 40px;
+    border-radius: 50%;
+
+    transition: transform 0.1s ease-in;
+}
+
+.video-overlay-wrapper.hidden .video-overlay-container {
+    transform: scale(0.7);
+}
+
+.video-overlay-container .video-overlay-icon svg {
+    width: 56px;
+    height: 56px;
+    fill: #ffffff;
+}
+
+.video-overlay-container .video-overlay-text {
+    margin-top: 4px;
+    text-align: center;
+    color: #ffffff;
+}

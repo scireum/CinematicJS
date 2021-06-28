@@ -100,6 +100,9 @@ class Cinematic {
    _deeplinkButton: HTMLElement;
    _fullScreenButton: HTMLDivElement;
    _closeButton: HTMLElement;
+   _overlayWrapper: HTMLDivElement;
+   _overlayIcon: HTMLDivElement;
+   _overlayText: HTMLDivElement;
 
    totalSeconds = 0;
    playedSeconds = 0;
@@ -112,6 +115,7 @@ class Cinematic {
    userActive = false;
    userActiveCheck: number;
    userInactiveTimeout: number;
+   overlayHideTimeout: number;
 
    constructor(options: Options) {
       this.options = { ...this.defaults, ...options };
@@ -229,6 +233,28 @@ class Cinematic {
 
          this._cuesContainer = _cuesContainer;
       }
+
+      const _overlayWrapper = document.createElement('div');
+      _overlayWrapper.classList.add('video-overlay-wrapper');
+      _overlayWrapper.classList.add('hidden');
+      this._container.appendChild(_overlayWrapper);
+      
+      this._overlayWrapper = _overlayWrapper;
+
+      const _overlayContainer = document.createElement('div');
+      _overlayContainer.classList.add('video-overlay-container');
+      _overlayWrapper.appendChild(_overlayContainer);
+
+      const _overlayIcon = document.createElement('div');
+      _overlayIcon.classList.add('video-overlay-icon');
+      _overlayContainer.appendChild(_overlayIcon);
+      this.renderButtonIcon(_overlayIcon, 'mute');
+      this._overlayIcon = _overlayIcon;
+
+      const _overlayText = document.createElement('div');
+      _overlayText.classList.add('video-overlay-text');
+      _overlayContainer.appendChild(_overlayText);
+      this._overlayText = _overlayText;
 
       const _header = document.createElement('div');
       _header.classList.add('video-header');
@@ -618,8 +644,10 @@ class Cinematic {
                this.userActive = true;
                if (this._video.paused) {
                   this._video.play();
+                  this.showOverlay('play', null, true);
                } else {
                   this._video.pause();
+                  this.showOverlay('pause', null, true);
                }
                break;
             // Escape leaves the fullscreen when currently enabled
@@ -649,6 +677,9 @@ class Cinematic {
                   if (this.volume === 0) {
                      // Also switch on mute when we reach 0% volume
                      this._video.muted = true;
+                     this.showOverlay('mute', '0 %', true);
+                  } else {
+                     this.showOverlay('low', Math.round(this.volume * 100) + ' %', true);
                   }
                   this._volumeSlider.value = this.volume.toString();
                }
@@ -662,6 +693,7 @@ class Cinematic {
                   this._video.volume = this.volume;
                   // Unmute if we previously were muted
                   this._video.muted = false;
+                  this.showOverlay('sound', Math.round(this.volume * 100) + ' %', true);
                   this._volumeSlider.value = this.volume.toString();
                }
                break;
@@ -682,6 +714,20 @@ class Cinematic {
 
    private switchButtonIcon(_button: HTMLDivElement, newIcon: string) {
       _button.querySelector('svg use')?.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + newIcon);
+   }
+   
+   private showOverlay(icon: string, text: string | null, hideAutomatically: boolean) {
+      this.switchButtonIcon(this._overlayIcon, icon);
+      this._overlayText.textContent = text;
+      this._overlayWrapper.classList.remove('hidden');
+      
+      clearTimeout(this.overlayHideTimeout);
+      
+      if (hideAutomatically) {
+         this.overlayHideTimeout = window.setTimeout(() => {
+            this._overlayWrapper.classList.add('hidden');
+         }, 500);
+      }
    }
 
    getSourcesForQuality(quality: string): VideoQuality | null {
