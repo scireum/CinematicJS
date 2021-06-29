@@ -220,7 +220,7 @@ html:-ms-fullscreen {
     height: auto;
 }
 
-.video-container[data-fullscreen=true] .video-controls {
+.video-container[data-fullscreen=true] .video-footer {
     position: absolute;
     width: 100%;
     z-index: 2147483647;
