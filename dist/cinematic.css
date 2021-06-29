@@ -7,6 +7,10 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
+.video-container, .video-container * {
+    box-sizing: border-box;
+}
+
 .video-container video {
     flex-basis: 0;
     flex-shrink: 1;
@@ -348,8 +352,8 @@ html:-ms-fullscreen {
 }
 
 .video-overlay-container {
-    width: 56px;
-    height: 56px;
+    width: 136px;
+    height: 136px;
     fill: #ffffff;
     background: rgba(0, 0, 0, 0.5);
     padding: 40px;
