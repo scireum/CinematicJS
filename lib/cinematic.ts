@@ -161,9 +161,9 @@ class Cinematic {
         const request = new XMLHttpRequest();
         request.open("GET", this.options.baseUri + '/icons.svg', true);
         request.responseType = "document";
-        request.onload = function (e) {
+        request.onload = () => {
             const svg = request?.responseXML?.documentElement;
-            // Don't render anything that is not an SVG, e.g. a HTML error page
+            // Don't render anything that is not an SVG, e.g. an HTML error page
             if (svg && svg.nodeName === 'svg') {
                 _iconContainer.appendChild(svg);
             }
@@ -255,7 +255,7 @@ class Cinematic {
         const _overlayIcon = document.createElement('div');
         _overlayIcon.classList.add('video-overlay-icon');
         _overlayContainer.appendChild(_overlayIcon);
-        this.renderButtonIcon(_overlayIcon, 'mute');
+        Cinematic.renderButtonIcon(_overlayIcon, 'mute');
         this._overlayIcon = _overlayIcon;
 
         const _overlayText = document.createElement('div');
@@ -273,7 +273,7 @@ class Cinematic {
             const _closeButton = document.createElement('div');
             _closeButton.classList.add('video-close-button');
             _closeButton.title = this.options.translations.close;
-            this.renderButtonIcon(_closeButton, 'close');
+            Cinematic.renderButtonIcon(_closeButton, 'close');
             _header.appendChild(_closeButton);
 
             this._closeButton = _closeButton;
@@ -311,7 +311,7 @@ class Cinematic {
 
         const _playButton = document.createElement('div');
         _playButton.classList.add('video-control-button');
-        this.renderButtonIcon(_playButton, 'play');
+        Cinematic.renderButtonIcon(_playButton, 'play');
         _controls.appendChild(_playButton);
 
         this._playButton = _playButton;
@@ -345,7 +345,7 @@ class Cinematic {
         const _volumeButton = document.createElement('div');
         _volumeButton.classList.add('video-control-button');
         _volumeButton.title = this.options.translations.mute;
-        this.renderButtonIcon(_volumeButton, 'sound');
+        Cinematic.renderButtonIcon(_volumeButton, 'sound');
         _volumeWrapper.appendChild(_volumeButton);
 
         this._volumeButton = _volumeButton;
@@ -358,7 +358,7 @@ class Cinematic {
             const _qualityButton = document.createElement('div');
             _qualityButton.classList.add('video-control-button');
             _qualityButton.title = this.options.translations.quality;
-            this.renderButtonIcon(_qualityButton, 'settings');
+            Cinematic.renderButtonIcon(_qualityButton, 'settings');
             _qualityWrapper.appendChild(_qualityButton);
 
             const _dropDownContent = document.createElement('div');
@@ -384,7 +384,7 @@ class Cinematic {
             _deeplinkButton.classList.add('video-control-button');
             _deeplinkButton.title = this.options.translations.deeplink;
             _deeplinkButton.dataset.copiedText = this.options.translations.deeplinkCopied;
-            this.renderButtonIcon(_deeplinkButton, 'deeplink');
+            Cinematic.renderButtonIcon(_deeplinkButton, 'deeplink');
             _controls.appendChild(_deeplinkButton);
 
             this._deeplinkButton = _deeplinkButton;
@@ -394,7 +394,7 @@ class Cinematic {
             const _captionsButton = document.createElement('div');
             _captionsButton.classList.add('video-control-button');
             _captionsButton.title = this.options.translations.showSubtitles;
-            this.renderButtonIcon(_captionsButton, 'expanded-cc');
+            Cinematic.renderButtonIcon(_captionsButton, 'expanded-cc');
             _controls.appendChild(_captionsButton);
 
             this._captionsButton = _captionsButton;
@@ -404,7 +404,7 @@ class Cinematic {
             const _fullScreenButton = document.createElement('div');
             _fullScreenButton.classList.add('video-control-button');
             _fullScreenButton.title = this.options.translations.fullscreen;
-            this.renderButtonIcon(_fullScreenButton, 'fullscreen');
+            Cinematic.renderButtonIcon(_fullScreenButton, 'fullscreen');
             _controls.appendChild(_fullScreenButton);
 
             this._fullScreenButton = _fullScreenButton;
@@ -425,29 +425,22 @@ class Cinematic {
         window.addEventListener('resize', resizeHandler);
         resizeHandler();
 
-        const observer = new MutationObserver(function (mutations) {
-            console.log('size changed!');
-        });
-        observer.observe(this._controls, {
-            attributes: true
-        });
-
-        this._playButton.addEventListener('click', function (e) {
-            if (me._video.paused || me._video.ended) {
-                me._video.play();
+        this._playButton.addEventListener('click', () => {
+            if (this._video.paused || this._video.ended) {
+                this._video.play();
             } else {
-                me._video.pause();
+                this._video.pause();
             }
         });
 
-        this._volumeButton.addEventListener('click', function (e) {
-            me._video.muted = !me._video.muted;
+        this._volumeButton.addEventListener('click', () => {
+            this._video.muted = !this._video.muted;
         });
 
-        this._volumeSlider.addEventListener('change', function (e) {
+        this._volumeSlider.addEventListener('change', () => {
             // To allow the user to change from mute to a specific volume via the slider.
-            me._video.muted = false;
-            me._video.volume = me.volume = parseFloat(this.value);
+            this._video.muted = false;
+            this._video.volume = this.volume = parseFloat(this._volumeSlider.value);
         });
 
         const onCueEnter = function (this: any) {
@@ -486,44 +479,41 @@ class Cinematic {
             me.updateTimer();
         });
 
-        this._video.addEventListener('volumechange', function () {
-            if (me.options.rememberVolume) {
-                me.writeToLocalStore('volume', this.volume.toString());
-                me.writeToLocalStore('muted', String(this.muted));
+        this._video.addEventListener('volumechange', () => {
+            if (this.options.rememberVolume) {
+                this.writeToLocalStore('volume', this._video.volume.toString());
+                this.writeToLocalStore('muted', String(this._video.muted));
             }
 
-            if (me._video.muted) {
+            if (this._video.muted) {
                 // Set the volume slider to its min value to indicate the mute.
-                me._volumeSlider.value = '0';
-                me.switchButtonIcon(me._volumeButton, 'mute');
-                me._volumeButton.title = me.options.translations.unmute;
+                this._volumeSlider.value = '0';
+                Cinematic.switchButtonIcon(this._volumeButton, 'mute');
+                this._volumeButton.title = this.options.translations.unmute;
             } else {
-                me._volumeSlider.value = me._video.volume.toString();
-                me._volumeButton.title = me.options.translations.mute;
-                if (me.volume > 0.5) {
-                    me.switchButtonIcon(me._volumeButton, 'sound');
+                this._volumeSlider.value = this._video.volume.toString();
+                this._volumeButton.title = this.options.translations.mute;
+                if (this.volume > 0.5) {
+                    Cinematic.switchButtonIcon(this._volumeButton, 'sound');
                 } else {
-                    me.switchButtonIcon(me._volumeButton, 'low');
+                    Cinematic.switchButtonIcon(this._volumeButton, 'low');
                 }
             }
         });
 
         this._video.addEventListener('play', function () {
-            //me._endcard.classList.add('hidden');
-            me.switchButtonIcon(me._playButton, 'pause');
+            Cinematic.switchButtonIcon(me._playButton, 'pause');
             me._playButton.title = me.options.translations.pause;
             me._video.focus();
         });
 
         this._video.addEventListener('pause', function () {
-            //me._endcard.classList.remove('hidden');
-            me.switchButtonIcon(me._playButton, 'play');
+            Cinematic.switchButtonIcon(me._playButton, 'play');
             me._playButton.title = me.options.translations.play;
         });
 
         this._video.addEventListener('ended', function () {
-            //me._endcard.classList.remove('hidden');
-            me.switchButtonIcon(me._playButton, 'repeat');
+            Cinematic.switchButtonIcon(me._playButton, 'repeat');
             me._playButton.title = me.options.translations.restart;
         });
 
@@ -728,7 +718,7 @@ class Cinematic {
         return true;
     }
 
-    private renderButtonIcon(_button: HTMLDivElement, icon: string) {
+    private static renderButtonIcon(_button: HTMLDivElement, icon: string) {
         const _icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         _icon.setAttribute('viewBox', '0 0 24 24');
         const _use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
@@ -737,12 +727,12 @@ class Cinematic {
         _button.appendChild(_icon);
     }
 
-    private switchButtonIcon(_button: HTMLDivElement, newIcon: string) {
+    private static switchButtonIcon(_button: HTMLDivElement, newIcon: string) {
         _button.querySelector('svg use')?.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + newIcon);
     }
 
     private showOverlay(icon: string, text: string | null, hideAutomatically: boolean) {
-        this.switchButtonIcon(this._overlayIcon, icon);
+        Cinematic.switchButtonIcon(this._overlayIcon, icon);
         this._overlayText.textContent = text;
         this._overlayWrapper.classList.remove('hidden');
 
@@ -828,11 +818,11 @@ class Cinematic {
     handleFullScreenChange() {
         if (this.isFullScreen()) {
             this._container.dataset.fullscreen = true;
-            this.switchButtonIcon(this._fullScreenButton, 'closefullscreen');
+            Cinematic.switchButtonIcon(this._fullScreenButton, 'closefullscreen');
             this._fullScreenButton.title = this.options.translations.exitFullscreen;
         } else {
             this._container.dataset.fullscreen = false;
-            this.switchButtonIcon(this._fullScreenButton, 'fullscreen');
+            Cinematic.switchButtonIcon(this._fullScreenButton, 'fullscreen');
             this._fullScreenButton.title = this.options.translations.fullscreen;
         }
     }
