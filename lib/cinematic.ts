@@ -406,6 +406,24 @@ class Cinematic {
 
    setupEvents() {
       const me = this;
+      
+      const resizeHandler = () => {
+         if (this._container.clientWidth >= 328) {
+            this._timer.classList.remove('hidden');
+         } else {
+            this._timer.classList.add('hidden');
+         }
+      };
+      
+      window.addEventListener('resize', resizeHandler);
+      resizeHandler();
+
+      const observer = new MutationObserver(function(mutations) {
+         console.log('size changed!');
+      });
+      observer.observe(this._controls, {
+         attributes: true
+      });
 
       this._playButton.addEventListener('click', function (e) {
          if (me._video.paused || me._video.ended) {

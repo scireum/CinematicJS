@@ -276,6 +276,22 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.setupEvents = function () {
         var _this = this;
         var me = this;
+        var resizeHandler = function () {
+            if (_this._container.clientWidth >= 328) {
+                _this._timer.classList.remove('hidden');
+            }
+            else {
+                _this._timer.classList.add('hidden');
+            }
+        };
+        window.addEventListener('resize', resizeHandler);
+        resizeHandler();
+        var observer = new MutationObserver(function (mutations) {
+            console.log('size changed!');
+        });
+        observer.observe(this._controls, {
+            attributes: true
+        });
         this._playButton.addEventListener('click', function (e) {
             if (me._video.paused || me._video.ended) {
                 me._video.play();
