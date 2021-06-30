@@ -94,7 +94,9 @@ var Cinematic = /** @class */ (function () {
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
-        _video.oncontextmenu = function () { return false; };
+        _video.oncontextmenu = function () {
+            return false;
+        };
         if (this.options.autoplay) {
             _video.autoplay = true;
         }
