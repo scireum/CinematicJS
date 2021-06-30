@@ -4,6 +4,11 @@ interface Document {
    webkitFullscreenEnabled: any;
 }
 
+interface HTMLVideoElement {
+   webkitEnterFullscreen: any;
+   webkitSupportsFullscreen: any;
+}
+
 interface Options {
    selector: string;
    baseUri: string;
@@ -126,8 +131,6 @@ class Cinematic {
       }
       this._container = _passedContainer;
 
-      this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
-
       this.quality = this.options.quality;
 
       this.loadIcons();
@@ -185,6 +188,8 @@ class Cinematic {
 
       this._video = _video;
 
+      this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
+      
       if (this.options.sources.length === 0) {
          throw new Error('CinematicJS: At least one source has to be passed.');
       }
@@ -810,6 +815,9 @@ class Cinematic {
       } else if (this._container.webkitRequestFullscreen) {
          // Need this to support Safari
          this._container.webkitRequestFullscreen();
+      } else if (this._video.webkitEnterFullscreen) {
+         // Need this to support iOS Safari
+         this._video.webkitEnterFullscreen();
       } else {
          this._container.requestFullscreen();
       }

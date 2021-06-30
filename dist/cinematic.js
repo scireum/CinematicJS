@@ -51,7 +51,6 @@ var Cinematic = /** @class */ (function () {
             throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
         }
         this._container = _passedContainer;
-        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
         this.quality = this.options.quality;
         this.loadIcons();
         this.renderPlayer();
@@ -101,6 +100,7 @@ var Cinematic = /** @class */ (function () {
         }
         this._container.appendChild(_video);
         this._video = _video;
+        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
         if (this.options.sources.length === 0) {
             throw new Error('CinematicJS: At least one source has to be passed.');
         }
@@ -635,6 +635,10 @@ var Cinematic = /** @class */ (function () {
         else if (this._container.webkitRequestFullscreen) {
             // Need this to support Safari
             this._container.webkitRequestFullscreen();
+        }
+        else if (this._video.webkitEnterFullscreen) {
+            // Need this to support iOS Safari
+            this._video.webkitEnterFullscreen();
         }
         else {
             this._container.requestFullscreen();
