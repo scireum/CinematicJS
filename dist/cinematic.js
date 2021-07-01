@@ -51,7 +51,6 @@ var Cinematic = /** @class */ (function () {
             throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
         }
         this._container = _passedContainer;
-        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
         this.quality = this.options.quality;
         this.loadIcons();
         this.renderPlayer();
@@ -76,10 +75,10 @@ var Cinematic = /** @class */ (function () {
         var request = new XMLHttpRequest();
         request.open("GET", this.options.baseUri + '/icons.svg', true);
         request.responseType = "document";
-        request.onload = function (e) {
+        request.onload = function () {
             var _a;
             var svg = (_a = request === null || request === void 0 ? void 0 : request.responseXML) === null || _a === void 0 ? void 0 : _a.documentElement;
-            // Don't render anything that is not an SVG, e.g. a HTML error page
+            // Don't render anything that is not an SVG, e.g. an HTML error page
             if (svg && svg.nodeName === 'svg') {
                 _iconContainer.appendChild(svg);
             }
@@ -95,12 +94,15 @@ var Cinematic = /** @class */ (function () {
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
-        _video.oncontextmenu = function () { return false; };
+        _video.oncontextmenu = function () {
+            return false;
+        };
         if (this.options.autoplay) {
             _video.autoplay = true;
         }
         this._container.appendChild(_video);
         this._video = _video;
+        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
         if (this.options.sources.length === 0) {
             throw new Error('CinematicJS: At least one source has to be passed.');
         }
@@ -153,7 +155,7 @@ var Cinematic = /** @class */ (function () {
         var _overlayIcon = document.createElement('div');
         _overlayIcon.classList.add('video-overlay-icon');
         _overlayContainer.appendChild(_overlayIcon);
-        this.renderButtonIcon(_overlayIcon, 'mute');
+        Cinematic.renderButtonIcon(_overlayIcon, 'mute');
         this._overlayIcon = _overlayIcon;
         var _overlayText = document.createElement('div');
         _overlayText.classList.add('video-overlay-text');
@@ -167,7 +169,7 @@ var Cinematic = /** @class */ (function () {
             var _closeButton = document.createElement('div');
             _closeButton.classList.add('video-close-button');
             _closeButton.title = this.options.translations.close;
-            this.renderButtonIcon(_closeButton, 'close');
+            Cinematic.renderButtonIcon(_closeButton, 'close');
             _header.appendChild(_closeButton);
             this._closeButton = _closeButton;
         }
@@ -194,7 +196,7 @@ var Cinematic = /** @class */ (function () {
         this._controls = _controls;
         var _playButton = document.createElement('div');
         _playButton.classList.add('video-control-button');
-        this.renderButtonIcon(_playButton, 'play');
+        Cinematic.renderButtonIcon(_playButton, 'play');
         _controls.appendChild(_playButton);
         this._playButton = _playButton;
         var _timer = document.createElement('span');
@@ -220,7 +222,7 @@ var Cinematic = /** @class */ (function () {
         var _volumeButton = document.createElement('div');
         _volumeButton.classList.add('video-control-button');
         _volumeButton.title = this.options.translations.mute;
-        this.renderButtonIcon(_volumeButton, 'sound');
+        Cinematic.renderButtonIcon(_volumeButton, 'sound');
         _volumeWrapper.appendChild(_volumeButton);
         this._volumeButton = _volumeButton;
         if (this.options.sources.length > 1) {
@@ -230,7 +232,7 @@ var Cinematic = /** @class */ (function () {
             var _qualityButton = document.createElement('div');
             _qualityButton.classList.add('video-control-button');
             _qualityButton.title = this.options.translations.quality;
-            this.renderButtonIcon(_qualityButton, 'settings');
+            Cinematic.renderButtonIcon(_qualityButton, 'settings');
             _qualityWrapper.appendChild(_qualityButton);
             var _dropDownContent_1 = document.createElement('div');
             _dropDownContent_1.classList.add('video-dropdown-content');
@@ -252,7 +254,7 @@ var Cinematic = /** @class */ (function () {
             _deeplinkButton.classList.add('video-control-button');
             _deeplinkButton.title = this.options.translations.deeplink;
             _deeplinkButton.dataset.copiedText = this.options.translations.deeplinkCopied;
-            this.renderButtonIcon(_deeplinkButton, 'deeplink');
+            Cinematic.renderButtonIcon(_deeplinkButton, 'deeplink');
             _controls.appendChild(_deeplinkButton);
             this._deeplinkButton = _deeplinkButton;
         }
@@ -260,7 +262,7 @@ var Cinematic = /** @class */ (function () {
             var _captionsButton = document.createElement('div');
             _captionsButton.classList.add('video-control-button');
             _captionsButton.title = this.options.translations.showSubtitles;
-            this.renderButtonIcon(_captionsButton, 'expanded-cc');
+            Cinematic.renderButtonIcon(_captionsButton, 'expanded-cc');
             _controls.appendChild(_captionsButton);
             this._captionsButton = _captionsButton;
         }
@@ -268,7 +270,7 @@ var Cinematic = /** @class */ (function () {
             var _fullScreenButton = document.createElement('div');
             _fullScreenButton.classList.add('video-control-button');
             _fullScreenButton.title = this.options.translations.fullscreen;
-            this.renderButtonIcon(_fullScreenButton, 'fullscreen');
+            Cinematic.renderButtonIcon(_fullScreenButton, 'fullscreen');
             _controls.appendChild(_fullScreenButton);
             this._fullScreenButton = _fullScreenButton;
         }
@@ -276,21 +278,31 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.setupEvents = function () {
         var _this = this;
         var me = this;
-        this._playButton.addEventListener('click', function (e) {
-            if (me._video.paused || me._video.ended) {
-                me._video.play();
+        var resizeHandler = function () {
+            if (_this._container.clientWidth >= 328) {
+                _this._timer.classList.remove('hidden');
             }
             else {
-                me._video.pause();
+                _this._timer.classList.add('hidden');
+            }
+        };
+        window.addEventListener('resize', resizeHandler);
+        resizeHandler();
+        this._playButton.addEventListener('click', function () {
+            if (_this._video.paused || _this._video.ended) {
+                _this._video.play();
+            }
+            else {
+                _this._video.pause();
             }
         });
-        this._volumeButton.addEventListener('click', function (e) {
-            me._video.muted = !me._video.muted;
+        this._volumeButton.addEventListener('click', function () {
+            _this._video.muted = !_this._video.muted;
         });
-        this._volumeSlider.addEventListener('change', function (e) {
+        this._volumeSlider.addEventListener('change', function () {
             // To allow the user to change from mute to a specific volume via the slider.
-            me._video.muted = false;
-            me._video.volume = me.volume = parseFloat(this.value);
+            _this._video.muted = false;
+            _this._video.volume = _this.volume = parseFloat(_this._volumeSlider.value);
         });
         var onCueEnter = function () {
             me._cues.textContent = this.text;
@@ -322,41 +334,38 @@ var Cinematic = /** @class */ (function () {
             me.updateTimer();
         });
         this._video.addEventListener('volumechange', function () {
-            if (me.options.rememberVolume) {
-                me.writeToLocalStore('volume', this.volume.toString());
-                me.writeToLocalStore('muted', String(this.muted));
+            if (_this.options.rememberVolume) {
+                _this.writeToLocalStore('volume', _this._video.volume.toString());
+                _this.writeToLocalStore('muted', String(_this._video.muted));
             }
-            if (me._video.muted) {
+            if (_this._video.muted) {
                 // Set the volume slider to its min value to indicate the mute.
-                me._volumeSlider.value = '0';
-                me.switchButtonIcon(me._volumeButton, 'mute');
-                me._volumeButton.title = me.options.translations.unmute;
+                _this._volumeSlider.value = '0';
+                Cinematic.switchButtonIcon(_this._volumeButton, 'mute');
+                _this._volumeButton.title = _this.options.translations.unmute;
             }
             else {
-                me._volumeSlider.value = me._video.volume.toString();
-                me._volumeButton.title = me.options.translations.mute;
-                if (me.volume > 0.5) {
-                    me.switchButtonIcon(me._volumeButton, 'sound');
+                _this._volumeSlider.value = _this._video.volume.toString();
+                _this._volumeButton.title = _this.options.translations.mute;
+                if (_this.volume > 0.5) {
+                    Cinematic.switchButtonIcon(_this._volumeButton, 'sound');
                 }
                 else {
-                    me.switchButtonIcon(me._volumeButton, 'low');
+                    Cinematic.switchButtonIcon(_this._volumeButton, 'low');
                 }
             }
         });
         this._video.addEventListener('play', function () {
-            //me._endcard.classList.add('hidden');
-            me.switchButtonIcon(me._playButton, 'pause');
+            Cinematic.switchButtonIcon(me._playButton, 'pause');
             me._playButton.title = me.options.translations.pause;
             me._video.focus();
         });
         this._video.addEventListener('pause', function () {
-            //me._endcard.classList.remove('hidden');
-            me.switchButtonIcon(me._playButton, 'play');
+            Cinematic.switchButtonIcon(me._playButton, 'play');
             me._playButton.title = me.options.translations.play;
         });
         this._video.addEventListener('ended', function () {
-            //me._endcard.classList.remove('hidden');
-            me.switchButtonIcon(me._playButton, 'repeat');
+            Cinematic.switchButtonIcon(me._playButton, 'repeat');
             me._playButton.title = me.options.translations.restart;
         });
         this._video.addEventListener('progress', function () {
@@ -537,7 +546,7 @@ var Cinematic = /** @class */ (function () {
         });
         return true;
     };
-    Cinematic.prototype.renderButtonIcon = function (_button, icon) {
+    Cinematic.renderButtonIcon = function (_button, icon) {
         var _icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         _icon.setAttribute('viewBox', '0 0 24 24');
         var _use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
@@ -545,13 +554,13 @@ var Cinematic = /** @class */ (function () {
         _icon.appendChild(_use);
         _button.appendChild(_icon);
     };
-    Cinematic.prototype.switchButtonIcon = function (_button, newIcon) {
+    Cinematic.switchButtonIcon = function (_button, newIcon) {
         var _a;
         (_a = _button.querySelector('svg use')) === null || _a === void 0 ? void 0 : _a.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + newIcon);
     };
     Cinematic.prototype.showOverlay = function (icon, text, hideAutomatically) {
         var _this = this;
-        this.switchButtonIcon(this._overlayIcon, icon);
+        Cinematic.switchButtonIcon(this._overlayIcon, icon);
         this._overlayText.textContent = text;
         this._overlayWrapper.classList.remove('hidden');
         clearTimeout(this.overlayHideTimeout);
@@ -620,6 +629,10 @@ var Cinematic = /** @class */ (function () {
             // Need this to support Safari
             this._container.webkitRequestFullscreen();
         }
+        else if (this._video.webkitEnterFullscreen) {
+            // Need this to support iOS Safari
+            this._video.webkitEnterFullscreen();
+        }
         else {
             this._container.requestFullscreen();
         }
@@ -627,12 +640,12 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.handleFullScreenChange = function () {
         if (this.isFullScreen()) {
             this._container.dataset.fullscreen = true;
-            this.switchButtonIcon(this._fullScreenButton, 'closefullscreen');
+            Cinematic.switchButtonIcon(this._fullScreenButton, 'closefullscreen');
             this._fullScreenButton.title = this.options.translations.exitFullscreen;
         }
         else {
             this._container.dataset.fullscreen = false;
-            this.switchButtonIcon(this._fullScreenButton, 'fullscreen');
+            Cinematic.switchButtonIcon(this._fullScreenButton, 'fullscreen');
             this._fullScreenButton.title = this.options.translations.fullscreen;
         }
     };
