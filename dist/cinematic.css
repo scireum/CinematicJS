@@ -21,6 +21,10 @@
     outline: none;
 }
 
+.video-container.video-user-inactive {
+    cursor: none;
+}
+
 /*endregion*/
 
 /*region Cues / Subtitles*/

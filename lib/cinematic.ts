@@ -828,6 +828,7 @@ class Cinematic {
     }
 
     showControls() {
+        this._container.classList.remove('video-user-inactive');
         this._header.classList.remove('hidden');
         this._footer.classList.remove('hidden');
     }
@@ -837,6 +838,7 @@ class Cinematic {
             return;
         }
 
+        this._container.classList.add('video-user-inactive');
         this._header.classList.add('hidden');
         this._footer.classList.add('hidden');
     }

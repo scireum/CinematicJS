@@ -650,6 +650,7 @@ var Cinematic = /** @class */ (function () {
         }
     };
     Cinematic.prototype.showControls = function () {
+        this._container.classList.remove('video-user-inactive');
         this._header.classList.remove('hidden');
         this._footer.classList.remove('hidden');
     };
@@ -657,6 +658,7 @@ var Cinematic = /** @class */ (function () {
         if (this._video.paused) {
             return;
         }
+        this._container.classList.add('video-user-inactive');
         this._header.classList.add('hidden');
         this._footer.classList.add('hidden');
     };
