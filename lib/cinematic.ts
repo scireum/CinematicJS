@@ -443,6 +443,7 @@ class Cinematic {
         });
 
         const currentTime = this._video.currentTime;
+        const wasPlaying = !this._video.paused;
 
         const newSource = this.options.sources.find(videoSource => newQuality === videoSource.quality);
         if (!newSource) {
@@ -458,7 +459,9 @@ class Cinematic {
 
         this._video.load();
         this._video.currentTime = currentTime;
-        this._video.play();
+        if (wasPlaying) {
+            this._video.play();
+        }
         this.quality = newQuality;
     }
 

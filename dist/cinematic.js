@@ -301,6 +301,7 @@ var Cinematic = /** @class */ (function () {
             }
         });
         var currentTime = this._video.currentTime;
+        var wasPlaying = !this._video.paused;
         var newSource = this.options.sources.find(function (videoSource) { return newQuality === videoSource.quality; });
         if (!newSource) {
             return;
@@ -313,7 +314,9 @@ var Cinematic = /** @class */ (function () {
         });
         this._video.load();
         this._video.currentTime = currentTime;
-        this._video.play();
+        if (wasPlaying) {
+            this._video.play();
+        }
         this.quality = newQuality;
     };
     Cinematic.prototype.setupEvents = function () {
