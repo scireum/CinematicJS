@@ -100,7 +100,8 @@ class Cinematic {
     _timer: HTMLElement;
     _volumeSlider: HTMLInputElement;
     _volumeButton: HTMLDivElement;
-    _qualityOptions: NodeListOf<ChildNode>;
+    _qualityWrapper: HTMLDivElement;
+    _qualityDropdownContent: HTMLDivElement;
     _captionsButton: HTMLElement;
     _deeplinkButton: HTMLElement;
     _fullScreenButton: HTMLDivElement;
@@ -350,34 +351,25 @@ class Cinematic {
 
         this._volumeButton = _volumeButton;
 
-        if (this.options.sources.length > 1) {
-            const _qualityWrapper = document.createElement('div');
-            _qualityWrapper.classList.add('video-control-dropdown');
-            _controls.appendChild(_qualityWrapper);
+        const _qualityWrapper = document.createElement('div');
+        _qualityWrapper.classList.add('video-control-dropdown');
+        _controls.appendChild(_qualityWrapper);
 
-            const _qualityButton = document.createElement('div');
-            _qualityButton.classList.add('video-control-button');
-            _qualityButton.title = this.options.translations.quality;
-            Cinematic.renderButtonIcon(_qualityButton, 'settings');
-            _qualityWrapper.appendChild(_qualityButton);
+        this._qualityWrapper = _qualityWrapper;
 
-            const _dropDownContent = document.createElement('div');
-            _dropDownContent.classList.add('video-dropdown-content');
-            _qualityWrapper.appendChild(_dropDownContent);
+        const _qualityButton = document.createElement('div');
+        _qualityButton.classList.add('video-control-button');
+        _qualityButton.title = this.options.translations.quality;
+        Cinematic.renderButtonIcon(_qualityButton, 'settings');
+        _qualityWrapper.appendChild(_qualityButton);
 
-            this.options.sources.forEach(source => {
-                const _option = document.createElement('div');
-                _option.classList.add('video-quality-option');
-                if (this.quality === source.quality) {
-                    _option.classList.add('active');
-                }
-                _option.dataset.quality = source.quality;
-                _option.textContent = source.quality;
-                _dropDownContent.appendChild(_option);
-            });
+        const _dropDownContent = document.createElement('div');
+        _dropDownContent.classList.add('video-dropdown-content');
+        _qualityWrapper.appendChild(_dropDownContent);
 
-            this._qualityOptions = _dropDownContent.childNodes;
-        }
+        this._qualityDropdownContent = _dropDownContent;
+
+        this.renderQualityOptions();
 
         if (this.options.deeplink) {
             const _deeplinkButton = document.createElement('div');
@@ -409,6 +401,65 @@ class Cinematic {
 
             this._fullScreenButton = _fullScreenButton;
         }
+    }
+
+    private renderQualityOptions() {
+        this._qualityDropdownContent.textContent = '';
+
+        if (this.options.sources.length > 1) {
+            this.options.sources.forEach(source => {
+                const _option = document.createElement('div');
+                _option.classList.add('video-quality-option');
+                if (this.quality === source.quality) {
+                    _option.classList.add('active');
+                }
+                _option.textContent = source.quality;
+                _option.dataset.quality = source.quality;
+
+                _option.addEventListener('click', () => this.handleQualityChange(_option.dataset.quality ?? ''));
+
+                this._qualityDropdownContent.appendChild(_option);
+            });
+
+            this._qualityWrapper.classList.remove('hidden');
+        } else {
+            this._qualityWrapper.classList.add('hidden');
+        }
+    }
+
+    private handleQualityChange(newQuality: string) {
+        const currentQuality = this.quality;
+
+        if (!newQuality || newQuality === currentQuality) {
+            return;
+        }
+
+        this._qualityDropdownContent.childNodes.forEach(function (_option: HTMLElement) {
+            if (_option.dataset.quality === newQuality) {
+                _option.classList.add('active');
+            } else {
+                _option.classList.remove('active');
+            }
+        });
+
+        const currentTime = this._video.currentTime;
+
+        const newSource = this.options.sources.find(videoSource => newQuality === videoSource.quality);
+        if (!newSource) {
+            return;
+        }
+
+        newSource.sources.forEach((videoFormatSource, index) => {
+            const _source = this._sources[index];
+            if (_source) {
+                _source.src = videoFormatSource.source;
+            }
+        });
+
+        this._video.load();
+        this._video.currentTime = currentTime;
+        this._video.play();
+        this.quality = newQuality;
     }
 
     setupEvents() {
@@ -497,7 +548,7 @@ class Cinematic {
             Cinematic.switchButtonIcon(me._playButton, 'pause');
             me._playButton.title = me.options.translations.pause;
             me._video.focus();
-            
+
             // Shows the timer even when video container is invisible during initialization of the player
             this.handlePlayerResize();
         });
@@ -576,43 +627,6 @@ class Cinematic {
 
             document.addEventListener('fullscreenchange', () => this.handleFullScreenChange());
             document.addEventListener('webkitfullscreenchange', () => this.handleFullScreenChange());
-        }
-
-        if (this.options.sources.length > 1) {
-            this._qualityOptions.forEach(function (_qualityOption: HTMLElement) {
-                _qualityOption.addEventListener('click', function () {
-                    const newQuality = _qualityOption.dataset.quality;
-                    const currentQuality = me.quality;
-
-                    if (!newQuality || newQuality === currentQuality) {
-                        return;
-                    }
-
-                    me._qualityOptions.forEach(function (_qualityOption: HTMLElement) {
-                        _qualityOption.classList.remove('active');
-                    });
-                    _qualityOption.classList.add('active');
-
-                    const currentTime = me._video.currentTime;
-
-                    const newSource = me.options.sources.find(source => newQuality === source.quality);
-                    if (!newSource) {
-                        return;
-                    }
-
-                    newSource.sources.forEach((source, index) => {
-                        const _source = me._sources[index];
-                        if (_source) {
-                            _source.src = source.source;
-                        }
-                    });
-
-                    me._video.load();
-                    me._video.currentTime = currentTime;
-                    me._video.play();
-                    me.quality = newQuality;
-                });
-            });
         }
 
         if (this.options.deeplink) {
@@ -712,7 +726,7 @@ class Cinematic {
 
         return true;
     }
-    
+
     private handlePlayerResize() {
         if (this._container.clientWidth >= 328) {
             this._timer.classList.remove('hidden');
