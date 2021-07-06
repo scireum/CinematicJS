@@ -278,16 +278,8 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.setupEvents = function () {
         var _this = this;
         var me = this;
-        var resizeHandler = function () {
-            if (_this._container.clientWidth >= 328) {
-                _this._timer.classList.remove('hidden');
-            }
-            else {
-                _this._timer.classList.add('hidden');
-            }
-        };
-        window.addEventListener('resize', resizeHandler);
-        resizeHandler();
+        window.addEventListener('resize', this.handlePlayerResize);
+        this.handlePlayerResize();
         this._playButton.addEventListener('click', function () {
             if (_this._video.paused || _this._video.ended) {
                 _this._video.play();
@@ -359,6 +351,8 @@ var Cinematic = /** @class */ (function () {
             Cinematic.switchButtonIcon(me._playButton, 'pause');
             me._playButton.title = me.options.translations.pause;
             me._video.focus();
+            // Shows the timer even when video container is invisible during initialization of the player
+            _this.handlePlayerResize();
         });
         this._video.addEventListener('pause', function () {
             Cinematic.switchButtonIcon(me._playButton, 'play');
@@ -546,6 +540,14 @@ var Cinematic = /** @class */ (function () {
         });
         return true;
     };
+    Cinematic.prototype.handlePlayerResize = function () {
+        if (this._container.clientWidth >= 328) {
+            this._timer.classList.remove('hidden');
+        }
+        else {
+            this._timer.classList.add('hidden');
+        }
+    };
     Cinematic.renderButtonIcon = function (_button, icon) {
         var _icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         _icon.setAttribute('viewBox', '0 0 24 24');
@@ -650,6 +652,7 @@ var Cinematic = /** @class */ (function () {
         }
     };
     Cinematic.prototype.showControls = function () {
+        this._container.classList.remove('video-user-inactive');
         this._header.classList.remove('hidden');
         this._footer.classList.remove('hidden');
     };
@@ -657,6 +660,7 @@ var Cinematic = /** @class */ (function () {
         if (this._video.paused) {
             return;
         }
+        this._container.classList.add('video-user-inactive');
         this._header.classList.add('hidden');
         this._footer.classList.add('hidden');
     };

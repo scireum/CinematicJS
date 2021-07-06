@@ -414,16 +414,8 @@ class Cinematic {
     setupEvents() {
         const me = this;
 
-        const resizeHandler = () => {
-            if (this._container.clientWidth >= 328) {
-                this._timer.classList.remove('hidden');
-            } else {
-                this._timer.classList.add('hidden');
-            }
-        };
-
-        window.addEventListener('resize', resizeHandler);
-        resizeHandler();
+        window.addEventListener('resize', this.handlePlayerResize);
+        this.handlePlayerResize();
 
         this._playButton.addEventListener('click', () => {
             if (this._video.paused || this._video.ended) {
@@ -501,10 +493,13 @@ class Cinematic {
             }
         });
 
-        this._video.addEventListener('play', function () {
+        this._video.addEventListener('play', () => {
             Cinematic.switchButtonIcon(me._playButton, 'pause');
             me._playButton.title = me.options.translations.pause;
             me._video.focus();
+            
+            // Shows the timer even when video container is invisible during initialization of the player
+            this.handlePlayerResize();
         });
 
         this._video.addEventListener('pause', function () {
@@ -717,6 +712,14 @@ class Cinematic {
 
         return true;
     }
+    
+    private handlePlayerResize() {
+        if (this._container.clientWidth >= 328) {
+            this._timer.classList.remove('hidden');
+        } else {
+            this._timer.classList.add('hidden');
+        }
+    }
 
     private static renderButtonIcon(_button: HTMLDivElement, icon: string) {
         const _icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -828,6 +831,7 @@ class Cinematic {
     }
 
     showControls() {
+        this._container.classList.remove('video-user-inactive');
         this._header.classList.remove('hidden');
         this._footer.classList.remove('hidden');
     }
@@ -837,6 +841,7 @@ class Cinematic {
             return;
         }
 
+        this._container.classList.add('video-user-inactive');
         this._header.classList.add('hidden');
         this._footer.classList.add('hidden');
     }
