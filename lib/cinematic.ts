@@ -20,6 +20,7 @@ interface Options {
     rememberVolume: boolean;
     quality: string;
     sources: VideoQuality[];
+    playlist: CinematicPlaylist | null;
     closeCallback?: CloseCallback;
     translations: Translations;
 }
@@ -69,6 +70,7 @@ class Cinematic {
         rememberVolume: false,
         quality: '720p',
         sources: [],
+        playlist: null,
         translations: {
             pause: 'Pause',
             play: 'Play',
@@ -116,6 +118,7 @@ class Cinematic {
     quality = '';
     tracks: TextTrack;
     cues: TextTrackCueList | null;
+    playlist: CinematicPlaylist;
 
     fullScreenEnabled = false;
     userActive = false;
@@ -133,6 +136,12 @@ class Cinematic {
         this._container = _passedContainer;
 
         this.quality = this.options.quality;
+
+        if (this.options.playlist) {
+            this.playlist = this.options.playlist;
+        } else {
+            this.playlist = new CinematicPlaylist(true, [new CinematicVideo(this.options.sources)]);
+        }
 
         this.loadIcons();
         this.renderPlayer();
@@ -193,16 +202,9 @@ class Cinematic {
 
         this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
 
-        if (this.options.sources.length === 0) {
-            throw new Error('CinematicJS: At least one source has to be passed.');
-        }
+        let initialVideo = this.playlist.getCurrentVideo();
+        let startSource = initialVideo.getSourcesForQuality(this.quality);
 
-        let startSource;
-        if (this.options.sources.length === 1) {
-            startSource = this.options.sources[0];
-        } else {
-            startSource = this.getSourcesForQuality(this.quality);
-        }
         if (!startSource) {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
         }
@@ -765,15 +767,6 @@ class Cinematic {
         }
     }
 
-    getSourcesForQuality(quality: string): VideoQuality | null {
-        for (let source of this.options.sources) {
-            if (source.quality === quality) {
-                return source;
-            }
-        }
-        return null;
-    }
-
     formatTime(seconds: number) {
         let hourComponent = Math.floor(seconds / 3600);
         let minuteComponent = Math.floor((seconds - (hourComponent * 3600)) / 60);
@@ -920,5 +913,45 @@ class Cinematic {
         window.addEventListener('copy', copy);
         document.execCommand('copy');
         window.removeEventListener('copy', copy);
+    }
+}
+
+class CinematicVideo {
+    sources: VideoQuality[];
+
+    constructor(sources: VideoQuality[]) {
+        this.sources = sources;
+    }
+
+    getSourcesForQuality(quality: string): VideoQuality | null {
+        if (this.sources.length === 1) {
+            return this.sources[0];
+        }
+        for (let source of this.sources) {
+            if (source.quality === quality) {
+                return source;
+            }
+        }
+        return null;
+    }
+}
+
+class CinematicPlaylist {
+    loop: boolean;
+    videos: CinematicVideo[];
+    currentVideo: number;
+
+    constructor(loop: boolean, videos: CinematicVideo[]) {
+        this.loop = loop;
+        this.videos = videos;
+        this.currentVideo = 0;
+
+        if (this.videos.length === 0) {
+            throw new Error('CinematicJS: At least one video has to be passed.');
+        }
+    }
+
+    getCurrentVideo(): CinematicVideo {
+        return this.videos[this.currentVideo];
     }
 }

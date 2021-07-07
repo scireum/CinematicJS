@@ -22,6 +22,7 @@ var Cinematic = /** @class */ (function () {
             rememberVolume: false,
             quality: '720p',
             sources: [],
+            playlist: null,
             translations: {
                 pause: 'Pause',
                 play: 'Play',
@@ -52,6 +53,12 @@ var Cinematic = /** @class */ (function () {
         }
         this._container = _passedContainer;
         this.quality = this.options.quality;
+        if (this.options.playlist) {
+            this.playlist = this.options.playlist;
+        }
+        else {
+            this.playlist = new CinematicPlaylist(true, [new CinematicVideo(this.options.sources)]);
+        }
         this.loadIcons();
         this.renderPlayer();
         this.setupEvents();
@@ -103,16 +110,8 @@ var Cinematic = /** @class */ (function () {
         this._container.appendChild(_video);
         this._video = _video;
         this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
-        if (this.options.sources.length === 0) {
-            throw new Error('CinematicJS: At least one source has to be passed.');
-        }
-        var startSource;
-        if (this.options.sources.length === 1) {
-            startSource = this.options.sources[0];
-        }
-        else {
-            startSource = this.getSourcesForQuality(this.quality);
-        }
+        var initialVideo = this.playlist.getCurrentVideo();
+        var startSource = initialVideo.getSourcesForQuality(this.quality);
         if (!startSource) {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
         }
@@ -586,15 +585,6 @@ var Cinematic = /** @class */ (function () {
             }, 500);
         }
     };
-    Cinematic.prototype.getSourcesForQuality = function (quality) {
-        for (var _i = 0, _a = this.options.sources; _i < _a.length; _i++) {
-            var source = _a[_i];
-            if (source.quality === quality) {
-                return source;
-            }
-        }
-        return null;
-    };
     Cinematic.prototype.formatTime = function (seconds) {
         var hourComponent = Math.floor(seconds / 3600);
         var minuteComponent = Math.floor((seconds - (hourComponent * 3600)) / 60);
@@ -733,5 +723,37 @@ var Cinematic = /** @class */ (function () {
         window.removeEventListener('copy', copy);
     };
     return Cinematic;
+}());
+var CinematicVideo = /** @class */ (function () {
+    function CinematicVideo(sources) {
+        this.sources = sources;
+    }
+    CinematicVideo.prototype.getSourcesForQuality = function (quality) {
+        if (this.sources.length === 1) {
+            return this.sources[0];
+        }
+        for (var _i = 0, _a = this.sources; _i < _a.length; _i++) {
+            var source = _a[_i];
+            if (source.quality === quality) {
+                return source;
+            }
+        }
+        return null;
+    };
+    return CinematicVideo;
+}());
+var CinematicPlaylist = /** @class */ (function () {
+    function CinematicPlaylist(loop, videos) {
+        this.loop = loop;
+        this.videos = videos;
+        this.currentVideo = 0;
+        if (this.videos.length === 0) {
+            throw new Error('CinematicJS: At least one video has to be passed.');
+        }
+    }
+    CinematicPlaylist.prototype.getCurrentVideo = function () {
+        return this.videos[this.currentVideo];
+    };
+    return CinematicPlaylist;
 }());
 //# sourceMappingURL=cinematic.js.map
