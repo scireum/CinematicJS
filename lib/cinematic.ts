@@ -408,8 +408,8 @@ class Cinematic {
     private renderQualityOptions() {
         this._qualityDropdownContent.textContent = '';
 
-        if (this.options.sources.length > 1) {
-            this.options.sources.forEach(source => {
+        if (this.playlist.getCurrentVideo().sources.length > 1) {
+            this.playlist.getCurrentVideo().sources.forEach(source => {
                 const _option = document.createElement('div');
                 _option.classList.add('video-quality-option');
                 if (this.quality === source.quality) {
@@ -430,9 +430,7 @@ class Cinematic {
     }
 
     private handleQualityChange(newQuality: string) {
-        const currentQuality = this.quality;
-
-        if (!newQuality || newQuality === currentQuality) {
+        if (!newQuality) {
             return;
         }
 
@@ -447,7 +445,7 @@ class Cinematic {
         const currentTime = this._video.currentTime;
         const wasPlaying = !this._video.paused;
 
-        const newSource = this.options.sources.find(videoSource => newQuality === videoSource.quality);
+        const newSource = this.playlist.getCurrentVideo().sources.find(videoSource => newQuality === videoSource.quality);
         if (!newSource) {
             return;
         }
@@ -474,7 +472,10 @@ class Cinematic {
         this.handlePlayerResize();
 
         this._playButton.addEventListener('click', () => {
-            if (this._video.paused || this._video.ended) {
+            if (this._video.ended) {
+                this.playlist.resetToBeginning();
+                this.handleVideoChange();
+            } else if (this._video.paused) {
                 this._video.play();
             } else {
                 this._video.pause();
@@ -563,9 +564,14 @@ class Cinematic {
             me._playButton.title = me.options.translations.play;
         });
 
-        this._video.addEventListener('ended', function () {
-            Cinematic.switchButtonIcon(me._playButton, 'repeat');
-            me._playButton.title = me.options.translations.restart;
+        this._video.addEventListener('ended', () => {
+            if (this.playlist.shouldPlayNextVideo()) {
+                this.playlist.startNextVideo();
+                this.handleVideoChange();
+            } else {
+                Cinematic.switchButtonIcon(this._playButton, 'repeat');
+                this._playButton.title = me.options.translations.restart;
+            }
         });
 
         this._video.addEventListener('progress', function () {
@@ -730,6 +736,13 @@ class Cinematic {
         });
 
         return true;
+    }
+
+    private handleVideoChange() {
+        this.handleQualityChange(this.quality);
+        this._video.currentTime = 0;
+        this._video.play();
+        this.renderQualityOptions();
     }
 
     private handlePlayerResize() {
@@ -953,5 +966,20 @@ class CinematicPlaylist {
 
     getCurrentVideo(): CinematicVideo {
         return this.videos[this.currentVideo];
+    }
+
+    shouldPlayNextVideo(): boolean {
+        return this.videos.length > 1 && this.currentVideo + 1 < this.videos.length;
+    }
+
+    startNextVideo() {
+        this.currentVideo++;
+        if (this.loop && this.currentVideo > this.videos.length) {
+            this.resetToBeginning();
+        }
+    }
+
+    resetToBeginning() {
+        this.currentVideo = 0;
     }
 }

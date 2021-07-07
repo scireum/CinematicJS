@@ -267,8 +267,8 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.renderQualityOptions = function () {
         var _this = this;
         this._qualityDropdownContent.textContent = '';
-        if (this.options.sources.length > 1) {
-            this.options.sources.forEach(function (source) {
+        if (this.playlist.getCurrentVideo().sources.length > 1) {
+            this.playlist.getCurrentVideo().sources.forEach(function (source) {
                 var _option = document.createElement('div');
                 _option.classList.add('video-quality-option');
                 if (_this.quality === source.quality) {
@@ -287,8 +287,7 @@ var Cinematic = /** @class */ (function () {
     };
     Cinematic.prototype.handleQualityChange = function (newQuality) {
         var _this = this;
-        var currentQuality = this.quality;
-        if (!newQuality || newQuality === currentQuality) {
+        if (!newQuality) {
             return;
         }
         this._qualityDropdownContent.childNodes.forEach(function (_option) {
@@ -301,7 +300,7 @@ var Cinematic = /** @class */ (function () {
         });
         var currentTime = this._video.currentTime;
         var wasPlaying = !this._video.paused;
-        var newSource = this.options.sources.find(function (videoSource) { return newQuality === videoSource.quality; });
+        var newSource = this.playlist.getCurrentVideo().sources.find(function (videoSource) { return newQuality === videoSource.quality; });
         if (!newSource) {
             return;
         }
@@ -324,7 +323,11 @@ var Cinematic = /** @class */ (function () {
         window.addEventListener('resize', this.handlePlayerResize);
         this.handlePlayerResize();
         this._playButton.addEventListener('click', function () {
-            if (_this._video.paused || _this._video.ended) {
+            if (_this._video.ended) {
+                _this.playlist.resetToBeginning();
+                _this.handleVideoChange();
+            }
+            else if (_this._video.paused) {
                 _this._video.play();
             }
             else {
@@ -402,8 +405,14 @@ var Cinematic = /** @class */ (function () {
             me._playButton.title = me.options.translations.play;
         });
         this._video.addEventListener('ended', function () {
-            Cinematic.switchButtonIcon(me._playButton, 'repeat');
-            me._playButton.title = me.options.translations.restart;
+            if (_this.playlist.shouldPlayNextVideo()) {
+                _this.playlist.startNextVideo();
+                _this.handleVideoChange();
+            }
+            else {
+                Cinematic.switchButtonIcon(_this._playButton, 'repeat');
+                _this._playButton.title = me.options.translations.restart;
+            }
         });
         this._video.addEventListener('progress', function () {
             if (this.duration > 0) {
@@ -552,6 +561,12 @@ var Cinematic = /** @class */ (function () {
             }
         });
         return true;
+    };
+    Cinematic.prototype.handleVideoChange = function () {
+        this.handleQualityChange(this.quality);
+        this._video.currentTime = 0;
+        this._video.play();
+        this.renderQualityOptions();
     };
     Cinematic.prototype.handlePlayerResize = function () {
         if (this._container.clientWidth >= 328) {
@@ -753,6 +768,18 @@ var CinematicPlaylist = /** @class */ (function () {
     }
     CinematicPlaylist.prototype.getCurrentVideo = function () {
         return this.videos[this.currentVideo];
+    };
+    CinematicPlaylist.prototype.shouldPlayNextVideo = function () {
+        return this.videos.length > 1 && this.currentVideo + 1 < this.videos.length;
+    };
+    CinematicPlaylist.prototype.startNextVideo = function () {
+        this.currentVideo++;
+        if (this.loop && this.currentVideo > this.videos.length) {
+            this.resetToBeginning();
+        }
+    };
+    CinematicPlaylist.prototype.resetToBeginning = function () {
+        this.currentVideo = 0;
     };
     return CinematicPlaylist;
 }());
