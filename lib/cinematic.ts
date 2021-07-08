@@ -434,6 +434,16 @@ class Cinematic {
             return;
         }
 
+        let currentVideo = this.playlist.getCurrentVideo();
+        let newSource = currentVideo.getSourcesForQuality(newQuality);
+        if (!newSource) {
+            newQuality = currentVideo.getBestAvailableQuality();
+            newSource = currentVideo.getSourcesForQuality(newQuality);
+        }
+        if (!newSource) {
+            return;
+        }
+
         this._qualityDropdownContent.childNodes.forEach(function (_option: HTMLElement) {
             if (_option.dataset.quality === newQuality) {
                 _option.classList.add('active');
@@ -444,11 +454,6 @@ class Cinematic {
 
         const currentTime = this._video.currentTime;
         const wasPlaying = !this._video.paused;
-
-        const newSource = this.playlist.getCurrentVideo().sources.find(videoSource => newQuality === videoSource.quality);
-        if (!newSource) {
-            return;
-        }
 
         newSource.sources.forEach((videoFormatSource, index) => {
             const _source = this._sources[index];
@@ -739,10 +744,10 @@ class Cinematic {
     }
 
     private handleVideoChange() {
+        this.renderQualityOptions();
         this.handleQualityChange(this.quality);
         this._video.currentTime = 0;
         this._video.play();
-        this.renderQualityOptions();
     }
 
     private handlePlayerResize() {
@@ -946,6 +951,10 @@ class CinematicVideo {
             }
         }
         return null;
+    }
+
+    getBestAvailableQuality(): string {
+        return this.sources[0].quality;
     }
 }
 

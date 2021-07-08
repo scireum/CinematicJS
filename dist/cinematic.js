@@ -290,6 +290,15 @@ var Cinematic = /** @class */ (function () {
         if (!newQuality) {
             return;
         }
+        var currentVideo = this.playlist.getCurrentVideo();
+        var newSource = currentVideo.getSourcesForQuality(newQuality);
+        if (!newSource) {
+            newQuality = currentVideo.getBestAvailableQuality();
+            newSource = currentVideo.getSourcesForQuality(newQuality);
+        }
+        if (!newSource) {
+            return;
+        }
         this._qualityDropdownContent.childNodes.forEach(function (_option) {
             if (_option.dataset.quality === newQuality) {
                 _option.classList.add('active');
@@ -300,10 +309,6 @@ var Cinematic = /** @class */ (function () {
         });
         var currentTime = this._video.currentTime;
         var wasPlaying = !this._video.paused;
-        var newSource = this.playlist.getCurrentVideo().sources.find(function (videoSource) { return newQuality === videoSource.quality; });
-        if (!newSource) {
-            return;
-        }
         newSource.sources.forEach(function (videoFormatSource, index) {
             var _source = _this._sources[index];
             if (_source) {
@@ -563,10 +568,10 @@ var Cinematic = /** @class */ (function () {
         return true;
     };
     Cinematic.prototype.handleVideoChange = function () {
+        this.renderQualityOptions();
         this.handleQualityChange(this.quality);
         this._video.currentTime = 0;
         this._video.play();
-        this.renderQualityOptions();
     };
     Cinematic.prototype.handlePlayerResize = function () {
         if (this._container.clientWidth >= 328) {
@@ -754,6 +759,9 @@ var CinematicVideo = /** @class */ (function () {
             }
         }
         return null;
+    };
+    CinematicVideo.prototype.getBestAvailableQuality = function () {
+        return this.sources[0].quality;
     };
     return CinematicVideo;
 }());

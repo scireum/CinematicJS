@@ -164,7 +164,7 @@
         subtitles: '../video/captions.vtt',
         deeplink: 'localhost:5500/docs/index.html',
         rememberVolume: true,
-        quality: '720p',
+        quality: '1080p',
         playlist: new CinematicPlaylist(true, [
             new CinematicVideo([
                     {
@@ -196,19 +196,6 @@
                 ]
             ),
             new CinematicVideo([
-                    {
-                        quality: '1080p',
-                        sources: [
-                            {
-                                type: 'video/mp4; codecs="hvc1"',
-                                source: '../video/video2-1080.mp4'
-                            },
-                            {
-                                type: 'video/mp4; codecs="avc1.64001F"',
-                                source: '../video/video2-1080.mp4'
-                            }
-                        ]
-                    },
                     {
                         quality: '720p',
                         sources: [
