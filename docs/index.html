@@ -118,7 +118,6 @@
 <script>
     new Cinematic({
         selector: '#video1',
-        subtitles: '../video/captions.vtt',
         deeplink: 'localhost:5500/docs/index.html',
         //autoplay: true,
         rememberVolume: true,
@@ -126,6 +125,7 @@
         quality: '720p',
         video: new CinematicVideo({
             poster: '../video/poster.jpg',
+            subtitles: '../video/captions.vtt',
             sources: [
                 {
                     quality: '1080p',
