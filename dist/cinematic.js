@@ -14,7 +14,6 @@ var Cinematic = /** @class */ (function () {
         this.defaults = {
             selector: '',
             baseUri: '../dist',
-            poster: '',
             subtitles: '',
             autoplay: false,
             startTime: 0,
@@ -22,6 +21,7 @@ var Cinematic = /** @class */ (function () {
             rememberVolume: false,
             quality: '720p',
             sources: [],
+            video: null,
             playlist: null,
             translations: {
                 pause: 'Pause',
@@ -56,8 +56,11 @@ var Cinematic = /** @class */ (function () {
         if (this.options.playlist) {
             this.playlist = this.options.playlist;
         }
+        else if (this.options.video) {
+            this.playlist = new CinematicPlaylist(false, [this.options.video]);
+        }
         else {
-            this.playlist = new CinematicPlaylist(true, [new CinematicVideo(this.options.sources)]);
+            throw new Error('CinematicJS: Either a single `video` or a `playlist` has to be passed as options.');
         }
         this.loadIcons();
         this.renderPlayer();
@@ -97,7 +100,7 @@ var Cinematic = /** @class */ (function () {
         this._container.classList.add('video-container');
         var _video = document.createElement('video');
         _video.preload = 'metadata';
-        _video.poster = this.options.poster;
+        _video.poster = this.playlist.getCurrentVideo().poster;
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
@@ -570,6 +573,7 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.handleVideoChange = function () {
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
+        this._video.poster = this.playlist.getCurrentVideo().poster;
         this._video.currentTime = 0;
         this._video.play();
     };
@@ -745,8 +749,9 @@ var Cinematic = /** @class */ (function () {
     return Cinematic;
 }());
 var CinematicVideo = /** @class */ (function () {
-    function CinematicVideo(sources) {
-        this.sources = sources;
+    function CinematicVideo(options) {
+        this.poster = options.poster;
+        this.sources = options.sources;
     }
     CinematicVideo.prototype.getSourcesForQuality = function (quality) {
         if (this.sources.length === 1) {

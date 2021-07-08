@@ -12,7 +12,6 @@ interface HTMLVideoElement {
 interface Options {
     selector: string;
     baseUri: string;
-    poster: string;
     subtitles: string;
     autoplay: boolean;
     startTime: number;
@@ -20,9 +19,15 @@ interface Options {
     rememberVolume: boolean;
     quality: string;
     sources: VideoQuality[];
+    video: CinematicVideo | null;
     playlist: CinematicPlaylist | null;
     closeCallback?: CloseCallback;
     translations: Translations;
+}
+
+interface VideoOptions {
+    poster: string;
+    sources: VideoQuality[];
 }
 
 interface CloseCallback {
@@ -62,7 +67,6 @@ class Cinematic {
     defaults: Options = {
         selector: '',
         baseUri: '../dist',
-        poster: '',
         subtitles: '',
         autoplay: false,
         startTime: 0,
@@ -70,6 +74,7 @@ class Cinematic {
         rememberVolume: false,
         quality: '720p',
         sources: [],
+        video: null,
         playlist: null,
         translations: {
             pause: 'Pause',
@@ -139,8 +144,10 @@ class Cinematic {
 
         if (this.options.playlist) {
             this.playlist = this.options.playlist;
+        } else if (this.options.video) {
+            this.playlist = new CinematicPlaylist(false, [this.options.video]);
         } else {
-            this.playlist = new CinematicPlaylist(true, [new CinematicVideo(this.options.sources)]);
+            throw new Error('CinematicJS: Either a single `video` or a `playlist` has to be passed as options.');
         }
 
         this.loadIcons();
@@ -186,7 +193,7 @@ class Cinematic {
 
         const _video = document.createElement('video');
         _video.preload = 'metadata';
-        _video.poster = this.options.poster;
+        _video.poster = this.playlist.getCurrentVideo().poster;
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
@@ -746,6 +753,9 @@ class Cinematic {
     private handleVideoChange() {
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
+        if (this.playlist.getCurrentVideo().poster) {
+            this._video.poster = this.playlist.getCurrentVideo().poster;
+        }
         this._video.currentTime = 0;
         this._video.play();
     }
@@ -935,10 +945,12 @@ class Cinematic {
 }
 
 class CinematicVideo {
+    poster: string;
     sources: VideoQuality[];
 
-    constructor(sources: VideoQuality[]) {
-        this.sources = sources;
+    constructor(options: VideoOptions) {
+        this.poster = options.poster;
+        this.sources = options.sources;
     }
 
     getSourcesForQuality(quality: string): VideoQuality | null {
