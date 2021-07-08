@@ -14,14 +14,14 @@ var Cinematic = /** @class */ (function () {
         this.defaults = {
             selector: '',
             baseUri: '../dist',
-            poster: '',
-            subtitles: '',
             autoplay: false,
             startTime: 0,
             deeplink: '',
             rememberVolume: false,
             quality: '720p',
             sources: [],
+            video: null,
+            playlist: null,
             translations: {
                 pause: 'Pause',
                 play: 'Play',
@@ -43,6 +43,7 @@ var Cinematic = /** @class */ (function () {
         this.playedSeconds = 0;
         this.volume = 0;
         this.quality = '';
+        this.captionsEnabled = false;
         this.fullScreenEnabled = false;
         this.userActive = false;
         this.options = __assign(__assign({}, this.defaults), options);
@@ -52,6 +53,15 @@ var Cinematic = /** @class */ (function () {
         }
         this._container = _passedContainer;
         this.quality = this.options.quality;
+        if (this.options.playlist) {
+            this.playlist = this.options.playlist;
+        }
+        else if (this.options.video) {
+            this.playlist = new CinematicPlaylist(false, [this.options.video]);
+        }
+        else {
+            throw new Error('CinematicJS: Either a single `video` or a `playlist` has to be passed as options.');
+        }
         this.loadIcons();
         this.renderPlayer();
         this.setupEvents();
@@ -90,7 +100,7 @@ var Cinematic = /** @class */ (function () {
         this._container.classList.add('video-container');
         var _video = document.createElement('video');
         _video.preload = 'metadata';
-        _video.poster = this.options.poster;
+        _video.poster = this.playlist.getCurrentVideo().poster;
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
@@ -103,16 +113,8 @@ var Cinematic = /** @class */ (function () {
         this._container.appendChild(_video);
         this._video = _video;
         this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
-        if (this.options.sources.length === 0) {
-            throw new Error('CinematicJS: At least one source has to be passed.');
-        }
-        var startSource;
-        if (this.options.sources.length === 1) {
-            startSource = this.options.sources[0];
-        }
-        else {
-            startSource = this.getSourcesForQuality(this.quality);
-        }
+        var initialVideo = this.playlist.getCurrentVideo();
+        var startSource = initialVideo.getSourcesForQuality(this.quality);
         if (!startSource) {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
         }
@@ -123,27 +125,6 @@ var Cinematic = /** @class */ (function () {
             _video.appendChild(_source);
             _this._sources.push(_source);
         });
-        if (this.options.subtitles) {
-            var _subtitles = document.createElement('track');
-            _subtitles.label = 'subtitles';
-            _subtitles.kind = 'subtitles';
-            _subtitles.src = this.options.subtitles;
-            _subtitles.default = true;
-            _video.appendChild(_subtitles);
-            this.tracks = _video.textTracks[0];
-            this.tracks.mode = 'hidden';
-            this.cues = this.tracks.cues;
-            var _cuesContainer = document.createElement('div');
-            _cuesContainer.classList.add('video-cues-container');
-            _cuesContainer.classList.add('hidden');
-            this._container.appendChild(_cuesContainer);
-            var _cues = document.createElement('div');
-            _cues.classList.add('video-cues');
-            _cues.classList.add('hidden');
-            _cuesContainer.appendChild(_cues);
-            this._cues = _cues;
-            this._cuesContainer = _cuesContainer;
-        }
         var _overlayWrapper = document.createElement('div');
         _overlayWrapper.classList.add('video-overlay-wrapper');
         _overlayWrapper.classList.add('hidden');
@@ -225,30 +206,20 @@ var Cinematic = /** @class */ (function () {
         Cinematic.renderButtonIcon(_volumeButton, 'sound');
         _volumeWrapper.appendChild(_volumeButton);
         this._volumeButton = _volumeButton;
-        if (this.options.sources.length > 1) {
-            var _qualityWrapper = document.createElement('div');
-            _qualityWrapper.classList.add('video-control-dropdown');
-            _controls.appendChild(_qualityWrapper);
-            var _qualityButton = document.createElement('div');
-            _qualityButton.classList.add('video-control-button');
-            _qualityButton.title = this.options.translations.quality;
-            Cinematic.renderButtonIcon(_qualityButton, 'settings');
-            _qualityWrapper.appendChild(_qualityButton);
-            var _dropDownContent_1 = document.createElement('div');
-            _dropDownContent_1.classList.add('video-dropdown-content');
-            _qualityWrapper.appendChild(_dropDownContent_1);
-            this.options.sources.forEach(function (source) {
-                var _option = document.createElement('div');
-                _option.classList.add('video-quality-option');
-                if (_this.quality === source.quality) {
-                    _option.classList.add('active');
-                }
-                _option.dataset.quality = source.quality;
-                _option.textContent = source.quality;
-                _dropDownContent_1.appendChild(_option);
-            });
-            this._qualityOptions = _dropDownContent_1.childNodes;
-        }
+        var _qualityWrapper = document.createElement('div');
+        _qualityWrapper.classList.add('video-control-dropdown');
+        _controls.appendChild(_qualityWrapper);
+        this._qualityWrapper = _qualityWrapper;
+        var _qualityButton = document.createElement('div');
+        _qualityButton.classList.add('video-control-button');
+        _qualityButton.title = this.options.translations.quality;
+        Cinematic.renderButtonIcon(_qualityButton, 'settings');
+        _qualityWrapper.appendChild(_qualityButton);
+        var _dropDownContent = document.createElement('div');
+        _dropDownContent.classList.add('video-dropdown-content');
+        _qualityWrapper.appendChild(_dropDownContent);
+        this._qualityDropdownContent = _dropDownContent;
+        this.renderQualityOptions();
         if (this.options.deeplink) {
             var _deeplinkButton = document.createElement('div');
             _deeplinkButton.classList.add('video-control-button');
@@ -258,14 +229,23 @@ var Cinematic = /** @class */ (function () {
             _controls.appendChild(_deeplinkButton);
             this._deeplinkButton = _deeplinkButton;
         }
-        if (this.options.subtitles) {
-            var _captionsButton = document.createElement('div');
-            _captionsButton.classList.add('video-control-button');
-            _captionsButton.title = this.options.translations.showSubtitles;
-            Cinematic.renderButtonIcon(_captionsButton, 'expanded-cc');
-            _controls.appendChild(_captionsButton);
-            this._captionsButton = _captionsButton;
-        }
+        var _cuesContainer = document.createElement('div');
+        _cuesContainer.classList.add('video-cues-container');
+        _cuesContainer.classList.add('hidden');
+        this._container.appendChild(_cuesContainer);
+        this._cuesContainer = _cuesContainer;
+        var _cues = document.createElement('div');
+        _cues.classList.add('video-cues');
+        _cues.classList.add('hidden');
+        _cuesContainer.appendChild(_cues);
+        this._cues = _cues;
+        var _captionsButton = document.createElement('div');
+        _captionsButton.classList.add('video-control-button');
+        _captionsButton.title = this.options.translations.showSubtitles;
+        Cinematic.renderButtonIcon(_captionsButton, 'expanded-cc');
+        _controls.appendChild(_captionsButton);
+        this._captionsButton = _captionsButton;
+        this.prepareSubtitles();
         if (this.fullScreenEnabled) {
             var _fullScreenButton = document.createElement('div');
             _fullScreenButton.classList.add('video-control-button');
@@ -275,13 +255,127 @@ var Cinematic = /** @class */ (function () {
             this._fullScreenButton = _fullScreenButton;
         }
     };
+    Cinematic.prototype.renderQualityOptions = function () {
+        var _this = this;
+        this._qualityDropdownContent.textContent = '';
+        if (this.playlist.getCurrentVideo().sources.length > 1) {
+            this.playlist.getCurrentVideo().sources.forEach(function (source) {
+                var _option = document.createElement('div');
+                _option.classList.add('video-quality-option');
+                if (_this.quality === source.quality) {
+                    _option.classList.add('active');
+                }
+                _option.textContent = source.quality;
+                _option.dataset.quality = source.quality;
+                _option.addEventListener('click', function () { var _a; return _this.handleQualityChange((_a = _option.dataset.quality) !== null && _a !== void 0 ? _a : ''); });
+                _this._qualityDropdownContent.appendChild(_option);
+            });
+            this._qualityWrapper.classList.remove('hidden');
+        }
+        else {
+            this._qualityWrapper.classList.add('hidden');
+        }
+    };
+    Cinematic.prototype.handleQualityChange = function (newQuality) {
+        var _this = this;
+        if (!newQuality) {
+            return;
+        }
+        var currentVideo = this.playlist.getCurrentVideo();
+        var newSource = currentVideo.getSourcesForQuality(newQuality);
+        if (!newSource) {
+            newQuality = currentVideo.getBestAvailableQuality();
+            newSource = currentVideo.getSourcesForQuality(newQuality);
+        }
+        if (!newSource) {
+            return;
+        }
+        this._qualityDropdownContent.childNodes.forEach(function (_option) {
+            if (_option.dataset.quality === newQuality) {
+                _option.classList.add('active');
+            }
+            else {
+                _option.classList.remove('active');
+            }
+        });
+        var currentTime = this._video.currentTime;
+        var wasPlaying = !this._video.paused;
+        newSource.sources.forEach(function (videoFormatSource, index) {
+            var _source = _this._sources[index];
+            if (_source) {
+                _source.src = videoFormatSource.source;
+            }
+        });
+        this._video.load();
+        this._video.currentTime = currentTime;
+        if (wasPlaying) {
+            this._video.play();
+        }
+        this.quality = newQuality;
+    };
+    Cinematic.prototype.prepareSubtitles = function () {
+        var _oldTrack = this._video.querySelector('track');
+        if (_oldTrack) {
+            this._video.removeChild(_oldTrack);
+            this._captionsButton.classList.add('hidden');
+        }
+        var video = this.playlist.getCurrentVideo();
+        if (!video.subtitles) {
+            this._cues.classList.add('hidden');
+            this._captionsButton.classList.add('hidden');
+            this.tracks = null;
+            this.cues = null;
+            return;
+        }
+        var _subtitles = document.createElement('track');
+        _subtitles.label = 'subtitles';
+        _subtitles.kind = 'subtitles';
+        _subtitles.src = video.subtitles;
+        _subtitles.default = true;
+        this._video.appendChild(_subtitles);
+        var me = this;
+        this._video.load();
+        if (_subtitles.readyState === 2) {
+            me.handleLoadedTrack();
+        }
+        else {
+            _subtitles.addEventListener('load', function () { return me.handleLoadedTrack(); });
+        }
+        this._captionsButton.classList.remove('hidden');
+    };
+    Cinematic.prototype.handleLoadedTrack = function () {
+        this.tracks = this._video.textTracks[0];
+        this.tracks.mode = 'hidden';
+        this.cues = this.tracks.cues;
+        var me = this;
+        var onCueEnter = function () {
+            me._cues.textContent = this.text;
+            me._cues.classList.remove('hidden');
+        };
+        var onCueExit = function () {
+            me._cues.textContent = '';
+            me._cues.classList.add('hidden');
+        };
+        console.log(this.cues);
+        if (this.cues) {
+            for (var i = 0; i < this.cues.length; i++) {
+                var cue = this.cues[i];
+                cue.onenter = onCueEnter;
+                cue.onexit = onCueExit;
+            }
+        }
+    };
     Cinematic.prototype.setupEvents = function () {
         var _this = this;
         var me = this;
         window.addEventListener('resize', this.handlePlayerResize);
         this.handlePlayerResize();
         this._playButton.addEventListener('click', function () {
-            if (_this._video.paused || _this._video.ended) {
+            if (_this._video.ended) {
+                _this.playlist.resetToBeginning();
+                _this.handleVideoChange();
+            }
+            else if (_this._video.paused) {
                 _this._video.play();
             }
             else {
@@ -296,14 +390,6 @@ var Cinematic = /** @class */ (function () {
             _this._video.muted = false;
             _this._video.volume = _this.volume = parseFloat(_this._volumeSlider.value);
         });
-        var onCueEnter = function () {
-            me._cues.textContent = this.text;
-            me._cues.classList.remove('hidden');
-        };
-        var onCueExit = function () {
-            me._cues.textContent = '';
-            me._cues.classList.add('hidden');
-        };
         this._video.addEventListener('loadedmetadata', function () {
             me.totalSeconds = this.duration;
             me._progressBar.setAttribute('max', me.totalSeconds.toString());
@@ -311,13 +397,6 @@ var Cinematic = /** @class */ (function () {
             me.updateTimer();
             if (me.options.startTime > 0) {
                 this.currentTime = me.options.startTime;
-            }
-            if (me.cues) {
-                for (var i = 0; i < me.cues.length; i++) {
-                    var cue = me.cues[i];
-                    cue.onenter = onCueEnter;
-                    cue.onexit = onCueExit;
-                }
             }
         });
         this._video.addEventListener('timeupdate', function () {
@@ -359,8 +438,14 @@ var Cinematic = /** @class */ (function () {
             me._playButton.title = me.options.translations.play;
         });
         this._video.addEventListener('ended', function () {
-            Cinematic.switchButtonIcon(me._playButton, 'repeat');
-            me._playButton.title = me.options.translations.restart;
+            if (_this.playlist.shouldPlayNextVideo()) {
+                _this.playlist.startNextVideo();
+                _this.handleVideoChange();
+            }
+            else {
+                Cinematic.switchButtonIcon(_this._playButton, 'repeat');
+                _this._playButton.title = me.options.translations.restart;
+            }
         });
         this._video.addEventListener('progress', function () {
             if (this.duration > 0) {
@@ -415,56 +500,23 @@ var Cinematic = /** @class */ (function () {
             document.addEventListener('fullscreenchange', function () { return _this.handleFullScreenChange(); });
             document.addEventListener('webkitfullscreenchange', function () { return _this.handleFullScreenChange(); });
         }
-        if (this.options.sources.length > 1) {
-            this._qualityOptions.forEach(function (_qualityOption) {
-                _qualityOption.addEventListener('click', function () {
-                    var newQuality = _qualityOption.dataset.quality;
-                    var currentQuality = me.quality;
-                    if (!newQuality || newQuality === currentQuality) {
-                        return;
-                    }
-                    me._qualityOptions.forEach(function (_qualityOption) {
-                        _qualityOption.classList.remove('active');
-                    });
-                    _qualityOption.classList.add('active');
-                    var currentTime = me._video.currentTime;
-                    var newSource = me.options.sources.find(function (source) { return newQuality === source.quality; });
-                    if (!newSource) {
-                        return;
-                    }
-                    newSource.sources.forEach(function (source, index) {
-                        var _source = me._sources[index];
-                        if (_source) {
-                            _source.src = source.source;
-                        }
-                    });
-                    me._video.load();
-                    me._video.currentTime = currentTime;
-                    me._video.play();
-                    me.quality = newQuality;
-                });
-            });
-        }
         if (this.options.deeplink) {
             this._deeplinkButton.addEventListener('click', function () {
                 me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
             });
         }
-        if (this.options.subtitles) {
-            this._captionsButton.addEventListener('click', function () {
-                var wasEnabled = me._container.dataset.captions;
-                me._container.dataset.captions = !wasEnabled;
-                this.classList.toggle('material-icons');
-                this.classList.toggle('material-icons-outlined');
-                me._cuesContainer.classList.toggle('hidden');
-                if (wasEnabled) {
-                    this.title = me.options.translations.showSubtitles;
-                }
-                else {
-                    this.title = me.options.translations.hideSubtitles;
-                }
-            });
-        }
+        this._captionsButton.addEventListener('click', function () {
+            me._cuesContainer.classList.toggle('hidden');
+            if (me.captionsEnabled) {
+                me._captionsButton.title = me.options.translations.showSubtitles;
+                Cinematic.switchButtonIcon(me._captionsButton, 'expanded-cc');
+            }
+            else {
+                me._captionsButton.title = me.options.translations.hideSubtitles;
+                Cinematic.switchButtonIcon(me._captionsButton, 'cc');
+            }
+            me.captionsEnabled = !me.captionsEnabled;
+        });
         if (this.options.closeCallback) {
             this._closeButton.addEventListener('click', function () {
                 var _a;
@@ -540,6 +592,16 @@ var Cinematic = /** @class */ (function () {
         });
         return true;
     };
+    Cinematic.prototype.handleVideoChange = function () {
+        this.prepareSubtitles();
+        this.renderQualityOptions();
+        this.handleQualityChange(this.quality);
+        if (this.playlist.getCurrentVideo().poster) {
+            this._video.poster = this.playlist.getCurrentVideo().poster;
+        }
+        this._video.currentTime = 0;
+        this._video.play();
+    };
     Cinematic.prototype.handlePlayerResize = function () {
         if (this._container.clientWidth >= 328) {
             this._timer.classList.remove('hidden');
@@ -571,15 +633,6 @@ var Cinematic = /** @class */ (function () {
                 _this._overlayWrapper.classList.add('hidden');
             }, 500);
         }
-    };
-    Cinematic.prototype.getSourcesForQuality = function (quality) {
-        for (var _i = 0, _a = this.options.sources; _i < _a.length; _i++) {
-            var source = _a[_i];
-            if (source.quality === quality) {
-                return source;
-            }
-        }
-        return null;
     };
     Cinematic.prototype.formatTime = function (seconds) {
         var hourComponent = Math.floor(seconds / 3600);
@@ -719,5 +772,54 @@ var Cinematic = /** @class */ (function () {
         window.removeEventListener('copy', copy);
     };
     return Cinematic;
+}());
+var CinematicVideo = /** @class */ (function () {
+    function CinematicVideo(options) {
+        this.poster = options.poster;
+        this.subtitles = options.subtitles;
+        this.sources = options.sources;
+    }
+    CinematicVideo.prototype.getSourcesForQuality = function (quality) {
+        if (this.sources.length === 1) {
+            return this.sources[0];
+        }
+        for (var _i = 0, _a = this.sources; _i < _a.length; _i++) {
+            var source = _a[_i];
+            if (source.quality === quality) {
+                return source;
+            }
+        }
+        return null;
+    };
+    CinematicVideo.prototype.getBestAvailableQuality = function () {
+        return this.sources[0].quality;
+    };
+    return CinematicVideo;
+}());
+var CinematicPlaylist = /** @class */ (function () {
+    function CinematicPlaylist(loop, videos) {
+        this.loop = loop;
+        this.videos = videos;
+        this.currentVideo = 0;
+        if (this.videos.length === 0) {
+            throw new Error('CinematicJS: At least one video has to be passed.');
+        }
+    }
+    CinematicPlaylist.prototype.getCurrentVideo = function () {
+        return this.videos[this.currentVideo];
+    };
+    CinematicPlaylist.prototype.shouldPlayNextVideo = function () {
+        return this.videos.length > 1 && (this.currentVideo + 1 < this.videos.length || this.loop);
+    };
+    CinematicPlaylist.prototype.startNextVideo = function () {
+        this.currentVideo++;
+        if (this.loop && this.currentVideo >= this.videos.length) {
+            this.resetToBeginning();
+        }
+    };
+    CinematicPlaylist.prototype.resetToBeginning = function () {
+        this.currentVideo = 0;
+    };
+    return CinematicPlaylist;
 }());
 //# sourceMappingURL=cinematic.js.map
