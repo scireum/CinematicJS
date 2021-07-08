@@ -102,6 +102,10 @@
     margin: 4px;
 }
 
+.video-controls .hidden {
+    display: none;
+}
+
 .video-controls .video-control-spacer {
     flex-grow: 1;
 }
@@ -221,10 +225,6 @@
     padding-left: 8px;
     color: #ffffff;
     text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.3);
-}
-
-.video-controls .video-control-timer.hidden {
-    display: none;
 }
 
 /*endregion*/
