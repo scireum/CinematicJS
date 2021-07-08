@@ -978,12 +978,12 @@ class CinematicPlaylist {
     }
 
     shouldPlayNextVideo(): boolean {
-        return this.videos.length > 1 && this.currentVideo + 1 < this.videos.length;
+        return this.videos.length > 1 && (this.currentVideo + 1 < this.videos.length || this.loop);
     }
 
     startNextVideo() {
         this.currentVideo++;
-        if (this.loop && this.currentVideo > this.videos.length) {
+        if (this.loop && this.currentVideo >= this.videos.length) {
             this.resetToBeginning();
         }
     }

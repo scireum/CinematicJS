@@ -778,11 +778,11 @@ var CinematicPlaylist = /** @class */ (function () {
         return this.videos[this.currentVideo];
     };
     CinematicPlaylist.prototype.shouldPlayNextVideo = function () {
-        return this.videos.length > 1 && this.currentVideo + 1 < this.videos.length;
+        return this.videos.length > 1 && (this.currentVideo + 1 < this.videos.length || this.loop);
     };
     CinematicPlaylist.prototype.startNextVideo = function () {
         this.currentVideo++;
-        if (this.loop && this.currentVideo > this.videos.length) {
+        if (this.loop && this.currentVideo >= this.videos.length) {
             this.resetToBeginning();
         }
     };
