@@ -102,7 +102,7 @@
     margin: 4px;
 }
 
-.video-controls .hidden {
+.video-controls .hidden, .video-controls .video-control-button.hidden {
     display: none;
 }
 

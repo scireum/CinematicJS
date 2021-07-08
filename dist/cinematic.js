@@ -14,7 +14,6 @@ var Cinematic = /** @class */ (function () {
         this.defaults = {
             selector: '',
             baseUri: '../dist',
-            subtitles: '',
             autoplay: false,
             startTime: 0,
             deeplink: '',
@@ -44,6 +43,7 @@ var Cinematic = /** @class */ (function () {
         this.playedSeconds = 0;
         this.volume = 0;
         this.quality = '';
+        this.captionsEnabled = false;
         this.fullScreenEnabled = false;
         this.userActive = false;
         this.options = __assign(__assign({}, this.defaults), options);
@@ -125,27 +125,6 @@ var Cinematic = /** @class */ (function () {
             _video.appendChild(_source);
             _this._sources.push(_source);
         });
-        if (this.options.subtitles) {
-            var _subtitles = document.createElement('track');
-            _subtitles.label = 'subtitles';
-            _subtitles.kind = 'subtitles';
-            _subtitles.src = this.options.subtitles;
-            _subtitles.default = true;
-            _video.appendChild(_subtitles);
-            this.tracks = _video.textTracks[0];
-            this.tracks.mode = 'hidden';
-            this.cues = this.tracks.cues;
-            var _cuesContainer = document.createElement('div');
-            _cuesContainer.classList.add('video-cues-container');
-            _cuesContainer.classList.add('hidden');
-            this._container.appendChild(_cuesContainer);
-            var _cues = document.createElement('div');
-            _cues.classList.add('video-cues');
-            _cues.classList.add('hidden');
-            _cuesContainer.appendChild(_cues);
-            this._cues = _cues;
-            this._cuesContainer = _cuesContainer;
-        }
         var _overlayWrapper = document.createElement('div');
         _overlayWrapper.classList.add('video-overlay-wrapper');
         _overlayWrapper.classList.add('hidden');
@@ -250,14 +229,23 @@ var Cinematic = /** @class */ (function () {
             _controls.appendChild(_deeplinkButton);
             this._deeplinkButton = _deeplinkButton;
         }
-        if (this.options.subtitles) {
-            var _captionsButton = document.createElement('div');
-            _captionsButton.classList.add('video-control-button');
-            _captionsButton.title = this.options.translations.showSubtitles;
-            Cinematic.renderButtonIcon(_captionsButton, 'expanded-cc');
-            _controls.appendChild(_captionsButton);
-            this._captionsButton = _captionsButton;
-        }
+        var _cuesContainer = document.createElement('div');
+        _cuesContainer.classList.add('video-cues-container');
+        _cuesContainer.classList.add('hidden');
+        this._container.appendChild(_cuesContainer);
+        this._cuesContainer = _cuesContainer;
+        var _cues = document.createElement('div');
+        _cues.classList.add('video-cues');
+        _cues.classList.add('hidden');
+        _cuesContainer.appendChild(_cues);
+        this._cues = _cues;
+        var _captionsButton = document.createElement('div');
+        _captionsButton.classList.add('video-control-button');
+        _captionsButton.title = this.options.translations.showSubtitles;
+        Cinematic.renderButtonIcon(_captionsButton, 'expanded-cc');
+        _controls.appendChild(_captionsButton);
+        this._captionsButton = _captionsButton;
+        this.prepareSubtitles();
         if (this.fullScreenEnabled) {
             var _fullScreenButton = document.createElement('div');
             _fullScreenButton.classList.add('video-control-button');
@@ -325,6 +313,58 @@ var Cinematic = /** @class */ (function () {
         }
         this.quality = newQuality;
     };
+    Cinematic.prototype.prepareSubtitles = function () {
+        var _oldTrack = this._video.querySelector('track');
+        if (_oldTrack) {
+            this._video.removeChild(_oldTrack);
+            this._captionsButton.classList.add('hidden');
+        }
+        var video = this.playlist.getCurrentVideo();
+        if (!video.subtitles) {
+            this._cues.classList.add('hidden');
+            this._captionsButton.classList.add('hidden');
+            this.tracks = null;
+            this.cues = null;
+            return;
+        }
+        var _subtitles = document.createElement('track');
+        _subtitles.label = 'subtitles';
+        _subtitles.kind = 'subtitles';
+        _subtitles.src = video.subtitles;
+        _subtitles.default = true;
+        this._video.appendChild(_subtitles);
+        var me = this;
+        this._video.load();
+        if (_subtitles.readyState === 2) {
+            me.handleLoadedTrack();
+        }
+        else {
+            _subtitles.addEventListener('load', function () { return me.handleLoadedTrack(); });
+        }
+        this._captionsButton.classList.remove('hidden');
+    };
+    Cinematic.prototype.handleLoadedTrack = function () {
+        this.tracks = this._video.textTracks[0];
+        this.tracks.mode = 'hidden';
+        this.cues = this.tracks.cues;
+        var me = this;
+        var onCueEnter = function () {
+            me._cues.textContent = this.text;
+            me._cues.classList.remove('hidden');
+        };
+        var onCueExit = function () {
+            me._cues.textContent = '';
+            me._cues.classList.add('hidden');
+        };
+        console.log(this.cues);
+        if (this.cues) {
+            for (var i = 0; i < this.cues.length; i++) {
+                var cue = this.cues[i];
+                cue.onenter = onCueEnter;
+                cue.onexit = onCueExit;
+            }
+        }
+    };
     Cinematic.prototype.setupEvents = function () {
         var _this = this;
         var me = this;
@@ -350,14 +390,6 @@ var Cinematic = /** @class */ (function () {
             _this._video.muted = false;
             _this._video.volume = _this.volume = parseFloat(_this._volumeSlider.value);
         });
-        var onCueEnter = function () {
-            me._cues.textContent = this.text;
-            me._cues.classList.remove('hidden');
-        };
-        var onCueExit = function () {
-            me._cues.textContent = '';
-            me._cues.classList.add('hidden');
-        };
         this._video.addEventListener('loadedmetadata', function () {
             me.totalSeconds = this.duration;
             me._progressBar.setAttribute('max', me.totalSeconds.toString());
@@ -365,13 +397,6 @@ var Cinematic = /** @class */ (function () {
             me.updateTimer();
             if (me.options.startTime > 0) {
                 this.currentTime = me.options.startTime;
-            }
-            if (me.cues) {
-                for (var i = 0; i < me.cues.length; i++) {
-                    var cue = me.cues[i];
-                    cue.onenter = onCueEnter;
-                    cue.onexit = onCueExit;
-                }
             }
         });
         this._video.addEventListener('timeupdate', function () {
@@ -480,21 +505,18 @@ var Cinematic = /** @class */ (function () {
                 me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
             });
         }
-        if (this.options.subtitles) {
-            this._captionsButton.addEventListener('click', function () {
-                var wasEnabled = me._container.dataset.captions;
-                me._container.dataset.captions = !wasEnabled;
-                this.classList.toggle('material-icons');
-                this.classList.toggle('material-icons-outlined');
-                me._cuesContainer.classList.toggle('hidden');
-                if (wasEnabled) {
-                    this.title = me.options.translations.showSubtitles;
-                }
-                else {
-                    this.title = me.options.translations.hideSubtitles;
-                }
-            });
-        }
+        this._captionsButton.addEventListener('click', function () {
+            me._cuesContainer.classList.toggle('hidden');
+            if (me.captionsEnabled) {
+                me._captionsButton.title = me.options.translations.showSubtitles;
+                Cinematic.switchButtonIcon(me._captionsButton, 'expanded-cc');
+            }
+            else {
+                me._captionsButton.title = me.options.translations.hideSubtitles;
+                Cinematic.switchButtonIcon(me._captionsButton, 'cc');
+            }
+            me.captionsEnabled = !me.captionsEnabled;
+        });
         if (this.options.closeCallback) {
             this._closeButton.addEventListener('click', function () {
                 var _a;
@@ -571,9 +593,12 @@ var Cinematic = /** @class */ (function () {
         return true;
     };
     Cinematic.prototype.handleVideoChange = function () {
+        this.prepareSubtitles();
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
-        this._video.poster = this.playlist.getCurrentVideo().poster;
+        if (this.playlist.getCurrentVideo().poster) {
+            this._video.poster = this.playlist.getCurrentVideo().poster;
+        }
         this._video.currentTime = 0;
         this._video.play();
     };
@@ -751,6 +776,7 @@ var Cinematic = /** @class */ (function () {
 var CinematicVideo = /** @class */ (function () {
     function CinematicVideo(options) {
         this.poster = options.poster;
+        this.subtitles = options.subtitles;
         this.sources = options.sources;
     }
     CinematicVideo.prototype.getSourcesForQuality = function (quality) {
