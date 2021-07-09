@@ -159,7 +159,7 @@ class Cinematic {
         if (this.options.rememberVolume) {
             const storedVolume = this.readFromLocalStore('volume');
             if (storedVolume) {
-                this._video.volume = Number.parseFloat(storedVolume);
+                this._video.volume = parseFloat(storedVolume);
             }
             const storedMuteState = this.readFromLocalStore('muted');
             if (storedMuteState) {

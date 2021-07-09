@@ -69,7 +69,7 @@ var Cinematic = /** @class */ (function () {
         if (this.options.rememberVolume) {
             var storedVolume = this.readFromLocalStore('volume');
             if (storedVolume) {
-                this._video.volume = Number.parseFloat(storedVolume);
+                this._video.volume = parseFloat(storedVolume);
             }
             var storedMuteState = this.readFromLocalStore('muted');
             if (storedMuteState) {
