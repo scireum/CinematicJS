@@ -716,6 +716,7 @@ class Cinematic {
             switch (key) {
                 // Space bar allows to pause/resume the video
                 case ' ':
+                case 'Spacebar':
                     this.userActive = true;
                     if (this._video.paused) {
                         this._video.play();
@@ -734,19 +735,22 @@ class Cinematic {
                     break;
                 // Left Arrow skips 10 seconds into the past
                 case 'ArrowLeft':
+                case 'Left':
                     this.userActive = true;
                     this._video.currentTime -= 10;
                     break;
                 // Right Arrow skips 10 seconds into the future
                 case 'ArrowRight':
+                case 'Right':
                     this.userActive = true;
                     this._video.currentTime += 10;
                     break;
                 // Down Arrow decreases the volume by 5%
                 case 'ArrowDown':
+                case 'Down':
                     this.userActive = true;
                     if (this._video.volume > 0) {
-                        let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                        let currentVolume = Math.round((this._video.volume + Cinematic.getEpsilon()) * 100);
                         this.volume = (currentVolume - 5) / 100;
                         this._video.volume = this.volume;
                         if (this.volume === 0) {
@@ -761,9 +765,10 @@ class Cinematic {
                     break;
                 // Up Arrow increases the volume by 5%
                 case 'ArrowUp':
+                case 'Up':
                     this.userActive = true;
                     if (this._video.volume < 1) {
-                        let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                        let currentVolume = Math.round((this._video.volume + Cinematic.getEpsilon()) * 100);
                         this.volume = (currentVolume + 5) / 100;
                         this._video.volume = this.volume;
                         // Unmute if we previously were muted
@@ -972,6 +977,17 @@ class Cinematic {
         window.addEventListener('copy', copy);
         document.execCommand('copy');
         window.removeEventListener('copy', copy);
+    }
+
+    private static getEpsilon(): number {
+        if (Number.EPSILON) {
+            return Number.EPSILON;
+        }
+        let epsilon = 1.0;
+        while ((1.0 + 0.5 * epsilon) !== 1.0) {
+            epsilon *= 0.5;
+        }
+        return epsilon;
     }
 }
 
