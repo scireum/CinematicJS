@@ -831,8 +831,8 @@ class Cinematic {
 
     formatTime(seconds: number) {
         let hourComponent = Math.floor(seconds / 3600);
-        let minuteComponent = Math.floor((seconds - (hourComponent * 3600)) / 60);
-        let secondComponent = Math.floor(seconds - (hourComponent * 3600) - (minuteComponent * 60));
+        let minuteComponent = Math.floor(seconds / 60 % 60);
+        let secondComponent = Math.floor(seconds % 60);
 
         let timer = this.toTimerComponent(minuteComponent) + ':' + this.toTimerComponent(secondComponent);
 
@@ -845,7 +845,7 @@ class Cinematic {
     }
 
     toTimerComponent(value: number) {
-        return value < 10 ? "0" + value : value;
+        return value < 10 ? '0' + value : value;
     }
 
     updateTimer() {
