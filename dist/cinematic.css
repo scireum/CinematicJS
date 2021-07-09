@@ -375,6 +375,7 @@ html:-ms-fullscreen {
     right: 0;
     align-items: center;
     justify-content: center;
+    pointer-events: none;
 
     transition: visibility 0.1s ease-in, opacity 0.1s ease-out;
 }

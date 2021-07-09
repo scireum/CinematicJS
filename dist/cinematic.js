@@ -69,7 +69,7 @@ var Cinematic = /** @class */ (function () {
         if (this.options.rememberVolume) {
             var storedVolume = this.readFromLocalStore('volume');
             if (storedVolume) {
-                this._video.volume = Number.parseFloat(storedVolume);
+                this._video.volume = parseFloat(storedVolume);
             }
             var storedMuteState = this.readFromLocalStore('muted');
             if (storedMuteState) {
@@ -153,6 +153,9 @@ var Cinematic = /** @class */ (function () {
             Cinematic.renderButtonIcon(_closeButton, 'close');
             _header.appendChild(_closeButton);
             this._closeButton = _closeButton;
+        }
+        else {
+            this._header.classList.add('hidden');
         }
         var _footer = document.createElement('div');
         _footer.classList.add('video-footer');
@@ -334,7 +337,6 @@ var Cinematic = /** @class */ (function () {
         _subtitles.default = true;
         this._video.appendChild(_subtitles);
         var me = this;
-        this._video.load();
         if (_subtitles.readyState === 2) {
             me.handleLoadedTrack();
         }
@@ -356,7 +358,6 @@ var Cinematic = /** @class */ (function () {
             me._cues.textContent = '';
             me._cues.classList.add('hidden');
         };
-        console.log(this.cues);
         if (this.cues) {
             for (var i = 0; i < this.cues.length; i++) {
                 var cue = this.cues[i];
@@ -463,9 +464,11 @@ var Cinematic = /** @class */ (function () {
         this._video.addEventListener('click', function () {
             if (me._video.paused || me._video.ended) {
                 me._video.play();
+                _this.showOverlay('play', null, true);
             }
             else {
                 me._video.pause();
+                _this.showOverlay('pause', null, true);
             }
             _this.userActive = true;
         });
@@ -530,6 +533,7 @@ var Cinematic = /** @class */ (function () {
             switch (key) {
                 // Space bar allows to pause/resume the video
                 case ' ':
+                case 'Spacebar':
                     _this.userActive = true;
                     if (_this._video.paused) {
                         _this._video.play();
@@ -549,19 +553,22 @@ var Cinematic = /** @class */ (function () {
                     break;
                 // Left Arrow skips 10 seconds into the past
                 case 'ArrowLeft':
+                case 'Left':
                     _this.userActive = true;
                     _this._video.currentTime -= 10;
                     break;
                 // Right Arrow skips 10 seconds into the future
                 case 'ArrowRight':
+                case 'Right':
                     _this.userActive = true;
                     _this._video.currentTime += 10;
                     break;
                 // Down Arrow decreases the volume by 5%
                 case 'ArrowDown':
+                case 'Down':
                     _this.userActive = true;
                     if (_this._video.volume > 0) {
-                        var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
+                        var currentVolume = Math.round((_this._video.volume + Cinematic.getEpsilon()) * 100);
                         _this.volume = (currentVolume - 5) / 100;
                         _this._video.volume = _this.volume;
                         if (_this.volume === 0) {
@@ -577,9 +584,10 @@ var Cinematic = /** @class */ (function () {
                     break;
                 // Up Arrow increases the volume by 5%
                 case 'ArrowUp':
+                case 'Up':
                     _this.userActive = true;
                     if (_this._video.volume < 1) {
-                        var currentVolume = Math.round((_this._video.volume + Number.EPSILON) * 100);
+                        var currentVolume = Math.round((_this._video.volume + Cinematic.getEpsilon()) * 100);
                         _this.volume = (currentVolume + 5) / 100;
                         _this._video.volume = _this.volume;
                         // Unmute if we previously were muted
@@ -706,7 +714,9 @@ var Cinematic = /** @class */ (function () {
     };
     Cinematic.prototype.showControls = function () {
         this._container.classList.remove('video-user-inactive');
-        this._header.classList.remove('hidden');
+        if (this.options.closeCallback) {
+            this._header.classList.remove('hidden');
+        }
         this._footer.classList.remove('hidden');
     };
     Cinematic.prototype.hideControls = function () {
@@ -770,6 +780,16 @@ var Cinematic = /** @class */ (function () {
         window.addEventListener('copy', copy);
         document.execCommand('copy');
         window.removeEventListener('copy', copy);
+    };
+    Cinematic.getEpsilon = function () {
+        if (Number.EPSILON) {
+            return Number.EPSILON;
+        }
+        var epsilon = 1.0;
+        while ((1.0 + 0.5 * epsilon) !== 1.0) {
+            epsilon *= 0.5;
+        }
+        return epsilon;
     };
     return Cinematic;
 }());

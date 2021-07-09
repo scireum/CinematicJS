@@ -159,7 +159,7 @@ class Cinematic {
         if (this.options.rememberVolume) {
             const storedVolume = this.readFromLocalStore('volume');
             if (storedVolume) {
-                this._video.volume = Number.parseFloat(storedVolume);
+                this._video.volume = parseFloat(storedVolume);
             }
             const storedMuteState = this.readFromLocalStore('muted');
             if (storedMuteState) {
@@ -260,6 +260,8 @@ class Cinematic {
             _header.appendChild(_closeButton);
 
             this._closeButton = _closeButton;
+        } else {
+            this._header.classList.add('hidden');
         }
 
         const _footer = document.createElement('div');
@@ -496,7 +498,7 @@ class Cinematic {
 
         this._captionsButton.classList.remove('hidden');
     }
-    
+
     private handleLoadedTrack() {
         this.tracks = this._video.textTracks[0];
         this.tracks.mode = 'hidden';
@@ -513,7 +515,6 @@ class Cinematic {
             me._cues.classList.add('hidden');
         };
 
-        console.log(this.cues);
         if (this.cues) {
             for (let i = 0; i < this.cues.length; i++) {
                 let cue = this.cues[i];
@@ -631,8 +632,10 @@ class Cinematic {
         this._video.addEventListener('click', () => {
             if (me._video.paused || me._video.ended) {
                 me._video.play();
+                this.showOverlay('play', null, true);
             } else {
                 me._video.pause();
+                this.showOverlay('pause', null, true);
             }
             this.userActive = true;
         });
@@ -713,6 +716,7 @@ class Cinematic {
             switch (key) {
                 // Space bar allows to pause/resume the video
                 case ' ':
+                case 'Spacebar':
                     this.userActive = true;
                     if (this._video.paused) {
                         this._video.play();
@@ -731,19 +735,22 @@ class Cinematic {
                     break;
                 // Left Arrow skips 10 seconds into the past
                 case 'ArrowLeft':
+                case 'Left':
                     this.userActive = true;
                     this._video.currentTime -= 10;
                     break;
                 // Right Arrow skips 10 seconds into the future
                 case 'ArrowRight':
+                case 'Right':
                     this.userActive = true;
                     this._video.currentTime += 10;
                     break;
                 // Down Arrow decreases the volume by 5%
                 case 'ArrowDown':
+                case 'Down':
                     this.userActive = true;
                     if (this._video.volume > 0) {
-                        let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                        let currentVolume = Math.round((this._video.volume + Cinematic.getEpsilon()) * 100);
                         this.volume = (currentVolume - 5) / 100;
                         this._video.volume = this.volume;
                         if (this.volume === 0) {
@@ -758,9 +765,10 @@ class Cinematic {
                     break;
                 // Up Arrow increases the volume by 5%
                 case 'ArrowUp':
+                case 'Up':
                     this.userActive = true;
                     if (this._video.volume < 1) {
-                        let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                        let currentVolume = Math.round((this._video.volume + Cinematic.getEpsilon()) * 100);
                         this.volume = (currentVolume + 5) / 100;
                         this._video.volume = this.volume;
                         // Unmute if we previously were muted
@@ -896,7 +904,9 @@ class Cinematic {
 
     showControls() {
         this._container.classList.remove('video-user-inactive');
-        this._header.classList.remove('hidden');
+        if (this.options.closeCallback) {
+            this._header.classList.remove('hidden');
+        }
         this._footer.classList.remove('hidden');
     }
 
@@ -967,6 +977,17 @@ class Cinematic {
         window.addEventListener('copy', copy);
         document.execCommand('copy');
         window.removeEventListener('copy', copy);
+    }
+
+    private static getEpsilon(): number {
+        if (Number.EPSILON) {
+            return Number.EPSILON;
+        }
+        let epsilon = 1.0;
+        while ((1.0 + 0.5 * epsilon) !== 1.0) {
+            epsilon *= 0.5;
+        }
+        return epsilon;
     }
 }
 
