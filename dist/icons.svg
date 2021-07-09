@@ -7,7 +7,7 @@
     </symbol>
     <symbol id="icon-pause" viewBox="0 0 24 24">
         <title>icon-pause</title>
-        <path d="m10 0v24h-5v-24h5zm10 0v24h-5v-24h5z"/>
+        <path d="m9 0v24h-5v-24h5zm11 0v24h-5v-24h5z"/>
     </symbol>
     <symbol id="icon-repeat" viewBox="0 0 24 24">
         <title>icon-repeat</title>
@@ -39,7 +39,7 @@
     </symbol>
     <symbol id="icon-play" viewBox="0 0 24 24">
         <title>icon-play</title>
-    <path class="" d="m4.5702 1.09 14.533 10.089c0.45369 0.31493 0.56617 0.93803 0.25124 1.3917-0.068078 0.098072-0.15317 0.18316-0.25124 0.25124l-14.533 10.089c-0.45369 0.31493-1.0768 0.20245-1.3917-0.25124-0.11623-0.16744-0.17852-0.36641-0.17852-0.57024v-20.177c0-0.55228 0.44772-1 1-1 0.20383 0 0.4028 0.062289 0.57024 0.17852z" />
+    <polygon points="4 0 20 12 4 24"/>
     </symbol>
     <symbol id="icon-deeplink" viewBox="0 0 24 24">
         <title>icon-deeplink</title>

@@ -12,16 +12,22 @@ interface HTMLVideoElement {
 interface Options {
     selector: string;
     baseUri: string;
-    poster: string;
-    subtitles: string;
     autoplay: boolean;
     startTime: number;
     deeplink: string;
     rememberVolume: boolean;
     quality: string;
     sources: VideoQuality[];
+    video: CinematicVideo | null;
+    playlist: CinematicPlaylist | null;
     closeCallback?: CloseCallback;
     translations: Translations;
+}
+
+interface VideoOptions {
+    poster: string;
+    subtitles: string;
+    sources: VideoQuality[];
 }
 
 interface CloseCallback {
@@ -61,14 +67,14 @@ class Cinematic {
     defaults: Options = {
         selector: '',
         baseUri: '../dist',
-        poster: '',
-        subtitles: '',
         autoplay: false,
         startTime: 0,
         deeplink: '',
         rememberVolume: false,
         quality: '720p',
         sources: [],
+        video: null,
+        playlist: null,
         translations: {
             pause: 'Pause',
             play: 'Play',
@@ -100,8 +106,9 @@ class Cinematic {
     _timer: HTMLElement;
     _volumeSlider: HTMLInputElement;
     _volumeButton: HTMLDivElement;
-    _qualityOptions: NodeListOf<ChildNode>;
-    _captionsButton: HTMLElement;
+    _qualityWrapper: HTMLDivElement;
+    _qualityDropdownContent: HTMLDivElement;
+    _captionsButton: HTMLDivElement;
     _deeplinkButton: HTMLElement;
     _fullScreenButton: HTMLDivElement;
     _closeButton: HTMLElement;
@@ -113,9 +120,11 @@ class Cinematic {
     playedSeconds = 0;
     volume = 0;
     quality = '';
-    tracks: TextTrack;
+    tracks: TextTrack | null;
     cues: TextTrackCueList | null;
+    playlist: CinematicPlaylist;
 
+    captionsEnabled = false;
     fullScreenEnabled = false;
     userActive = false;
     userActiveCheck: number;
@@ -133,6 +142,14 @@ class Cinematic {
 
         this.quality = this.options.quality;
 
+        if (this.options.playlist) {
+            this.playlist = this.options.playlist;
+        } else if (this.options.video) {
+            this.playlist = new CinematicPlaylist(false, [this.options.video]);
+        } else {
+            throw new Error('CinematicJS: Either a single `video` or a `playlist` has to be passed as options.');
+        }
+
         this.loadIcons();
         this.renderPlayer();
         this.setupEvents();
@@ -142,7 +159,7 @@ class Cinematic {
         if (this.options.rememberVolume) {
             const storedVolume = this.readFromLocalStore('volume');
             if (storedVolume) {
-                this._video.volume = Number.parseFloat(storedVolume);
+                this._video.volume = parseFloat(storedVolume);
             }
             const storedMuteState = this.readFromLocalStore('muted');
             if (storedMuteState) {
@@ -176,7 +193,7 @@ class Cinematic {
 
         const _video = document.createElement('video');
         _video.preload = 'metadata';
-        _video.poster = this.options.poster;
+        _video.poster = this.playlist.getCurrentVideo().poster;
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
@@ -192,16 +209,9 @@ class Cinematic {
 
         this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
 
-        if (this.options.sources.length === 0) {
-            throw new Error('CinematicJS: At least one source has to be passed.');
-        }
+        let initialVideo = this.playlist.getCurrentVideo();
+        let startSource = initialVideo.getSourcesForQuality(this.quality);
 
-        let startSource;
-        if (this.options.sources.length === 1) {
-            startSource = this.options.sources[0];
-        } else {
-            startSource = this.getSourcesForQuality(this.quality);
-        }
         if (!startSource) {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
         }
@@ -213,33 +223,6 @@ class Cinematic {
             _video.appendChild(_source);
             this._sources.push(_source);
         });
-
-        if (this.options.subtitles) {
-            const _subtitles = document.createElement('track');
-            _subtitles.label = 'subtitles';
-            _subtitles.kind = 'subtitles';
-            _subtitles.src = this.options.subtitles;
-            _subtitles.default = true;
-            _video.appendChild(_subtitles);
-
-            this.tracks = _video.textTracks[0];
-            this.tracks.mode = 'hidden';
-            this.cues = this.tracks.cues;
-
-            const _cuesContainer = document.createElement('div');
-            _cuesContainer.classList.add('video-cues-container');
-            _cuesContainer.classList.add('hidden');
-            this._container.appendChild(_cuesContainer);
-
-            const _cues = document.createElement('div');
-            _cues.classList.add('video-cues');
-            _cues.classList.add('hidden');
-            _cuesContainer.appendChild(_cues);
-
-            this._cues = _cues;
-
-            this._cuesContainer = _cuesContainer;
-        }
 
         const _overlayWrapper = document.createElement('div');
         _overlayWrapper.classList.add('video-overlay-wrapper');
@@ -277,6 +260,8 @@ class Cinematic {
             _header.appendChild(_closeButton);
 
             this._closeButton = _closeButton;
+        } else {
+            this._header.classList.add('hidden');
         }
 
         const _footer = document.createElement('div');
@@ -350,34 +335,25 @@ class Cinematic {
 
         this._volumeButton = _volumeButton;
 
-        if (this.options.sources.length > 1) {
-            const _qualityWrapper = document.createElement('div');
-            _qualityWrapper.classList.add('video-control-dropdown');
-            _controls.appendChild(_qualityWrapper);
+        const _qualityWrapper = document.createElement('div');
+        _qualityWrapper.classList.add('video-control-dropdown');
+        _controls.appendChild(_qualityWrapper);
 
-            const _qualityButton = document.createElement('div');
-            _qualityButton.classList.add('video-control-button');
-            _qualityButton.title = this.options.translations.quality;
-            Cinematic.renderButtonIcon(_qualityButton, 'settings');
-            _qualityWrapper.appendChild(_qualityButton);
+        this._qualityWrapper = _qualityWrapper;
 
-            const _dropDownContent = document.createElement('div');
-            _dropDownContent.classList.add('video-dropdown-content');
-            _qualityWrapper.appendChild(_dropDownContent);
+        const _qualityButton = document.createElement('div');
+        _qualityButton.classList.add('video-control-button');
+        _qualityButton.title = this.options.translations.quality;
+        Cinematic.renderButtonIcon(_qualityButton, 'settings');
+        _qualityWrapper.appendChild(_qualityButton);
 
-            this.options.sources.forEach(source => {
-                const _option = document.createElement('div');
-                _option.classList.add('video-quality-option');
-                if (this.quality === source.quality) {
-                    _option.classList.add('active');
-                }
-                _option.dataset.quality = source.quality;
-                _option.textContent = source.quality;
-                _dropDownContent.appendChild(_option);
-            });
+        const _dropDownContent = document.createElement('div');
+        _dropDownContent.classList.add('video-dropdown-content');
+        _qualityWrapper.appendChild(_dropDownContent);
 
-            this._qualityOptions = _dropDownContent.childNodes;
-        }
+        this._qualityDropdownContent = _dropDownContent;
+
+        this.renderQualityOptions();
 
         if (this.options.deeplink) {
             const _deeplinkButton = document.createElement('div');
@@ -390,15 +366,29 @@ class Cinematic {
             this._deeplinkButton = _deeplinkButton;
         }
 
-        if (this.options.subtitles) {
-            const _captionsButton = document.createElement('div');
-            _captionsButton.classList.add('video-control-button');
-            _captionsButton.title = this.options.translations.showSubtitles;
-            Cinematic.renderButtonIcon(_captionsButton, 'expanded-cc');
-            _controls.appendChild(_captionsButton);
+        const _cuesContainer = document.createElement('div');
+        _cuesContainer.classList.add('video-cues-container');
+        _cuesContainer.classList.add('hidden');
+        this._container.appendChild(_cuesContainer);
 
-            this._captionsButton = _captionsButton;
-        }
+        this._cuesContainer = _cuesContainer;
+
+        const _cues = document.createElement('div');
+        _cues.classList.add('video-cues');
+        _cues.classList.add('hidden');
+        _cuesContainer.appendChild(_cues);
+
+        this._cues = _cues;
+
+        const _captionsButton = document.createElement('div');
+        _captionsButton.classList.add('video-control-button');
+        _captionsButton.title = this.options.translations.showSubtitles;
+        Cinematic.renderButtonIcon(_captionsButton, 'expanded-cc');
+        _controls.appendChild(_captionsButton);
+
+        this._captionsButton = _captionsButton;
+
+        this.prepareSubtitles();
 
         if (this.fullScreenEnabled) {
             const _fullScreenButton = document.createElement('div');
@@ -411,6 +401,129 @@ class Cinematic {
         }
     }
 
+    private renderQualityOptions() {
+        this._qualityDropdownContent.textContent = '';
+
+        if (this.playlist.getCurrentVideo().sources.length > 1) {
+            this.playlist.getCurrentVideo().sources.forEach(source => {
+                const _option = document.createElement('div');
+                _option.classList.add('video-quality-option');
+                if (this.quality === source.quality) {
+                    _option.classList.add('active');
+                }
+                _option.textContent = source.quality;
+                _option.dataset.quality = source.quality;
+
+                _option.addEventListener('click', () => this.handleQualityChange(_option.dataset.quality ?? ''));
+
+                this._qualityDropdownContent.appendChild(_option);
+            });
+
+            this._qualityWrapper.classList.remove('hidden');
+        } else {
+            this._qualityWrapper.classList.add('hidden');
+        }
+    }
+
+    private handleQualityChange(newQuality: string) {
+        if (!newQuality) {
+            return;
+        }
+
+        let currentVideo = this.playlist.getCurrentVideo();
+        let newSource = currentVideo.getSourcesForQuality(newQuality);
+        if (!newSource) {
+            newQuality = currentVideo.getBestAvailableQuality();
+            newSource = currentVideo.getSourcesForQuality(newQuality);
+        }
+        if (!newSource) {
+            return;
+        }
+
+        this._qualityDropdownContent.childNodes.forEach(function (_option: HTMLElement) {
+            if (_option.dataset.quality === newQuality) {
+                _option.classList.add('active');
+            } else {
+                _option.classList.remove('active');
+            }
+        });
+
+        const currentTime = this._video.currentTime;
+        const wasPlaying = !this._video.paused;
+
+        newSource.sources.forEach((videoFormatSource, index) => {
+            const _source = this._sources[index];
+            if (_source) {
+                _source.src = videoFormatSource.source;
+            }
+        });
+
+        this._video.load();
+        this._video.currentTime = currentTime;
+        if (wasPlaying) {
+            this._video.play();
+        }
+        this.quality = newQuality;
+    }
+
+    private prepareSubtitles() {
+        let _oldTrack = this._video.querySelector('track');
+        if (_oldTrack) {
+            this._video.removeChild(_oldTrack);
+            this._captionsButton.classList.add('hidden');
+        }
+
+        let video = this.playlist.getCurrentVideo();
+        if (!video.subtitles) {
+            this._cues.classList.add('hidden');
+            this._captionsButton.classList.add('hidden');
+            this.tracks = null;
+            this.cues = null;
+            return;
+        }
+
+        const _subtitles = document.createElement('track');
+        _subtitles.label = 'subtitles';
+        _subtitles.kind = 'subtitles';
+        _subtitles.src = video.subtitles;
+        _subtitles.default = true;
+        this._video.appendChild(_subtitles);
+
+        const me = this;
+        if (_subtitles.readyState === 2) {
+            me.handleLoadedTrack();
+        } else {
+            _subtitles.addEventListener('load', () => me.handleLoadedTrack());
+        }
+
+        this._captionsButton.classList.remove('hidden');
+    }
+
+    private handleLoadedTrack() {
+        this.tracks = this._video.textTracks[0];
+        this.tracks.mode = 'hidden';
+        this.cues = this.tracks.cues;
+
+        const me = this;
+        const onCueEnter = function (this: any) {
+            me._cues.textContent = this.text;
+            me._cues.classList.remove('hidden');
+        };
+
+        const onCueExit = function () {
+            me._cues.textContent = '';
+            me._cues.classList.add('hidden');
+        };
+
+        if (this.cues) {
+            for (let i = 0; i < this.cues.length; i++) {
+                let cue = this.cues[i];
+                cue.onenter = onCueEnter;
+                cue.onexit = onCueExit;
+            }
+        }
+    }
+
     setupEvents() {
         const me = this;
 
@@ -418,7 +531,10 @@ class Cinematic {
         this.handlePlayerResize();
 
         this._playButton.addEventListener('click', () => {
-            if (this._video.paused || this._video.ended) {
+            if (this._video.ended) {
+                this.playlist.resetToBeginning();
+                this.handleVideoChange();
+            } else if (this._video.paused) {
                 this._video.play();
             } else {
                 this._video.pause();
@@ -435,16 +551,6 @@ class Cinematic {
             this._video.volume = this.volume = parseFloat(this._volumeSlider.value);
         });
 
-        const onCueEnter = function (this: any) {
-            me._cues.textContent = this.text;
-            me._cues.classList.remove('hidden');
-        };
-
-        const onCueExit = function () {
-            me._cues.textContent = '';
-            me._cues.classList.add('hidden');
-        };
-
         this._video.addEventListener('loadedmetadata', function () {
             me.totalSeconds = this.duration;
             me._progressBar.setAttribute('max', me.totalSeconds.toString());
@@ -453,14 +559,6 @@ class Cinematic {
 
             if (me.options.startTime > 0) {
                 this.currentTime = me.options.startTime;
-            }
-
-            if (me.cues) {
-                for (let i = 0; i < me.cues.length; i++) {
-                    let cue = me.cues[i];
-                    cue.onenter = onCueEnter;
-                    cue.onexit = onCueExit;
-                }
             }
         });
 
@@ -497,7 +595,7 @@ class Cinematic {
             Cinematic.switchButtonIcon(me._playButton, 'pause');
             me._playButton.title = me.options.translations.pause;
             me._video.focus();
-            
+
             // Shows the timer even when video container is invisible during initialization of the player
             this.handlePlayerResize();
         });
@@ -507,9 +605,14 @@ class Cinematic {
             me._playButton.title = me.options.translations.play;
         });
 
-        this._video.addEventListener('ended', function () {
-            Cinematic.switchButtonIcon(me._playButton, 'repeat');
-            me._playButton.title = me.options.translations.restart;
+        this._video.addEventListener('ended', () => {
+            if (this.playlist.shouldPlayNextVideo()) {
+                this.playlist.startNextVideo();
+                this.handleVideoChange();
+            } else {
+                Cinematic.switchButtonIcon(this._playButton, 'repeat');
+                this._playButton.title = me.options.translations.restart;
+            }
         });
 
         this._video.addEventListener('progress', function () {
@@ -529,8 +632,10 @@ class Cinematic {
         this._video.addEventListener('click', () => {
             if (me._video.paused || me._video.ended) {
                 me._video.play();
+                this.showOverlay('play', null, true);
             } else {
                 me._video.pause();
+                this.showOverlay('pause', null, true);
             }
             this.userActive = true;
         });
@@ -578,63 +683,23 @@ class Cinematic {
             document.addEventListener('webkitfullscreenchange', () => this.handleFullScreenChange());
         }
 
-        if (this.options.sources.length > 1) {
-            this._qualityOptions.forEach(function (_qualityOption: HTMLElement) {
-                _qualityOption.addEventListener('click', function () {
-                    const newQuality = _qualityOption.dataset.quality;
-                    const currentQuality = me.quality;
-
-                    if (!newQuality || newQuality === currentQuality) {
-                        return;
-                    }
-
-                    me._qualityOptions.forEach(function (_qualityOption: HTMLElement) {
-                        _qualityOption.classList.remove('active');
-                    });
-                    _qualityOption.classList.add('active');
-
-                    const currentTime = me._video.currentTime;
-
-                    const newSource = me.options.sources.find(source => newQuality === source.quality);
-                    if (!newSource) {
-                        return;
-                    }
-
-                    newSource.sources.forEach((source, index) => {
-                        const _source = me._sources[index];
-                        if (_source) {
-                            _source.src = source.source;
-                        }
-                    });
-
-                    me._video.load();
-                    me._video.currentTime = currentTime;
-                    me._video.play();
-                    me.quality = newQuality;
-                });
-            });
-        }
-
         if (this.options.deeplink) {
             this._deeplinkButton.addEventListener('click', () => {
                 me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
             });
         }
 
-        if (this.options.subtitles) {
-            this._captionsButton.addEventListener('click', function () {
-                const wasEnabled = me._container.dataset.captions;
-                me._container.dataset.captions = !wasEnabled;
-                this.classList.toggle('material-icons');
-                this.classList.toggle('material-icons-outlined');
-                me._cuesContainer.classList.toggle('hidden');
-                if (wasEnabled) {
-                    this.title = me.options.translations.showSubtitles;
-                } else {
-                    this.title = me.options.translations.hideSubtitles;
-                }
-            });
-        }
+        this._captionsButton.addEventListener('click', function () {
+            me._cuesContainer.classList.toggle('hidden');
+            if (me.captionsEnabled) {
+                me._captionsButton.title = me.options.translations.showSubtitles;
+                Cinematic.switchButtonIcon(me._captionsButton, 'expanded-cc');
+            } else {
+                me._captionsButton.title = me.options.translations.hideSubtitles;
+                Cinematic.switchButtonIcon(me._captionsButton, 'cc');
+            }
+            me.captionsEnabled = !me.captionsEnabled;
+        });
 
         if (this.options.closeCallback) {
             this._closeButton.addEventListener('click', () => {
@@ -651,6 +716,7 @@ class Cinematic {
             switch (key) {
                 // Space bar allows to pause/resume the video
                 case ' ':
+                case 'Spacebar':
                     this.userActive = true;
                     if (this._video.paused) {
                         this._video.play();
@@ -669,19 +735,22 @@ class Cinematic {
                     break;
                 // Left Arrow skips 10 seconds into the past
                 case 'ArrowLeft':
+                case 'Left':
                     this.userActive = true;
                     this._video.currentTime -= 10;
                     break;
                 // Right Arrow skips 10 seconds into the future
                 case 'ArrowRight':
+                case 'Right':
                     this.userActive = true;
                     this._video.currentTime += 10;
                     break;
                 // Down Arrow decreases the volume by 5%
                 case 'ArrowDown':
+                case 'Down':
                     this.userActive = true;
                     if (this._video.volume > 0) {
-                        let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                        let currentVolume = Math.round((this._video.volume + Cinematic.getEpsilon()) * 100);
                         this.volume = (currentVolume - 5) / 100;
                         this._video.volume = this.volume;
                         if (this.volume === 0) {
@@ -696,9 +765,10 @@ class Cinematic {
                     break;
                 // Up Arrow increases the volume by 5%
                 case 'ArrowUp':
+                case 'Up':
                     this.userActive = true;
                     if (this._video.volume < 1) {
-                        let currentVolume = Math.round((this._video.volume + Number.EPSILON) * 100);
+                        let currentVolume = Math.round((this._video.volume + Cinematic.getEpsilon()) * 100);
                         this.volume = (currentVolume + 5) / 100;
                         this._video.volume = this.volume;
                         // Unmute if we previously were muted
@@ -712,7 +782,18 @@ class Cinematic {
 
         return true;
     }
-    
+
+    private handleVideoChange() {
+        this.prepareSubtitles();
+        this.renderQualityOptions();
+        this.handleQualityChange(this.quality);
+        if (this.playlist.getCurrentVideo().poster) {
+            this._video.poster = this.playlist.getCurrentVideo().poster;
+        }
+        this._video.currentTime = 0;
+        this._video.play();
+    }
+
     private handlePlayerResize() {
         if (this._container.clientWidth >= 328) {
             this._timer.classList.remove('hidden');
@@ -746,15 +827,6 @@ class Cinematic {
                 this._overlayWrapper.classList.add('hidden');
             }, 500);
         }
-    }
-
-    getSourcesForQuality(quality: string): VideoQuality | null {
-        for (let source of this.options.sources) {
-            if (source.quality === quality) {
-                return source;
-            }
-        }
-        return null;
     }
 
     formatTime(seconds: number) {
@@ -832,7 +904,9 @@ class Cinematic {
 
     showControls() {
         this._container.classList.remove('video-user-inactive');
-        this._header.classList.remove('hidden');
+        if (this.options.closeCallback) {
+            this._header.classList.remove('hidden');
+        }
         this._footer.classList.remove('hidden');
     }
 
@@ -903,5 +977,79 @@ class Cinematic {
         window.addEventListener('copy', copy);
         document.execCommand('copy');
         window.removeEventListener('copy', copy);
+    }
+
+    private static getEpsilon(): number {
+        if (Number.EPSILON) {
+            return Number.EPSILON;
+        }
+        let epsilon = 1.0;
+        while ((1.0 + 0.5 * epsilon) !== 1.0) {
+            epsilon *= 0.5;
+        }
+        return epsilon;
+    }
+}
+
+class CinematicVideo {
+    poster: string;
+    subtitles: string | null;
+    sources: VideoQuality[];
+
+    constructor(options: VideoOptions) {
+        this.poster = options.poster;
+        this.subtitles = options.subtitles;
+        this.sources = options.sources;
+    }
+
+    getSourcesForQuality(quality: string): VideoQuality | null {
+        if (this.sources.length === 1) {
+            return this.sources[0];
+        }
+        for (let source of this.sources) {
+            if (source.quality === quality) {
+                return source;
+            }
+        }
+        return null;
+    }
+
+    getBestAvailableQuality(): string {
+        return this.sources[0].quality;
+    }
+}
+
+class CinematicPlaylist {
+    loop: boolean;
+    videos: CinematicVideo[];
+    currentVideo: number;
+
+    constructor(loop: boolean, videos: CinematicVideo[]) {
+        this.loop = loop;
+        this.videos = videos;
+        this.currentVideo = 0;
+
+        if (this.videos.length === 0) {
+            throw new Error('CinematicJS: At least one video has to be passed.');
+        }
+    }
+
+    getCurrentVideo(): CinematicVideo {
+        return this.videos[this.currentVideo];
+    }
+
+    shouldPlayNextVideo(): boolean {
+        return this.videos.length > 1 && (this.currentVideo + 1 < this.videos.length || this.loop);
+    }
+
+    startNextVideo() {
+        this.currentVideo++;
+        if (this.loop && this.currentVideo >= this.videos.length) {
+            this.resetToBeginning();
+        }
+    }
+
+    resetToBeginning() {
+        this.currentVideo = 0;
     }
 }

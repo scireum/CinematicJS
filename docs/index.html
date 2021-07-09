@@ -3,7 +3,7 @@
 
 <head style="height: 5000px">
     <meta name="viewport"
-        content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+          content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi"/>
     <link rel="stylesheet" type="text/css" href="../dist/cinematic.css">
     <style>
         .endcard {
@@ -44,85 +44,88 @@
 </head>
 
 <body>
-    <div id="video1" style="max-width: 1024px; max-height: 400px"></div>
+<div id="video1" style="max-width: 1024px; max-height: 400px"></div>
+<br>
+<div id="video2" style="max-width: 1024px; max-height: 400px"></div>
 
-    <script src="../dist/cinematic.js"></script>
-    
-    <script>
-        // Production steps of ECMA-262, Edition 5, 15.4.4.18
-        // Reference: http://es5.github.io/#x15.4.4.18
-        if (!Array.prototype.forEach) {
+<script src="../dist/cinematic.js"></script>
 
-            Array.prototype.forEach = function(callback, thisArg) {
+<script>
+    // Production steps of ECMA-262, Edition 5, 15.4.4.18
+    // Reference: http://es5.github.io/#x15.4.4.18
+    if (!Array.prototype.forEach) {
 
-                var T, k;
+        Array.prototype.forEach = function (callback, thisArg) {
 
-                if (this === null) {
-                    throw new TypeError(' this is null or not defined');
+            var T, k;
+
+            if (this === null) {
+                throw new TypeError(' this is null or not defined');
+            }
+
+            // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
+            var O = Object(this);
+
+            // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
+            // 3. Let len be ToUint32(lenValue).
+            var len = O.length >>> 0;
+
+            // 4. If IsCallable(callback) is false, throw a TypeError exception.
+            // See: http://es5.github.com/#x9.11
+            if (typeof callback !== "function") {
+                throw new TypeError(callback + ' is not a function');
+            }
+
+            // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+            if (arguments.length > 1) {
+                T = thisArg;
+            }
+
+            // 6. Let k be 0
+            k = 0;
+
+            // 7. Repeat, while k < len
+            while (k < len) {
+
+                var kValue;
+
+                // a. Let Pk be ToString(k).
+                //   This is implicit for LHS operands of the in operator
+                // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
+                //   This step can be combined with c
+                // c. If kPresent is true, then
+                if (k in O) {
+
+                    // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
+                    kValue = O[k];
+
+                    // ii. Call the Call internal method of callback with T as the this value and
+                    // argument list containing kValue, k, and O.
+                    callback.call(T, kValue, k, O);
                 }
+                // d. Increase k by 1.
+                k++;
+            }
+            // 8. return undefined
+        };
+    }
 
-                // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
-                var O = Object(this);
+    if (window.NodeList && !NodeList.prototype.forEach) {
+        NodeList.prototype.forEach = Array.prototype.forEach;
+    }
+</script>
 
-                // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
-                // 3. Let len be ToUint32(lenValue).
-                var len = O.length >>> 0;
-
-                // 4. If IsCallable(callback) is false, throw a TypeError exception.
-                // See: http://es5.github.com/#x9.11
-                if (typeof callback !== "function") {
-                    throw new TypeError(callback + ' is not a function');
-                }
-
-                // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-                if (arguments.length > 1) {
-                    T = thisArg;
-                }
-
-                // 6. Let k be 0
-                k = 0;
-
-                // 7. Repeat, while k < len
-                while (k < len) {
-
-                    var kValue;
-
-                    // a. Let Pk be ToString(k).
-                    //   This is implicit for LHS operands of the in operator
-                    // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
-                    //   This step can be combined with c
-                    // c. If kPresent is true, then
-                    if (k in O) {
-
-                        // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
-                        kValue = O[k];
-
-                        // ii. Call the Call internal method of callback with T as the this value and
-                        // argument list containing kValue, k, and O.
-                        callback.call(T, kValue, k, O);
-                    }
-                    // d. Increase k by 1.
-                    k++;
-                }
-                // 8. return undefined
-            };
-        }
-
-        if (window.NodeList && !NodeList.prototype.forEach) {
-            NodeList.prototype.forEach = Array.prototype.forEach;
-        }
-    </script>
-
-    <script>
-        new Cinematic({
-            selector: '#video1',
+<script>
+    new Cinematic({
+        selector: '#video1',
+        deeplink: 'localhost:5500/docs/index.html',
+        //autoplay: true,
+        rememberVolume: true,
+        startTime: 30,
+        quality: '720p',
+        video: new CinematicVideo({
             poster: '../video/poster.jpg',
             subtitles: '../video/captions.vtt',
-            deeplink: 'localhost:5500/docs/index.html',
-            //autoplay: true,
-            rememberVolume: true,
-            startTime: 30,
-            quality: '720p',
             sources: [
                 {
                     quality: '1080p',
@@ -150,12 +153,77 @@
                         }
                     ]
                 }
-            ],
-            closeCallback: function () {
-                window.alert('closed');
-            }
-        });
-    </script>
+            ]
+        }),
+        closeCallback: function () {
+            window.alert('closed');
+        }
+    });
+
+    new Cinematic({
+        selector: '#video2',
+        subtitles: '../video/captions.vtt',
+        deeplink: 'localhost:5500/docs/index.html',
+        rememberVolume: true,
+        quality: '1080p',
+        playlist: new CinematicPlaylist(true, [
+                new CinematicVideo({
+                        poster: '../video/video1-1080.png',
+                        sources: [
+                            {
+                                quality: '1080p',
+                                sources: [
+                                    {
+                                        type: 'video/mp4; codecs="hvc1"',
+                                        source: '../video/video1-1080.mp4'
+                                    },
+                                    {
+                                        type: 'video/mp4; codecs="avc1.64001F"',
+                                        source: '../video/video1-1080.mp4'
+                                    }
+                                ]
+                            },
+                            {
+                                quality: '720p',
+                                sources: [
+                                    {
+                                        type: 'video/mp4; codecs="hvc1"',
+                                        source: '../video/video1-720.mp4'
+                                    },
+                                    {
+                                        type: 'video/mp4; codecs="avc1.64001F"',
+                                        source: '../video/video1-720.mp4'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ),
+                new CinematicVideo(
+                    {
+                        poster: '../video/video2-720.png',
+                        subtitles: '../video/captions.vtt',
+                        sources: [
+                            {
+                                quality: '720p',
+                                sources: [
+                                    {
+                                        type: 'video/mp4; codecs="hvc1"',
+                                        source: '../video/video2-720.mp4'
+                                    },
+                                    {
+                                        type: 'video/mp4; codecs="avc1.64001F"',
+                                        source: '../video/video2-720.mp4'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                )
+            ]
+        )
+    });
+</script>
 </body>
 
 </html>
