@@ -358,7 +358,6 @@ var Cinematic = /** @class */ (function () {
             me._cues.textContent = '';
             me._cues.classList.add('hidden');
         };
-        console.log(this.cues);
         if (this.cues) {
             for (var i = 0; i < this.cues.length; i++) {
                 var cue = this.cues[i];

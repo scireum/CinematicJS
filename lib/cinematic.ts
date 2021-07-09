@@ -515,7 +515,6 @@ class Cinematic {
             me._cues.classList.add('hidden');
         };
 
-        console.log(this.cues);
         if (this.cues) {
             for (let i = 0; i < this.cues.length; i++) {
                 let cue = this.cues[i];
