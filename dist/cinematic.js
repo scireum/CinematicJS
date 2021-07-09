@@ -334,7 +334,6 @@ var Cinematic = /** @class */ (function () {
         _subtitles.default = true;
         this._video.appendChild(_subtitles);
         var me = this;
-        this._video.load();
         if (_subtitles.readyState === 2) {
             me.handleLoadedTrack();
         }
@@ -463,9 +462,11 @@ var Cinematic = /** @class */ (function () {
         this._video.addEventListener('click', function () {
             if (me._video.paused || me._video.ended) {
                 me._video.play();
+                _this.showOverlay('play', null, true);
             }
             else {
                 me._video.pause();
+                _this.showOverlay('pause', null, true);
             }
             _this.userActive = true;
         });
