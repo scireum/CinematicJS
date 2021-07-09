@@ -154,6 +154,9 @@ var Cinematic = /** @class */ (function () {
             _header.appendChild(_closeButton);
             this._closeButton = _closeButton;
         }
+        else {
+            this._header.classList.add('hidden');
+        }
         var _footer = document.createElement('div');
         _footer.classList.add('video-footer');
         this._container.appendChild(_footer);

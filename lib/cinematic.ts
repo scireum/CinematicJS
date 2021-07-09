@@ -260,6 +260,8 @@ class Cinematic {
             _header.appendChild(_closeButton);
 
             this._closeButton = _closeButton;
+        } else {
+            this._header.classList.add('hidden');
         }
 
         const _footer = document.createElement('div');
