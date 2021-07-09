@@ -710,7 +710,9 @@ var Cinematic = /** @class */ (function () {
     };
     Cinematic.prototype.showControls = function () {
         this._container.classList.remove('video-user-inactive');
-        this._header.classList.remove('hidden');
+        if (this.options.closeCallback) {
+            this._header.classList.remove('hidden');
+        }
         this._footer.classList.remove('hidden');
     };
     Cinematic.prototype.hideControls = function () {

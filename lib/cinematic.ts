@@ -498,7 +498,7 @@ class Cinematic {
 
         this._captionsButton.classList.remove('hidden');
     }
-    
+
     private handleLoadedTrack() {
         this.tracks = this._video.textTracks[0];
         this.tracks.mode = 'hidden';
@@ -900,7 +900,9 @@ class Cinematic {
 
     showControls() {
         this._container.classList.remove('video-user-inactive');
-        this._header.classList.remove('hidden');
+        if (this.options.closeCallback) {
+            this._header.classList.remove('hidden');
+        }
         this._footer.classList.remove('hidden');
     }
 
