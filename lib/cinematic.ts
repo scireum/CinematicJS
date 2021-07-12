@@ -2,11 +2,14 @@ interface Document {
     webkitExitFullscreen: any;
     webkitFullscreenElement: any;
     webkitFullscreenEnabled: any;
+    pictureInPictureElement: any;
+    exitPictureInPicture: any;
 }
 
 interface HTMLVideoElement {
     webkitEnterFullscreen: any;
     webkitSupportsFullscreen: any;
+    requestPictureInPicture: any;
 }
 
 interface Options {
@@ -110,6 +113,7 @@ class Cinematic {
     _qualityDropdownContent: HTMLDivElement;
     _captionsButton: HTMLDivElement;
     _deeplinkButton: HTMLElement;
+    _pipButton: HTMLDivElement;
     _fullScreenButton: HTMLDivElement;
     _closeButton: HTMLElement;
     _overlayWrapper: HTMLDivElement;
@@ -126,10 +130,12 @@ class Cinematic {
 
     captionsEnabled = false;
     fullScreenEnabled = false;
+    pipEnabled = false;
     userActive = false;
     userActiveCheck: number;
     userInactiveTimeout: number;
     overlayHideTimeout: number;
+    doubleClickTimeout: number;
 
     constructor(options: Options) {
         this.options = {...this.defaults, ...options};
@@ -141,6 +147,10 @@ class Cinematic {
         this._container = _passedContainer;
 
         this.quality = this.options.quality;
+        
+        if ('pictureInPictureEnabled' in document) {
+            this.pipEnabled = true;
+        }
 
         if (this.options.playlist) {
             this.playlist = this.options.playlist;
@@ -390,6 +400,16 @@ class Cinematic {
 
         this.prepareSubtitles();
 
+        if (this.pipEnabled) {
+            const _pipButton = document.createElement('div');
+            _pipButton.classList.add('video-control-button');
+            _pipButton.title = this.options.translations.fullscreen;
+            Cinematic.renderButtonIcon(_pipButton, 'inpicture');
+            _controls.appendChild(_pipButton);
+
+            this._pipButton = _pipButton;
+        }
+
         if (this.fullScreenEnabled) {
             const _fullScreenButton = document.createElement('div');
             _fullScreenButton.classList.add('video-control-button');
@@ -630,12 +650,38 @@ class Cinematic {
         });
 
         this._video.addEventListener('click', () => {
-            if (me._video.paused || me._video.ended) {
-                me._video.play();
-                this.showOverlay('play', null, true);
+            window.setTimeout(() => {
+                if (me._video.paused || me._video.ended) {
+                    me._video.play();
+                    this.showOverlay('play', null, true);
+                } else {
+                    me._video.pause();
+                    this.showOverlay('pause', null, true);
+                }
+                this.userActive = true;
+            }, 300);
+        });
+
+        this._video.addEventListener('dblclick', (event) => {
+            if (this.doubleClickTimeout) {
+                clearTimeout(this.doubleClickTimeout);
+            }
+
+            // Get the bounding rectangle of target
+            const rect = this._video.getBoundingClientRect();
+            const thirds = rect.width / 3;
+
+            // Mouse position
+            const x = event.clientX - rect.left;
+
+            if (x <= thirds) {
+                this._video.currentTime -= 10;
+                this.showOverlay('backwards', '- 10s', true);
+            } else if (x <= thirds * 2) {
+                this.toggleFullScreen();
             } else {
-                me._video.pause();
-                this.showOverlay('pause', null, true);
+                this._video.currentTime += 10;
+                this.showOverlay('fastforward', '+ 10s', true);
             }
             this.userActive = true;
         });
@@ -701,6 +747,20 @@ class Cinematic {
             me.captionsEnabled = !me.captionsEnabled;
         });
 
+        if (this.pipEnabled) {
+            this._pipButton.addEventListener('click', async () => {
+                try {
+                    if (this._video !== document.pictureInPictureElement) {
+                        await this._video.requestPictureInPicture();
+                    } else {
+                        await document.exitPictureInPicture();
+                    }
+                } catch (error) {
+                    console.error(error)
+                }
+            });
+        }
+
         if (this.options.closeCallback) {
             this._closeButton.addEventListener('click', () => {
                 this.options.closeCallback?.apply(this);
@@ -738,12 +798,14 @@ class Cinematic {
                 case 'Left':
                     this.userActive = true;
                     this._video.currentTime -= 10;
+                    this.showOverlay('backwards', '- 10s', true);
                     break;
                 // Right Arrow skips 10 seconds into the future
                 case 'ArrowRight':
                 case 'Right':
                     this.userActive = true;
                     this._video.currentTime += 10;
+                    this.showOverlay('fastforward', '+ 10s', true);
                     break;
                 // Down Arrow decreases the volume by 5%
                 case 'ArrowDown':

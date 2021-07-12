@@ -53,6 +53,18 @@
         <title>icon-closefullscreen</title>
     <path d="m9.8824 14.118v9.8824h-2.8235v-7.0588h-7.0588v-2.8235h9.8824zm14.118 0v2.8235h-7.0588v7.0588h-2.8235v-9.8824h9.8824zm-14.118-14.118v9.8824h-9.8824v-2.8235h7.0588v-7.0588h2.8235zm7.0588 0v7.0588h7.0588v2.8235h-9.8824v-9.8824h2.8235z"/>
     </symbol>
+    <symbol id="icon-fastforward" viewBox="0 0 24 24">
+        <title>icon-fastforward</title>
+    <path class="" d="m10 2 14 10-14 10v-7.143l-10 7.143v-20l10 7.143v-7.143z"/>
+    </symbol>
+    <symbol id="icon-backwards" viewBox="0 0 24 24">
+        <title>icon-backwards</title>
+    <path class="" d="m24 2v20l-10-7.143v7.143l-14-10 14-10v7.143l10-7.143z"/>
+    </symbol>
+    <symbol id="icon-inpicture" viewBox="0 0 24 24">
+        <title>icon-inpicture</title>
+    <path class="" d="m20 3c2.2091 0 4 1.7909 4 4v11c0 2.2091-1.7909 4-4 4h-16c-2.2091 0-4-1.7909-4-4v-11c0-2.2091 1.7909-4 4-4h16zm0 2h-16c-1.0544 0-1.9182 0.81588-1.9945 1.8507l-0.0054857 0.14926v11c0 1.0544 0.81588 1.9182 1.8507 1.9945l0.14926 0.0054857h16c1.0544 0 1.9182-0.81588 1.9945-1.8507l0.0054857-0.14926v-11c0-1.0544-0.81588-1.9182-1.8507-1.9945l-0.14926-0.0054857zm0 5v8h-10v-8h10zm-2 2h-6v4h6v-4z"/>
+    </symbol>
     </defs>
 </svg>
 
