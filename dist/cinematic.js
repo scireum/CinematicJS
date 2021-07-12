@@ -556,12 +556,14 @@ var Cinematic = /** @class */ (function () {
                 case 'Left':
                     _this.userActive = true;
                     _this._video.currentTime -= 10;
+                    _this.showOverlay('backwards', '- 10s', true);
                     break;
                 // Right Arrow skips 10 seconds into the future
                 case 'ArrowRight':
                 case 'Right':
                     _this.userActive = true;
                     _this._video.currentTime += 10;
+                    _this.showOverlay('fastforward', '+ 10s', true);
                     break;
                 // Down Arrow decreases the volume by 5%
                 case 'ArrowDown':

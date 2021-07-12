@@ -738,12 +738,14 @@ class Cinematic {
                 case 'Left':
                     this.userActive = true;
                     this._video.currentTime -= 10;
+                    this.showOverlay('backwards', '- 10s', true);
                     break;
                 // Right Arrow skips 10 seconds into the future
                 case 'ArrowRight':
                 case 'Right':
                     this.userActive = true;
                     this._video.currentTime += 10;
+                    this.showOverlay('fastforward', '+ 10s', true);
                     break;
                 // Down Arrow decreases the volume by 5%
                 case 'ArrowDown':
