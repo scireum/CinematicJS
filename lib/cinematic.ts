@@ -2,11 +2,14 @@ interface Document {
     webkitExitFullscreen: any;
     webkitFullscreenElement: any;
     webkitFullscreenEnabled: any;
+    pictureInPictureElement: any;
+    exitPictureInPicture: any;
 }
 
 interface HTMLVideoElement {
     webkitEnterFullscreen: any;
     webkitSupportsFullscreen: any;
+    requestPictureInPicture: any;
 }
 
 interface Options {
@@ -110,6 +113,7 @@ class Cinematic {
     _qualityDropdownContent: HTMLDivElement;
     _captionsButton: HTMLDivElement;
     _deeplinkButton: HTMLElement;
+    _pipButton: HTMLDivElement;
     _fullScreenButton: HTMLDivElement;
     _closeButton: HTMLElement;
     _overlayWrapper: HTMLDivElement;
@@ -126,6 +130,7 @@ class Cinematic {
 
     captionsEnabled = false;
     fullScreenEnabled = false;
+    pipEnabled = false;
     userActive = false;
     userActiveCheck: number;
     userInactiveTimeout: number;
@@ -142,6 +147,10 @@ class Cinematic {
         this._container = _passedContainer;
 
         this.quality = this.options.quality;
+        
+        if ('pictureInPictureEnabled' in document) {
+            this.pipEnabled = true;
+        }
 
         if (this.options.playlist) {
             this.playlist = this.options.playlist;
@@ -390,6 +399,16 @@ class Cinematic {
         this._captionsButton = _captionsButton;
 
         this.prepareSubtitles();
+
+        if (this.pipEnabled) {
+            const _pipButton = document.createElement('div');
+            _pipButton.classList.add('video-control-button');
+            _pipButton.title = this.options.translations.fullscreen;
+            Cinematic.renderButtonIcon(_pipButton, 'inpicture');
+            _controls.appendChild(_pipButton);
+
+            this._pipButton = _pipButton;
+        }
 
         if (this.fullScreenEnabled) {
             const _fullScreenButton = document.createElement('div');
@@ -642,7 +661,7 @@ class Cinematic {
                 this.userActive = true;
             }, 300);
         });
-        
+
         this._video.addEventListener('dblclick', (event) => {
             if (this.doubleClickTimeout) {
                 clearTimeout(this.doubleClickTimeout);
@@ -654,7 +673,7 @@ class Cinematic {
 
             // Mouse position
             const x = event.clientX - rect.left;
-            
+
             if (x <= thirds) {
                 this._video.currentTime -= 10;
                 this.showOverlay('backwards', '- 10s', true);
@@ -727,6 +746,20 @@ class Cinematic {
             }
             me.captionsEnabled = !me.captionsEnabled;
         });
+
+        if (this.pipEnabled) {
+            this._pipButton.addEventListener('click', async () => {
+                try {
+                    if (this._video !== document.pictureInPictureElement) {
+                        await this._video.requestPictureInPicture();
+                    } else {
+                        await document.exitPictureInPicture();
+                    }
+                } catch (error) {
+                    console.error(error)
+                }
+            });
+        }
 
         if (this.options.closeCallback) {
             this._closeButton.addEventListener('click', () => {
