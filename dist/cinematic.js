@@ -462,13 +462,37 @@ var Cinematic = /** @class */ (function () {
             }
         });
         this._video.addEventListener('click', function () {
-            if (me._video.paused || me._video.ended) {
-                me._video.play();
-                _this.showOverlay('play', null, true);
+            window.setTimeout(function () {
+                if (me._video.paused || me._video.ended) {
+                    me._video.play();
+                    _this.showOverlay('play', null, true);
+                }
+                else {
+                    me._video.pause();
+                    _this.showOverlay('pause', null, true);
+                }
+                _this.userActive = true;
+            }, 300);
+        });
+        this._video.addEventListener('dblclick', function (event) {
+            if (_this.doubleClickTimeout) {
+                clearTimeout(_this.doubleClickTimeout);
+            }
+            // Get the bounding rectangle of target
+            var rect = _this._video.getBoundingClientRect();
+            var thirds = rect.width / 3;
+            // Mouse position
+            var x = event.clientX - rect.left;
+            if (x <= thirds) {
+                _this._video.currentTime -= 10;
+                _this.showOverlay('backwards', '- 10s', true);
+            }
+            else if (x <= thirds * 2) {
+                _this.toggleFullScreen();
             }
             else {
-                me._video.pause();
-                _this.showOverlay('pause', null, true);
+                _this._video.currentTime += 10;
+                _this.showOverlay('fastforward', '+ 10s', true);
             }
             _this.userActive = true;
         });

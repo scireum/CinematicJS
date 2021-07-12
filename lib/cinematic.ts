@@ -130,6 +130,7 @@ class Cinematic {
     userActiveCheck: number;
     userInactiveTimeout: number;
     overlayHideTimeout: number;
+    doubleClickTimeout: number;
 
     constructor(options: Options) {
         this.options = {...this.defaults, ...options};
@@ -630,12 +631,38 @@ class Cinematic {
         });
 
         this._video.addEventListener('click', () => {
-            if (me._video.paused || me._video.ended) {
-                me._video.play();
-                this.showOverlay('play', null, true);
+            window.setTimeout(() => {
+                if (me._video.paused || me._video.ended) {
+                    me._video.play();
+                    this.showOverlay('play', null, true);
+                } else {
+                    me._video.pause();
+                    this.showOverlay('pause', null, true);
+                }
+                this.userActive = true;
+            }, 300);
+        });
+        
+        this._video.addEventListener('dblclick', (event) => {
+            if (this.doubleClickTimeout) {
+                clearTimeout(this.doubleClickTimeout);
+            }
+
+            // Get the bounding rectangle of target
+            const rect = this._video.getBoundingClientRect();
+            const thirds = rect.width / 3;
+
+            // Mouse position
+            const x = event.clientX - rect.left;
+            
+            if (x <= thirds) {
+                this._video.currentTime -= 10;
+                this.showOverlay('backwards', '- 10s', true);
+            } else if (x <= thirds * 2) {
+                this.toggleFullScreen();
             } else {
-                me._video.pause();
-                this.showOverlay('pause', null, true);
+                this._video.currentTime += 10;
+                this.showOverlay('fastforward', '+ 10s', true);
             }
             this.userActive = true;
         });
