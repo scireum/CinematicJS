@@ -72,6 +72,7 @@ var Cinematic = /** @class */ (function () {
                 exitFullscreen: 'Exit Fullscreen',
                 showSubtitles: 'Show Subtitles',
                 hideSubtitles: 'Hide Subtitles',
+                pictureInPicture: 'Picture in picture',
             }
         };
         this._sources = [];
@@ -292,7 +293,7 @@ var Cinematic = /** @class */ (function () {
         if (this.pipEnabled) {
             var _pipButton = document.createElement('div');
             _pipButton.classList.add('video-control-button');
-            _pipButton.title = this.options.translations.fullscreen;
+            _pipButton.title = this.options.translations.pictureInPicture;
             Cinematic.renderButtonIcon(_pipButton, 'inpicture');
             _controls.appendChild(_pipButton);
             this._pipButton = _pipButton;
