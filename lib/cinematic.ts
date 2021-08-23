@@ -61,6 +61,7 @@ interface Translations {
     exitFullscreen: string;
     showSubtitles: string;
     hideSubtitles: string;
+    pictureInPicture: string;
 }
 
 class Cinematic {
@@ -92,6 +93,7 @@ class Cinematic {
             exitFullscreen: 'Exit Fullscreen',
             showSubtitles: 'Show Subtitles',
             hideSubtitles: 'Hide Subtitles',
+            pictureInPicture: 'Picture in picture',
         }
     };
 
@@ -147,7 +149,7 @@ class Cinematic {
         this._container = _passedContainer;
 
         this.quality = this.options.quality;
-        
+
         if ('pictureInPictureEnabled' in document) {
             this.pipEnabled = true;
         }
@@ -403,7 +405,7 @@ class Cinematic {
         if (this.pipEnabled) {
             const _pipButton = document.createElement('div');
             _pipButton.classList.add('video-control-button');
-            _pipButton.title = this.options.translations.fullscreen;
+            _pipButton.title = this.options.translations.pictureInPicture;
             Cinematic.renderButtonIcon(_pipButton, 'inpicture');
             _controls.appendChild(_pipButton);
 
