@@ -113,3 +113,20 @@ The following keys can be provided:
 | exitFullscreen | Tooltip on the fullscreen button when video is currently in fullscreen. | Exit Fullscreen |
 | showSubtitles | Tooltip on the subtitles button when video subtitles are currently hidden. | Show Subtitles |
 | hideSubtitles | Tooltip on the subtitles button when video subtitles are currently shown. | Hide Subtitles |
+
+
+## Build / Development
+
+Install typescript:
+
+```
+brew install typescript
+```
+
+Change .ts file as necessary.
+
+Run TypeScript build in the main project directory:
+
+```
+tsc
+```
