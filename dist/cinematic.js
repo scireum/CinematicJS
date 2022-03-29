@@ -121,7 +121,7 @@ var Cinematic = /** @class */ (function () {
     }
     Cinematic.prototype.loadIcons = function () {
         var _iconContainer = document.createElement('span');
-        _iconContainer.classList.add('token-autocomplete-suggestion-thumbnail');
+        _iconContainer.classList.add('cinematicjs-icon-container');
         document.body.appendChild(_iconContainer);
         var request = new XMLHttpRequest();
         request.open("GET", this.options.baseUri + '/icons.svg', true);

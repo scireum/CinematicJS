@@ -184,7 +184,7 @@ class Cinematic {
 
     loadIcons() {
         const _iconContainer = document.createElement('span');
-        _iconContainer.classList.add('token-autocomplete-suggestion-thumbnail');
+        _iconContainer.classList.add('cinematicjs-icon-container');
         document.body.appendChild(_iconContainer);
 
         const request = new XMLHttpRequest();
