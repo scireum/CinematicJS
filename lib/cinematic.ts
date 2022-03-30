@@ -254,7 +254,7 @@ class Cinematic {
         this._overlayIcon = _overlayIcon;
 
         const _overlayText = document.createElement('div');
-        _overlayText.classList.add('cinematicjs-video-overlay-container');
+        _overlayText.classList.add('cinematicjs-video-overlay-text');
         _overlayContainer.appendChild(_overlayText);
         this._overlayText = _overlayText;
 
@@ -301,7 +301,7 @@ class Cinematic {
         this._progressBar = _progressBar;
 
         const _controls = document.createElement('div');
-        _controls.classList.add('cinematicjs-video-footer');
+        _controls.classList.add('cinematicjs-video-controls');
         _footer.appendChild(_controls);
 
         this._controls = _controls;

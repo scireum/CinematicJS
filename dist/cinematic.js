@@ -180,7 +180,7 @@ var Cinematic = /** @class */ (function () {
         Cinematic.renderButtonIcon(_overlayIcon, 'mute');
         this._overlayIcon = _overlayIcon;
         var _overlayText = document.createElement('div');
-        _overlayText.classList.add('cinematicjs-video-overlay-container');
+        _overlayText.classList.add('cinematicjs-video-overlay-text');
         _overlayContainer.appendChild(_overlayText);
         this._overlayText = _overlayText;
         var _header = document.createElement('div');
@@ -216,7 +216,7 @@ var Cinematic = /** @class */ (function () {
         _progressWrapper.appendChild(_progressBar);
         this._progressBar = _progressBar;
         var _controls = document.createElement('div');
-        _controls.classList.add('cinematicjs-video-footer');
+        _controls.classList.add('cinematicjs-video-controls');
         _footer.appendChild(_controls);
         this._controls = _controls;
         var _playButton = document.createElement('div');

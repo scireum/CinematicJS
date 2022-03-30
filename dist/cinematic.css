@@ -92,25 +92,25 @@
     transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
 
-.cinematicjs-video-footer {
+.cinematicjs-video-controls {
     display: flex;
     align-items: center;
     margin-top: 4px;
 }
 
-.cinematicjs-video-footer > * {
+.cinematicjs-video-controls > * {
     margin: 4px;
 }
 
-.cinematicjs-video-footer .cinematicjs-hidden, .cinematicjs-video-footer .cinematicjs-video-control-button.cinematicjs-hidden {
+.cinematicjs-video-controls .cinematicjs-hidden, .cinematicjs-video-controls .cinematicjs-video-control-button.cinematicjs-hidden {
     display: none;
 }
 
-.cinematicjs-video-footer .video-control-spacer {
+.cinematicjs-video-controls .video-control-spacer {
     flex-grow: 1;
 }
 
-.cinematicjs-video-footer .cinematicjs-video-control-button {
+.cinematicjs-video-controls .cinematicjs-video-control-button {
     display: flex;
     align-items: center;
     color: #ffffff;
@@ -120,7 +120,7 @@
     transition: opacity .1s ease-in-out;
 }
 
-.cinematicjs-video-footer .cinematicjs-video-control-button:hover {
+.cinematicjs-video-controls .cinematicjs-video-control-button:hover {
     opacity: 1;
 }
 
@@ -197,11 +197,11 @@
 /*endregion*/
 
 /*region Deeplink Button*/
-.cinematicjs-video-footer .cinematicjs-video-control-button.cinematicjs-copied svg {
+.cinematicjs-video-controls .cinematicjs-video-control-button.cinematicjs-copied svg {
     fill: #69f0ae;
 }
 
-.cinematicjs-video-footer .cinematicjs-video-control-button.cinematicjs-copied:before {
+.cinematicjs-video-controls .cinematicjs-video-control-button.cinematicjs-copied:before {
     content: attr(data-copied-text);
     position: absolute;
     transition: all 0.15s ease;
@@ -220,7 +220,7 @@
 /*endregion*/
 
 /*region Timer*/
-.cinematicjs-video-footer .cinematicjs-video-control-timer {
+.cinematicjs-video-controls .cinematicjs-video-control-timer {
     flex-shrink: 0;
     padding-left: 8px;
     color: #ffffff;
@@ -401,7 +401,7 @@ html:-ms-fullscreen {
     fill: #ffffff;
 }
 
-.cinematicjs-video-overlay-container .cinematicjs-video-overlay-container {
+.cinematicjs-video-overlay-container .cinematicjs-video-overlay-text {
     margin-top: 4px;
     text-align: center;
     color: #ffffff;
