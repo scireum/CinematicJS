@@ -578,7 +578,9 @@ var Cinematic = /** @class */ (function () {
         }
         if (this.options.deeplink) {
             this._deeplinkButton.addEventListener('click', function () {
-                me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
+                if (!_this.options.deeplinkCallback || _this.options.deeplinkCallback.call(_this)) {
+                    me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
+                }
             });
         }
         this._captionsButton.addEventListener('click', function () {

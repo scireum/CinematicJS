@@ -3,13 +3,13 @@ interface Document {
     webkitFullscreenElement: any;
     webkitFullscreenEnabled: any;
     pictureInPictureElement: any;
-    exitPictureInPicture: any;
+    exitPictureInPicture: () => Promise<void>;
 }
 
 interface HTMLVideoElement {
     webkitEnterFullscreen: any;
     webkitSupportsFullscreen: any;
-    requestPictureInPicture: any;
+    requestPictureInPicture: () => Promise<PictureInPictureWindow>;
 }
 
 interface Options {
