@@ -18,6 +18,7 @@ interface Options {
     autoplay: boolean;
     startTime: number;
     deeplink: string;
+    deeplinkCallback?: Function
     rememberVolume: boolean;
     quality: string;
     sources: VideoQuality[];
@@ -733,7 +734,9 @@ class Cinematic {
 
         if (this.options.deeplink) {
             this._deeplinkButton.addEventListener('click', () => {
-                me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
+                if (!this.options.deeplinkCallback || this.options.deeplinkCallback.call(this)) {
+                    me.copyToClipboard(me.options.deeplink, me._deeplinkButton);
+                }
             });
         }
 
