@@ -64,9 +64,7 @@ Each object has the following structure:
 ```javascript
 new Cinematic({
     ...
-        sources
-:
-[
+        sources: [
     {
         quality: '1080p',
         sources: [
@@ -94,8 +92,7 @@ new Cinematic({
         ]
     }
 ]
-})
-;
+});
 ```
 
 ## Translations
