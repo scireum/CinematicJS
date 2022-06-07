@@ -54,6 +54,7 @@ interface Translations {
     restart: string;
     mute: string;
     unmute: string;
+    settings: string;
     quality: string;
     fullscreen: string;
     deeplink: string;
@@ -86,6 +87,7 @@ class Cinematic {
             restart: 'Restart',
             mute: 'Mute',
             unmute: 'Unmute',
+            settings: 'Settings',
             quality: 'Quality',
             fullscreen: 'Fullscreen',
             close: 'Close',
@@ -112,8 +114,8 @@ class Cinematic {
     _timer: HTMLElement;
     _volumeSlider: HTMLInputElement;
     _volumeButton: HTMLDivElement;
-    _qualityWrapper: HTMLDivElement;
-    _qualityDropdownContent: HTMLDivElement;
+    _qualitySettingsSection: HTMLDivElement;
+    _qualitySettingsContainer: HTMLDivElement;
     _captionsButton: HTMLDivElement;
     _deeplinkButton: HTMLElement;
     _pipButton: HTMLDivElement;
@@ -348,23 +350,34 @@ class Cinematic {
 
         this._volumeButton = _volumeButton;
 
-        const _qualityWrapper = document.createElement('div');
-        _qualityWrapper.classList.add('cinematicjs-video-control-dropdown');
-        _controls.appendChild(_qualityWrapper);
+        const _settingsWrapper = document.createElement('div');
+        _settingsWrapper.classList.add('cinematicjs-video-control-dropdown');
+        _controls.appendChild(_settingsWrapper);
 
-        this._qualityWrapper = _qualityWrapper;
-
-        const _qualityButton = document.createElement('div');
-        _qualityButton.classList.add('cinematicjs-video-control-button');
-        _qualityButton.title = this.options.translations.quality;
-        Cinematic.renderButtonIcon(_qualityButton, 'settings');
-        _qualityWrapper.appendChild(_qualityButton);
+        const _settingsButton = document.createElement('div');
+        _settingsButton.classList.add('cinematicjs-video-control-button');
+        _settingsButton.title = this.options.translations.settings;
+        Cinematic.renderButtonIcon(_settingsButton, 'settings');
+        _settingsWrapper.appendChild(_settingsButton);
 
         const _dropDownContent = document.createElement('div');
         _dropDownContent.classList.add('cinematicjs-video-dropdown-content');
-        _qualityWrapper.appendChild(_dropDownContent);
+        _settingsWrapper.appendChild(_dropDownContent);
 
-        this._qualityDropdownContent = _dropDownContent;
+        const _qualitySettingsSection = document.createElement('div');
+        _qualitySettingsSection.classList.add('cinematicjs-video-dropdown-section');
+        _dropDownContent.appendChild(_qualitySettingsSection);
+
+        this._qualitySettingsSection = _qualitySettingsSection;
+
+        const _qualitySettingsHeading = document.createElement('h1');
+        _qualitySettingsHeading.textContent = this.options.translations.quality;
+        _qualitySettingsSection.appendChild(_qualitySettingsHeading);
+
+        const _qualitySettingsContainer = document.createElement('div');
+        _qualitySettingsSection.appendChild(_qualitySettingsContainer);
+
+        this._qualitySettingsContainer = _qualitySettingsContainer;
 
         this.renderQualityOptions();
 
@@ -425,12 +438,13 @@ class Cinematic {
     }
 
     private renderQualityOptions() {
-        this._qualityDropdownContent.textContent = '';
+        this._qualitySettingsContainer.textContent = '';
 
         if (this.playlist.getCurrentVideo().sources.length > 1) {
             this.playlist.getCurrentVideo().sources.forEach(source => {
                 const _option = document.createElement('div');
                 _option.classList.add('video-quality-option');
+                _option.classList.add('cinematicjs-video-dropdown-option');
                 if (this.quality === source.quality) {
                     _option.classList.add('active');
                 }
@@ -439,12 +453,12 @@ class Cinematic {
 
                 _option.addEventListener('click', () => this.handleQualityChange(_option.dataset.quality ?? ''));
 
-                this._qualityDropdownContent.appendChild(_option);
+                this._qualitySettingsContainer.appendChild(_option);
             });
 
-            this._qualityWrapper.classList.remove('cinematicjs-hidden');
+            this._qualitySettingsSection.classList.remove('cinematicjs-hidden');
         } else {
-            this._qualityWrapper.classList.add('cinematicjs-hidden');
+            this._qualitySettingsSection.classList.add('cinematicjs-hidden');
         }
     }
 
@@ -463,7 +477,7 @@ class Cinematic {
             return;
         }
 
-        this._qualityDropdownContent.childNodes.forEach(function (_option: HTMLElement) {
+        this._qualitySettingsContainer.childNodes.forEach(function (_option: HTMLElement) {
             if (_option.dataset.quality === newQuality) {
                 _option.classList.add('active');
             } else {
