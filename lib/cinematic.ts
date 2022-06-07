@@ -56,6 +56,7 @@ interface Translations {
     unmute: string;
     settings: string;
     quality: string;
+    playbackSpeed: string;
     fullscreen: string;
     deeplink: string;
     close: string;
@@ -89,6 +90,7 @@ class Cinematic {
             unmute: 'Unmute',
             settings: 'Settings',
             quality: 'Quality',
+            playbackSpeed: 'Speed',
             fullscreen: 'Fullscreen',
             close: 'Close',
             deeplink: 'Copy deeplink to clipboard',
@@ -116,6 +118,7 @@ class Cinematic {
     _volumeButton: HTMLDivElement;
     _qualitySettingsSection: HTMLDivElement;
     _qualitySettingsContainer: HTMLDivElement;
+    _speedSettingsContainer: HTMLDivElement;
     _captionsButton: HTMLDivElement;
     _deeplinkButton: HTMLElement;
     _pipButton: HTMLDivElement;
@@ -129,6 +132,7 @@ class Cinematic {
     playedSeconds = 0;
     volume = 0;
     quality = '';
+    speed = 1;
     tracks: TextTrack | null;
     cues: TextTrackCueList | null;
     playlist: CinematicPlaylist;
@@ -381,6 +385,21 @@ class Cinematic {
 
         this.renderQualityOptions();
 
+        const _speedSettingsSection = document.createElement('div');
+        _speedSettingsSection.classList.add('cinematicjs-video-dropdown-section');
+        _dropDownContent.appendChild(_speedSettingsSection);
+
+        const _speedSettingsHeading = document.createElement('h1');
+        _speedSettingsHeading.textContent = this.options.translations.playbackSpeed;
+        _speedSettingsSection.appendChild(_speedSettingsHeading);
+
+        const _speedSettingsContainer = document.createElement('div');
+        _speedSettingsSection.appendChild(_speedSettingsContainer);
+
+        this._speedSettingsContainer = _speedSettingsContainer;
+
+        this.renderPlaybackSpeedOptions();
+
         if (this.options.deeplink) {
             const _deeplinkButton = document.createElement('div');
             _deeplinkButton.classList.add('cinematicjs-video-control-button');
@@ -462,6 +481,25 @@ class Cinematic {
         }
     }
 
+    private renderPlaybackSpeedOptions() {
+        this._speedSettingsContainer.textContent = '';
+
+        [0.5, 1.0, 1.25, 1.5, 1.75, 2.0].forEach(speedSetting => {
+            const _option = document.createElement('div');
+            _option.classList.add('video-speed-option');
+            _option.classList.add('cinematicjs-video-dropdown-option');
+            if (this.speed === speedSetting) {
+                _option.classList.add('active');
+            }
+            _option.textContent = speedSetting + 'x';
+            _option.dataset.speed = speedSetting + '';
+
+            _option.addEventListener('click', () => this.handleSpeedChange(speedSetting));
+
+            this._speedSettingsContainer.appendChild(_option);
+        });
+    }
+
     private handleQualityChange(newQuality: string) {
         if (!newQuality) {
             return;
@@ -501,6 +539,22 @@ class Cinematic {
             this._video.play();
         }
         this.quality = newQuality;
+    }
+
+    private handleSpeedChange(newSpeed: number) {
+        if (!newSpeed) {
+            return;
+        }
+        this.speed = newSpeed;
+        this._video.playbackRate = newSpeed;
+
+        this._speedSettingsContainer.childNodes.forEach(function (_option: HTMLElement) {
+            if (_option.dataset.speed === newSpeed.toString()) {
+                _option.classList.add('active');
+            } else {
+                _option.classList.remove('active');
+            }
+        });
     }
 
     private prepareSubtitles() {
