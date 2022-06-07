@@ -142,9 +142,10 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.renderPlayer = function () {
         var _this = this;
         this._container.classList.add('cinematicjs-video-container');
+        var initialVideo = this.playlist.getCurrentVideo();
         var _video = document.createElement('video');
         _video.preload = 'metadata';
-        _video.poster = this.playlist.getCurrentVideo().poster;
+        _video.poster = initialVideo.poster || '';
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
@@ -157,7 +158,6 @@ var Cinematic = /** @class */ (function () {
         this._container.appendChild(_video);
         this._video = _video;
         this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
-        var initialVideo = this.playlist.getCurrentVideo();
         var startSource = initialVideo.getSourcesForQuality(this.quality);
         if (!startSource) {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
@@ -190,6 +190,20 @@ var Cinematic = /** @class */ (function () {
         _header.classList.add('cinematicjs-video-header');
         this._container.appendChild(_header);
         this._header = _header;
+        var _videoTitleIcon = document.createElement('img');
+        _videoTitleIcon.src = initialVideo.titleIcon || '';
+        _videoTitleIcon.classList.add('cinematicjs-video-icon');
+        _videoTitleIcon.classList.toggle('cinematicjs-hidden', _videoTitleIcon.src.length === 0);
+        _header.appendChild(_videoTitleIcon);
+        this._videoTitleIcon = _videoTitleIcon;
+        var _videoTitle = document.createElement('div');
+        _videoTitle.classList.add('cinematicjs-video-title');
+        _videoTitle.textContent = initialVideo.title || '';
+        _header.appendChild(_videoTitle);
+        this._videoTitle = _videoTitle;
+        var _headerSpacer = document.createElement('div');
+        _headerSpacer.classList.add('cinematicjs-video-header-spacer');
+        _header.appendChild(_headerSpacer);
         if (this.options.closeCallback) {
             var _closeButton = document.createElement('div');
             _closeButton.classList.add('cinematicjs-video-close-button');
@@ -197,9 +211,6 @@ var Cinematic = /** @class */ (function () {
             Cinematic.renderButtonIcon(_closeButton, 'close');
             _header.appendChild(_closeButton);
             this._closeButton = _closeButton;
-        }
-        else {
-            this._header.classList.add('cinematicjs-hidden');
         }
         var _footer = document.createElement('div');
         _footer.classList.add('cinematicjs-video-footer');
@@ -760,9 +771,11 @@ var Cinematic = /** @class */ (function () {
         this.prepareSubtitles();
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
-        if (this.playlist.getCurrentVideo().poster) {
-            this._video.poster = this.playlist.getCurrentVideo().poster;
-        }
+        var currentVideo = this.playlist.getCurrentVideo();
+        this._video.poster = currentVideo.poster || '';
+        this._videoTitleIcon.src = currentVideo.titleIcon || '';
+        this._videoTitleIcon.classList.toggle('cinematicjs-hidden', this._videoTitleIcon.src.length === 0);
+        this._videoTitle.textContent = currentVideo.title || '';
         this._video.currentTime = 0;
         this._video.play();
     };
@@ -870,9 +883,7 @@ var Cinematic = /** @class */ (function () {
     };
     Cinematic.prototype.showControls = function () {
         this._container.classList.remove('cinematicjs-video-user-inactive');
-        if (this.options.closeCallback) {
-            this._header.classList.remove('cinematicjs-hidden');
-        }
+        this._header.classList.remove('cinematicjs-hidden');
         this._footer.classList.remove('cinematicjs-hidden');
     };
     Cinematic.prototype.hideControls = function () {
@@ -952,6 +963,9 @@ var Cinematic = /** @class */ (function () {
 var CinematicVideo = /** @class */ (function () {
     function CinematicVideo(options) {
         this.poster = options.poster;
+        this.titleIcon = options.titleIcon;
+        this.title = options.title;
+        this.description = options.description;
         this.subtitles = options.subtitles;
         this.sources = options.sources;
     }
