@@ -326,7 +326,7 @@ html:-ms-fullscreen {
     display: none;
     position: absolute;
     bottom: 32px;
-    min-width: 80px;
+    min-width: 90px;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     z-index: 1;
     border-radius: 8px;
@@ -347,13 +347,14 @@ html:-ms-fullscreen {
 .cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content h1 {
     margin: 0px;
     font-size: 18px;
-    padding: 4px;
+    padding: 4px 8px;
     cursor: default;
 }
 
 .cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content .cinematicjs-video-dropdown-option {
     padding: 8px;
     cursor: pointer;
+    text-align: right;
 }
 
 .cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content .cinematicjs-video-dropdown-option:hover {
