@@ -11,7 +11,9 @@ Still heavily work in progress :)
 - Basic playback controls
 - Basic keyboard shortcuts
 - Playback quality controls
+- Playback speed controls
 - Basic fullscreen capabilities
+- Picture-in-picture mode
 - Progress and buffering indicator
 
 ## Dependencies
@@ -108,7 +110,9 @@ The following keys can be provided:
 | restart | Tooltip on the play/pause button when the video reached its end. | Restart |
 | mute | Tooltip on the volume button when video is currently not muted. | Mute |
 | unmute | Tooltip on the volume button when video is currently muted. | Unmute |
-| quality | Tooltip on the quality settings button. | Quality |
+| settings | Tooltip on the settings button. | Settings |
+| quality | Heading of the quality settings section. | Quality |
+| playbackSpeed | Heading of the speed settings section. | Speed |
 | close | Tooltip on the optional close button. | Close |
 | deeplink | Tooltip on the optional deeplink copy button. | Copy deeplink to clipboard |
 | deeplinkCopied | Popup that is shown when the deeplink button is pressed. | Link was copied |
