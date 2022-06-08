@@ -51,6 +51,7 @@
 /*region Header*/
 .cinematicjs-video-header {
     display: flex;
+    flex-wrap: wrap;
     list-style-type: none;
     background: transparent;
     position: absolute;
@@ -79,6 +80,19 @@
 }
 
 .cinematicjs-video-header .cinematicjs-video-title:hover {
+    opacity: 1;
+}
+
+.cinematicjs-video-header .cinematicjs-video-description {
+    margin: 8px 0px;
+    color: #ffffff;
+    cursor: pointer;
+    opacity: 0.9;
+    transition: opacity .1s ease-in-out;
+    text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
+}
+
+.cinematicjs-video-header .cinematicjs-video-description:hover {
     opacity: 1;
 }
 

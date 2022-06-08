@@ -199,6 +199,7 @@ var Cinematic = /** @class */ (function () {
         var _videoTitle = document.createElement('div');
         _videoTitle.classList.add('cinematicjs-video-title');
         _videoTitle.textContent = initialVideo.title || '';
+        _videoTitle.addEventListener('click', function () { return _this._videoDescription.classList.toggle('cinematicjs-hidden'); });
         _header.appendChild(_videoTitle);
         this._videoTitle = _videoTitle;
         var _headerSpacer = document.createElement('div');
@@ -212,6 +213,12 @@ var Cinematic = /** @class */ (function () {
             _header.appendChild(_closeButton);
             this._closeButton = _closeButton;
         }
+        var _videoDescription = document.createElement('div');
+        _videoDescription.textContent = initialVideo.description || '';
+        _videoDescription.classList.add('cinematicjs-video-description');
+        _videoDescription.classList.add('cinematicjs-hidden');
+        _header.appendChild(_videoDescription);
+        this._videoDescription = _videoDescription;
         var _footer = document.createElement('div');
         _footer.classList.add('cinematicjs-video-footer');
         this._container.appendChild(_footer);
@@ -776,6 +783,7 @@ var Cinematic = /** @class */ (function () {
         this._videoTitleIcon.src = currentVideo.titleIcon || '';
         this._videoTitleIcon.classList.toggle('cinematicjs-hidden', this._videoTitleIcon.src.length === 0);
         this._videoTitle.textContent = currentVideo.title || '';
+        this._videoDescription.textContent = currentVideo.description || '';
         this._video.currentTime = 0;
         this._video.play();
     };
