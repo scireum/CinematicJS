@@ -48,20 +48,27 @@
 
 /*endregion*/
 
+.cinematicjs-ui-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
+}
+
 /*region Header*/
 .cinematicjs-video-header {
     display: flex;
     flex-wrap: wrap;
     list-style-type: none;
     background: transparent;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
     padding: 8px;
     align-items: center;
     background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.15) 82%, rgba(0, 0, 0, 0) 100%);
-    transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
 
 .cinematicjs-video-header .cinematicjs-video-icon {
@@ -81,15 +88,6 @@
 
 .cinematicjs-video-header .cinematicjs-video-title:hover {
     opacity: 1;
-}
-
-.cinematicjs-video-header .cinematicjs-video-description {
-    margin: 8px 0px;
-    color: #ffffff;
-    cursor: pointer;
-    opacity: 0.9;
-    transition: opacity .1s ease-in-out;
-    text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
 }
 
 .cinematicjs-video-header .cinematicjs-video-description:hover {
@@ -115,17 +113,23 @@
 
 /*endregion*/
 
+.cinematicjs-ui-wrapper .cinematicjs-video-description {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin: 8px;
+    color: #ffffff;
+    cursor: pointer;
+    opacity: 0.9;
+    transition: opacity .1s ease-in-out;
+    text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
+}
+
 /*region Footer / Controls*/
 .cinematicjs-video-footer {
     display: flex;
     flex-direction: column;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
     padding: 4px;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.15) 82%, rgba(0, 0, 0, 0) 100%);
-    transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
 }
 
 .cinematicjs-video-controls {

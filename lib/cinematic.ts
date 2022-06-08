@@ -110,11 +110,10 @@ class Cinematic {
     _sources: HTMLSourceElement[] = [];
     _cues: HTMLElement;
     _cuesContainer: HTMLElement;
-    _header: HTMLElement;
+    _uiWrapper: HTMLDivElement;
     _videoTitleIcon: HTMLImageElement;
     _videoTitle: HTMLDivElement;
     _videoDescription: HTMLDivElement;
-    _footer: HTMLElement;
     _controls: HTMLElement;
     _playButton: HTMLDivElement;
     _bufferBar: HTMLProgressElement;
@@ -272,11 +271,15 @@ class Cinematic {
         _overlayContainer.appendChild(_overlayText);
         this._overlayText = _overlayText;
 
+        const _uiWrapper = document.createElement('div');
+        _uiWrapper.classList.add('cinematicjs-ui-wrapper');
+        this._container.appendChild(_uiWrapper);
+
+        this._uiWrapper = _uiWrapper;
+
         const _header = document.createElement('div');
         _header.classList.add('cinematicjs-video-header');
-        this._container.appendChild(_header);
-
-        this._header = _header;
+        this._uiWrapper.appendChild(_header);
 
         const _videoTitleIcon = document.createElement('img');
         _videoTitleIcon.src = initialVideo.titleIcon || '';
@@ -312,15 +315,13 @@ class Cinematic {
         _videoDescription.textContent = initialVideo.description || '';
         _videoDescription.classList.add('cinematicjs-video-description');
         _videoDescription.classList.add('cinematicjs-hidden');
-        _header.appendChild(_videoDescription);
+        this._uiWrapper.appendChild(_videoDescription);
 
         this._videoDescription = _videoDescription;
 
         const _footer = document.createElement('div');
         _footer.classList.add('cinematicjs-video-footer');
-        this._container.appendChild(_footer);
-
-        this._footer = _footer;
+        this._uiWrapper.appendChild(_footer);
 
         const _progressWrapper = document.createElement('div');
         _progressWrapper.classList.add('cinematicjs-video-progress-wrapper');
@@ -1076,8 +1077,7 @@ class Cinematic {
 
     showControls() {
         this._container.classList.remove('cinematicjs-video-user-inactive');
-        this._header.classList.remove('cinematicjs-hidden');
-        this._footer.classList.remove('cinematicjs-hidden');
+        this._uiWrapper.classList.remove('cinematicjs-hidden');
     }
 
     hideControls() {
@@ -1086,8 +1086,7 @@ class Cinematic {
         }
 
         this._container.classList.add('cinematicjs-video-user-inactive');
-        this._header.classList.add('cinematicjs-hidden');
-        this._footer.classList.add('cinematicjs-hidden');
+        this._uiWrapper.classList.add('cinematicjs-hidden');
     }
 
     isFullScreen() {

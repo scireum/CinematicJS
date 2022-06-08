@@ -186,10 +186,13 @@ var Cinematic = /** @class */ (function () {
         _overlayText.classList.add('cinematicjs-video-overlay-text');
         _overlayContainer.appendChild(_overlayText);
         this._overlayText = _overlayText;
+        var _uiWrapper = document.createElement('div');
+        _uiWrapper.classList.add('cinematicjs-ui-wrapper');
+        this._container.appendChild(_uiWrapper);
+        this._uiWrapper = _uiWrapper;
         var _header = document.createElement('div');
         _header.classList.add('cinematicjs-video-header');
-        this._container.appendChild(_header);
-        this._header = _header;
+        this._uiWrapper.appendChild(_header);
         var _videoTitleIcon = document.createElement('img');
         _videoTitleIcon.src = initialVideo.titleIcon || '';
         _videoTitleIcon.classList.add('cinematicjs-video-icon');
@@ -217,12 +220,11 @@ var Cinematic = /** @class */ (function () {
         _videoDescription.textContent = initialVideo.description || '';
         _videoDescription.classList.add('cinematicjs-video-description');
         _videoDescription.classList.add('cinematicjs-hidden');
-        _header.appendChild(_videoDescription);
+        this._uiWrapper.appendChild(_videoDescription);
         this._videoDescription = _videoDescription;
         var _footer = document.createElement('div');
         _footer.classList.add('cinematicjs-video-footer');
-        this._container.appendChild(_footer);
-        this._footer = _footer;
+        this._uiWrapper.appendChild(_footer);
         var _progressWrapper = document.createElement('div');
         _progressWrapper.classList.add('cinematicjs-video-progress-wrapper');
         _footer.appendChild(_progressWrapper);
@@ -891,16 +893,14 @@ var Cinematic = /** @class */ (function () {
     };
     Cinematic.prototype.showControls = function () {
         this._container.classList.remove('cinematicjs-video-user-inactive');
-        this._header.classList.remove('cinematicjs-hidden');
-        this._footer.classList.remove('cinematicjs-hidden');
+        this._uiWrapper.classList.remove('cinematicjs-hidden');
     };
     Cinematic.prototype.hideControls = function () {
         if (this._video.paused) {
             return;
         }
         this._container.classList.add('cinematicjs-video-user-inactive');
-        this._header.classList.add('cinematicjs-hidden');
-        this._footer.classList.add('cinematicjs-hidden');
+        this._uiWrapper.classList.add('cinematicjs-hidden');
     };
     Cinematic.prototype.isFullScreen = function () {
         return document.fullscreenElement || document.webkitFullscreenElement;
