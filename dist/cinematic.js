@@ -108,6 +108,7 @@ var Cinematic = /** @class */ (function () {
         }
         this.loadIcons();
         this.renderPlayer();
+        this.updateDisplayedVideoInfo();
         this.setupEvents();
         this._video.load();
         if (this.options.rememberVolume) {
@@ -145,7 +146,6 @@ var Cinematic = /** @class */ (function () {
         var initialVideo = this.playlist.getCurrentVideo();
         var _video = document.createElement('video');
         _video.preload = 'metadata';
-        _video.poster = initialVideo.poster || '';
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
@@ -194,14 +194,11 @@ var Cinematic = /** @class */ (function () {
         _header.classList.add('cinematicjs-video-header');
         this._uiWrapper.appendChild(_header);
         var _videoTitleIcon = document.createElement('img');
-        _videoTitleIcon.src = initialVideo.titleIcon || '';
         _videoTitleIcon.classList.add('cinematicjs-video-icon');
-        _videoTitleIcon.classList.toggle('cinematicjs-hidden', _videoTitleIcon.src.length === 0);
         _header.appendChild(_videoTitleIcon);
         this._videoTitleIcon = _videoTitleIcon;
         var _videoTitle = document.createElement('div');
         _videoTitle.classList.add('cinematicjs-video-title');
-        _videoTitle.textContent = initialVideo.title || '';
         _videoTitle.addEventListener('click', function () { return _this._videoDescription.classList.toggle('cinematicjs-hidden'); });
         _header.appendChild(_videoTitle);
         this._videoTitle = _videoTitle;
@@ -217,7 +214,6 @@ var Cinematic = /** @class */ (function () {
             this._closeButton = _closeButton;
         }
         var _videoDescription = document.createElement('div');
-        _videoDescription.textContent = initialVideo.description || '';
         _videoDescription.classList.add('cinematicjs-video-description');
         _videoDescription.classList.add('cinematicjs-hidden');
         this._uiWrapper.appendChild(_videoDescription);
@@ -783,14 +779,17 @@ var Cinematic = /** @class */ (function () {
         this.prepareSubtitles();
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
+        this.updateDisplayedVideoInfo();
+        this._video.currentTime = 0;
+        this._video.play();
+    };
+    Cinematic.prototype.updateDisplayedVideoInfo = function () {
         var currentVideo = this.playlist.getCurrentVideo();
         this._video.poster = currentVideo.poster || '';
         this._videoTitleIcon.src = currentVideo.titleIcon || '';
         this._videoTitleIcon.classList.toggle('cinematicjs-hidden', this._videoTitleIcon.src.length === 0);
         this._videoTitle.textContent = currentVideo.title || '';
         this._videoDescription.textContent = currentVideo.description || '';
-        this._video.currentTime = 0;
-        this._video.play();
     };
     Cinematic.prototype.handlePlayerResize = function () {
         if (this._container.clientWidth >= 328) {
