@@ -493,6 +493,9 @@ var Cinematic = /** @class */ (function () {
         var me = this;
         window.addEventListener('resize', function () { return _this.handlePlayerResize(); });
         this.handlePlayerResize();
+        if (ResizeObserver) {
+            new ResizeObserver(function () { return _this.handlePlayerResize(); }).observe(this._container);
+        }
         this._playButton.addEventListener('click', function () {
             if (_this._video.ended) {
                 _this.playlist.resetToBeginning();

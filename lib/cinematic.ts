@@ -655,6 +655,10 @@ class Cinematic {
         window.addEventListener('resize', () => this.handlePlayerResize());
         this.handlePlayerResize();
 
+        if (ResizeObserver) {
+            new ResizeObserver(() => this.handlePlayerResize()).observe(this._container);
+        }
+
         this._playButton.addEventListener('click', () => {
             if (this._video.ended) {
                 this.playlist.resetToBeginning();
