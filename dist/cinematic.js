@@ -491,7 +491,7 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.setupEvents = function () {
         var _this = this;
         var me = this;
-        window.addEventListener('resize', this.handlePlayerResize);
+        window.addEventListener('resize', function () { return _this.handlePlayerResize(); });
         this.handlePlayerResize();
         this._playButton.addEventListener('click', function () {
             if (_this._video.ended) {

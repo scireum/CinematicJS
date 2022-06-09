@@ -652,7 +652,7 @@ class Cinematic {
     setupEvents() {
         const me = this;
 
-        window.addEventListener('resize', this.handlePlayerResize);
+        window.addEventListener('resize', () => this.handlePlayerResize());
         this.handlePlayerResize();
 
         this._playButton.addEventListener('click', () => {
