@@ -142,9 +142,10 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.renderPlayer = function () {
         var _this = this;
         this._container.classList.add('cinematicjs-video-container');
+        var initialVideo = this.playlist.getCurrentVideo();
         var _video = document.createElement('video');
         _video.preload = 'metadata';
-        _video.poster = this.playlist.getCurrentVideo().poster;
+        _video.poster = initialVideo.poster || '';
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
@@ -157,7 +158,6 @@ var Cinematic = /** @class */ (function () {
         this._container.appendChild(_video);
         this._video = _video;
         this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
-        var initialVideo = this.playlist.getCurrentVideo();
         var startSource = initialVideo.getSourcesForQuality(this.quality);
         if (!startSource) {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
@@ -186,10 +186,28 @@ var Cinematic = /** @class */ (function () {
         _overlayText.classList.add('cinematicjs-video-overlay-text');
         _overlayContainer.appendChild(_overlayText);
         this._overlayText = _overlayText;
+        var _uiWrapper = document.createElement('div');
+        _uiWrapper.classList.add('cinematicjs-ui-wrapper');
+        this._container.appendChild(_uiWrapper);
+        this._uiWrapper = _uiWrapper;
         var _header = document.createElement('div');
         _header.classList.add('cinematicjs-video-header');
-        this._container.appendChild(_header);
-        this._header = _header;
+        this._uiWrapper.appendChild(_header);
+        var _videoTitleIcon = document.createElement('img');
+        _videoTitleIcon.src = initialVideo.titleIcon || '';
+        _videoTitleIcon.classList.add('cinematicjs-video-icon');
+        _videoTitleIcon.classList.toggle('cinematicjs-hidden', _videoTitleIcon.src.length === 0);
+        _header.appendChild(_videoTitleIcon);
+        this._videoTitleIcon = _videoTitleIcon;
+        var _videoTitle = document.createElement('div');
+        _videoTitle.classList.add('cinematicjs-video-title');
+        _videoTitle.textContent = initialVideo.title || '';
+        _videoTitle.addEventListener('click', function () { return _this._videoDescription.classList.toggle('cinematicjs-hidden'); });
+        _header.appendChild(_videoTitle);
+        this._videoTitle = _videoTitle;
+        var _headerSpacer = document.createElement('div');
+        _headerSpacer.classList.add('cinematicjs-video-header-spacer');
+        _header.appendChild(_headerSpacer);
         if (this.options.closeCallback) {
             var _closeButton = document.createElement('div');
             _closeButton.classList.add('cinematicjs-video-close-button');
@@ -198,13 +216,15 @@ var Cinematic = /** @class */ (function () {
             _header.appendChild(_closeButton);
             this._closeButton = _closeButton;
         }
-        else {
-            this._header.classList.add('cinematicjs-hidden');
-        }
+        var _videoDescription = document.createElement('div');
+        _videoDescription.textContent = initialVideo.description || '';
+        _videoDescription.classList.add('cinematicjs-video-description');
+        _videoDescription.classList.add('cinematicjs-hidden');
+        this._uiWrapper.appendChild(_videoDescription);
+        this._videoDescription = _videoDescription;
         var _footer = document.createElement('div');
         _footer.classList.add('cinematicjs-video-footer');
-        this._container.appendChild(_footer);
-        this._footer = _footer;
+        this._uiWrapper.appendChild(_footer);
         var _progressWrapper = document.createElement('div');
         _progressWrapper.classList.add('cinematicjs-video-progress-wrapper');
         _footer.appendChild(_progressWrapper);
@@ -760,9 +780,12 @@ var Cinematic = /** @class */ (function () {
         this.prepareSubtitles();
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
-        if (this.playlist.getCurrentVideo().poster) {
-            this._video.poster = this.playlist.getCurrentVideo().poster;
-        }
+        var currentVideo = this.playlist.getCurrentVideo();
+        this._video.poster = currentVideo.poster || '';
+        this._videoTitleIcon.src = currentVideo.titleIcon || '';
+        this._videoTitleIcon.classList.toggle('cinematicjs-hidden', this._videoTitleIcon.src.length === 0);
+        this._videoTitle.textContent = currentVideo.title || '';
+        this._videoDescription.textContent = currentVideo.description || '';
         this._video.currentTime = 0;
         this._video.play();
     };
@@ -870,18 +893,14 @@ var Cinematic = /** @class */ (function () {
     };
     Cinematic.prototype.showControls = function () {
         this._container.classList.remove('cinematicjs-video-user-inactive');
-        if (this.options.closeCallback) {
-            this._header.classList.remove('cinematicjs-hidden');
-        }
-        this._footer.classList.remove('cinematicjs-hidden');
+        this._uiWrapper.classList.remove('cinematicjs-hidden');
     };
     Cinematic.prototype.hideControls = function () {
         if (this._video.paused) {
             return;
         }
         this._container.classList.add('cinematicjs-video-user-inactive');
-        this._header.classList.add('cinematicjs-hidden');
-        this._footer.classList.add('cinematicjs-hidden');
+        this._uiWrapper.classList.add('cinematicjs-hidden');
     };
     Cinematic.prototype.isFullScreen = function () {
         return document.fullscreenElement || document.webkitFullscreenElement;
@@ -952,6 +971,9 @@ var Cinematic = /** @class */ (function () {
 var CinematicVideo = /** @class */ (function () {
     function CinematicVideo(options) {
         this.poster = options.poster;
+        this.titleIcon = options.titleIcon;
+        this.title = options.title;
+        this.description = options.description;
         this.subtitles = options.subtitles;
         this.sources = options.sources;
     }

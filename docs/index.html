@@ -125,6 +125,9 @@
         quality: '720p',
         video: new CinematicVideo({
             poster: '../video/poster.jpg',
+            titleIcon: '../video/icon.png',
+            title: 'Test Video 1',
+            description: 'From this day forward, Flight Control will be known by two words: "Tough" and "Competent." Tough means we are forever accountable for what we do or what we fail to do. We will never again compromise our responsibilities. Every time we walk into Mission Control we will know what we stand for. Competent means we will never take anything for granted. We will never be found short in our knowledge and in our skills. Mission Control will be perfect.',
             subtitles: '../video/captions.vtt',
             sources: [
                 {
@@ -169,6 +172,8 @@
         playlist: new CinematicPlaylist(true, [
                 new CinematicVideo({
                         poster: '../video/video1-1080.png',
+                        title: 'Playlist Video 1',
+                        titleIcon: '../video/icon.png',
                         sources: [
                             {
                                 quality: '1080p',

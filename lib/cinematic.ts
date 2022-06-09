@@ -30,6 +30,9 @@ interface Options {
 
 interface VideoOptions {
     poster: string;
+    titleIcon: string;
+    title: string;
+    description: string;
     subtitles: string;
     sources: VideoQuality[];
 }
@@ -107,8 +110,10 @@ class Cinematic {
     _sources: HTMLSourceElement[] = [];
     _cues: HTMLElement;
     _cuesContainer: HTMLElement;
-    _header: HTMLElement;
-    _footer: HTMLElement;
+    _uiWrapper: HTMLDivElement;
+    _videoTitleIcon: HTMLImageElement;
+    _videoTitle: HTMLDivElement;
+    _videoDescription: HTMLDivElement;
     _controls: HTMLElement;
     _playButton: HTMLDivElement;
     _bufferBar: HTMLProgressElement;
@@ -210,9 +215,11 @@ class Cinematic {
     renderPlayer() {
         this._container.classList.add('cinematicjs-video-container');
 
+        let initialVideo = this.playlist.getCurrentVideo();
+
         const _video = document.createElement('video');
         _video.preload = 'metadata';
-        _video.poster = this.playlist.getCurrentVideo().poster;
+        _video.poster = initialVideo.poster || '';
         _video.tabIndex = -1;
         _video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
@@ -228,7 +235,6 @@ class Cinematic {
 
         this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
 
-        let initialVideo = this.playlist.getCurrentVideo();
         let startSource = initialVideo.getSourcesForQuality(this.quality);
 
         if (!startSource) {
@@ -265,11 +271,35 @@ class Cinematic {
         _overlayContainer.appendChild(_overlayText);
         this._overlayText = _overlayText;
 
+        const _uiWrapper = document.createElement('div');
+        _uiWrapper.classList.add('cinematicjs-ui-wrapper');
+        this._container.appendChild(_uiWrapper);
+
+        this._uiWrapper = _uiWrapper;
+
         const _header = document.createElement('div');
         _header.classList.add('cinematicjs-video-header');
-        this._container.appendChild(_header);
+        this._uiWrapper.appendChild(_header);
 
-        this._header = _header;
+        const _videoTitleIcon = document.createElement('img');
+        _videoTitleIcon.src = initialVideo.titleIcon || '';
+        _videoTitleIcon.classList.add('cinematicjs-video-icon');
+        _videoTitleIcon.classList.toggle('cinematicjs-hidden', _videoTitleIcon.src.length === 0);
+        _header.appendChild(_videoTitleIcon);
+
+        this._videoTitleIcon = _videoTitleIcon;
+
+        const _videoTitle = document.createElement('div');
+        _videoTitle.classList.add('cinematicjs-video-title');
+        _videoTitle.textContent = initialVideo.title || '';
+        _videoTitle.addEventListener('click', () => this._videoDescription.classList.toggle('cinematicjs-hidden'));
+        _header.appendChild(_videoTitle);
+
+        this._videoTitle = _videoTitle;
+
+        const _headerSpacer = document.createElement('div');
+        _headerSpacer.classList.add('cinematicjs-video-header-spacer');
+        _header.appendChild(_headerSpacer);
 
         if (this.options.closeCallback) {
             const _closeButton = document.createElement('div');
@@ -279,15 +309,19 @@ class Cinematic {
             _header.appendChild(_closeButton);
 
             this._closeButton = _closeButton;
-        } else {
-            this._header.classList.add('cinematicjs-hidden');
         }
+
+        const _videoDescription = document.createElement('div');
+        _videoDescription.textContent = initialVideo.description || '';
+        _videoDescription.classList.add('cinematicjs-video-description');
+        _videoDescription.classList.add('cinematicjs-hidden');
+        this._uiWrapper.appendChild(_videoDescription);
+
+        this._videoDescription = _videoDescription;
 
         const _footer = document.createElement('div');
         _footer.classList.add('cinematicjs-video-footer');
-        this._container.appendChild(_footer);
-
-        this._footer = _footer;
+        this._uiWrapper.appendChild(_footer);
 
         const _progressWrapper = document.createElement('div');
         _progressWrapper.classList.add('cinematicjs-video-progress-wrapper');
@@ -922,9 +956,13 @@ class Cinematic {
         this.prepareSubtitles();
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
-        if (this.playlist.getCurrentVideo().poster) {
-            this._video.poster = this.playlist.getCurrentVideo().poster;
-        }
+
+        const currentVideo = this.playlist.getCurrentVideo();
+        this._video.poster = currentVideo.poster || '';
+        this._videoTitleIcon.src = currentVideo.titleIcon || '';
+        this._videoTitleIcon.classList.toggle('cinematicjs-hidden', this._videoTitleIcon.src.length === 0);
+        this._videoTitle.textContent = currentVideo.title || '';
+        this._videoDescription.textContent = currentVideo.description || '';
         this._video.currentTime = 0;
         this._video.play();
     }
@@ -1039,10 +1077,7 @@ class Cinematic {
 
     showControls() {
         this._container.classList.remove('cinematicjs-video-user-inactive');
-        if (this.options.closeCallback) {
-            this._header.classList.remove('cinematicjs-hidden');
-        }
-        this._footer.classList.remove('cinematicjs-hidden');
+        this._uiWrapper.classList.remove('cinematicjs-hidden');
     }
 
     hideControls() {
@@ -1051,8 +1086,7 @@ class Cinematic {
         }
 
         this._container.classList.add('cinematicjs-video-user-inactive');
-        this._header.classList.add('cinematicjs-hidden');
-        this._footer.classList.add('cinematicjs-hidden');
+        this._uiWrapper.classList.add('cinematicjs-hidden');
     }
 
     isFullScreen() {
@@ -1128,11 +1162,17 @@ class Cinematic {
 
 class CinematicVideo {
     poster: string;
+    titleIcon: string;
+    title: string;
+    description: string;
     subtitles: string | null;
     sources: VideoQuality[];
 
     constructor(options: VideoOptions) {
         this.poster = options.poster;
+        this.titleIcon = options.titleIcon;
+        this.title = options.title;
+        this.description = options.description;
         this.subtitles = options.subtitles;
         this.sources = options.sources;
     }
