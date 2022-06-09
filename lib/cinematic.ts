@@ -130,10 +130,10 @@ class Cinematic {
     _qualitySettingsContainer: HTMLDivElement;
     _speedSettingsContainer: HTMLDivElement;
     _captionsButton: HTMLDivElement;
-    _deeplinkButton: HTMLElement;
+    _deeplinkButton: HTMLDivElement;
     _pipButton: HTMLDivElement;
     _fullScreenButton: HTMLDivElement;
-    _closeButton: HTMLElement;
+    _closeButton: HTMLDivElement;
     _overlayWrapper: HTMLDivElement;
     _overlayIcon: HTMLDivElement;
     _overlayText: HTMLDivElement;
@@ -223,22 +223,18 @@ class Cinematic {
 
         let initialVideo = this.playlist.getCurrentVideo();
 
-        const _video = document.createElement('video');
-        _video.preload = 'metadata';
-        _video.tabIndex = -1;
-        _video.playsInline = true;
+        this._video = document.createElement('video');
+        this._video.preload = 'metadata';
+        this._video.tabIndex = -1;
+        this._video.playsInline = true;
         // Suppress the unwanted right click context menu of the video element itself
-        _video.oncontextmenu = () => {
-            return false
-        };
+        this._video.oncontextmenu = () => false;
         if (this.options.autoplay) {
-            _video.autoplay = true;
+            this._video.autoplay = true;
         }
-        this._container.appendChild(_video);
+        this._container.appendChild(this._video);
 
-        this._video = _video;
-
-        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || _video.webkitSupportsFullscreen;
+        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || this._video.webkitSupportsFullscreen;
 
         let startSource = initialVideo.getSourcesForQuality(this.quality);
 
@@ -250,84 +246,68 @@ class Cinematic {
             const _source = document.createElement('source');
             _source.src = source.source;
             _source.type = source.type;
-            _video.appendChild(_source);
+            this._video.appendChild(_source);
             this._sources.push(_source);
         });
 
-        const _overlayWrapper = document.createElement('div');
-        _overlayWrapper.classList.add('cinematicjs-video-overlay-wrapper');
-        _overlayWrapper.classList.add('cinematicjs-hidden');
-        this._container.appendChild(_overlayWrapper);
-
-        this._overlayWrapper = _overlayWrapper;
+        this._overlayWrapper = document.createElement('div');
+        this._overlayWrapper.classList.add('cinematicjs-video-overlay-wrapper');
+        this. _overlayWrapper.classList.add('cinematicjs-hidden');
+        this._container.appendChild(this._overlayWrapper);
 
         const _overlayContainer = document.createElement('div');
         _overlayContainer.classList.add('cinematicjs-video-overlay-container');
-        _overlayWrapper.appendChild(_overlayContainer);
+        this._overlayWrapper.appendChild(_overlayContainer);
 
-        const _overlayIcon = document.createElement('div');
-        _overlayIcon.classList.add('cinematicjs-video-overlay-icon');
-        _overlayContainer.appendChild(_overlayIcon);
-        Cinematic.renderButtonIcon(_overlayIcon, 'mute');
-        this._overlayIcon = _overlayIcon;
+        this._overlayIcon = document.createElement('div');
+        this._overlayIcon.classList.add('cinematicjs-video-overlay-icon');
+        Cinematic.renderButtonIcon(this._overlayIcon, 'mute');
+        _overlayContainer.appendChild(this._overlayIcon);
 
-        const _overlayText = document.createElement('div');
-        _overlayText.classList.add('cinematicjs-video-overlay-text');
-        _overlayContainer.appendChild(_overlayText);
-        this._overlayText = _overlayText;
+        this._overlayText = document.createElement('div');
+        this._overlayText.classList.add('cinematicjs-video-overlay-text');
+        _overlayContainer.appendChild(this._overlayText);
 
-        const _uiWrapper = document.createElement('div');
-        _uiWrapper.classList.add('cinematicjs-ui-wrapper');
-        this._container.appendChild(_uiWrapper);
-
-        this._uiWrapper = _uiWrapper;
+        this._uiWrapper = document.createElement('div');
+        this._uiWrapper.classList.add('cinematicjs-ui-wrapper');
+        this._container.appendChild(this._uiWrapper);
 
         const _header = document.createElement('div');
         _header.classList.add('cinematicjs-video-header');
         this._uiWrapper.appendChild(_header);
 
-        const _videoTitleIcon = document.createElement('img');
-        _videoTitleIcon.classList.add('cinematicjs-video-icon');
-        _header.appendChild(_videoTitleIcon);
+        this._videoTitleIcon = document.createElement('img');
+        this._videoTitleIcon.classList.add('cinematicjs-video-icon');
+        _header.appendChild(this._videoTitleIcon);
 
-        this._videoTitleIcon = _videoTitleIcon;
+        this._videoTitle = document.createElement('div');
+        this._videoTitle.classList.add('cinematicjs-video-title');
+        this._videoTitle.addEventListener('click', () => this.handleVideoInfoToggle());
+        _header.appendChild(this._videoTitle);
 
-        const _videoTitle = document.createElement('div');
-        _videoTitle.classList.add('cinematicjs-video-title');
-        _videoTitle.addEventListener('click', () => this.handleVideoInfoToggle());
-        _header.appendChild(_videoTitle);
-
-        this._videoTitle = _videoTitle;
-
-        const _videoInfoButton = document.createElement('div');
-        _videoInfoButton.classList.add('cinematicjs-video-info-button');
-        _videoInfoButton.addEventListener('click', () => this.handleVideoInfoToggle());
-        _videoInfoButton.title = this.options.translations.showVideoInfo;
-        Cinematic.renderButtonIcon(_videoInfoButton, 'info');
-        _header.appendChild(_videoInfoButton);
-
-        this._videoInfoButton = _videoInfoButton;
+        this._videoInfoButton = document.createElement('div');
+        this._videoInfoButton.classList.add('cinematicjs-video-info-button');
+        this._videoInfoButton.addEventListener('click', () => this.handleVideoInfoToggle());
+        this._videoInfoButton.title = this.options.translations.showVideoInfo;
+        Cinematic.renderButtonIcon(this._videoInfoButton, 'info');
+        _header.appendChild(this._videoInfoButton);
 
         const _headerSpacer = document.createElement('div');
         _headerSpacer.classList.add('cinematicjs-video-header-spacer');
         _header.appendChild(_headerSpacer);
 
         if (this.options.closeCallback) {
-            const _closeButton = document.createElement('div');
-            _closeButton.classList.add('cinematicjs-video-close-button');
-            _closeButton.title = this.options.translations.close;
-            Cinematic.renderButtonIcon(_closeButton, 'close');
-            _header.appendChild(_closeButton);
-
-            this._closeButton = _closeButton;
+            this._closeButton = document.createElement('div');
+            this._closeButton.classList.add('cinematicjs-video-close-button');
+            this._closeButton.title = this.options.translations.close;
+            Cinematic.renderButtonIcon(this._closeButton, 'close');
+            _header.appendChild(this._closeButton);
         }
 
-        const _videoDescription = document.createElement('div');
-        _videoDescription.classList.add('cinematicjs-video-description');
-        _videoDescription.classList.add('cinematicjs-hidden');
-        this._uiWrapper.appendChild(_videoDescription);
-
-        this._videoDescription = _videoDescription;
+        this._videoDescription = document.createElement('div');
+        this._videoDescription.classList.add('cinematicjs-video-description');
+        this._videoDescription.classList.add('cinematicjs-hidden');
+        this._uiWrapper.appendChild(this._videoDescription);
 
         const _footer = document.createElement('div');
         _footer.classList.add('cinematicjs-video-footer');
@@ -337,70 +317,56 @@ class Cinematic {
         _progressWrapper.classList.add('cinematicjs-video-progress-wrapper');
         _footer.appendChild(_progressWrapper);
 
-        const _bufferBar = document.createElement('progress');
-        _bufferBar.classList.add('cinematicjs-video-buffer-bar');
-        _bufferBar.value = 0;
-        _progressWrapper.appendChild(_bufferBar);
+        this._bufferBar = document.createElement('progress');
+        this._bufferBar.classList.add('cinematicjs-video-buffer-bar');
+        this._bufferBar.value = 0;
+        _progressWrapper.appendChild(this._bufferBar);
 
-        this._bufferBar = _bufferBar;
+        this._progressBar = document.createElement('progress');
+        this._progressBar.classList.add('cinematicjs-video-progress-bar');
+        this._progressBar.value = 0;
+        _progressWrapper.appendChild(this._progressBar);
 
-        const _progressBar = document.createElement('progress');
-        _progressBar.classList.add('cinematicjs-video-progress-bar');
-        _progressBar.value = 0;
-        _progressWrapper.appendChild(_progressBar);
+        this._controls = document.createElement('div');
+        this._controls.classList.add('cinematicjs-video-controls');
+        _footer.appendChild(this._controls);
 
-        this._progressBar = _progressBar;
+        this._playButton = document.createElement('div');
+        this._playButton.classList.add('cinematicjs-video-control-button');
+        Cinematic.renderButtonIcon(this._playButton, 'play');
+        this._controls.appendChild(this._playButton);
 
-        const _controls = document.createElement('div');
-        _controls.classList.add('cinematicjs-video-controls');
-        _footer.appendChild(_controls);
-
-        this._controls = _controls;
-
-        const _playButton = document.createElement('div');
-        _playButton.classList.add('cinematicjs-video-control-button');
-        Cinematic.renderButtonIcon(_playButton, 'play');
-        _controls.appendChild(_playButton);
-
-        this._playButton = _playButton;
-
-        const _timer = document.createElement('span');
-        _timer.classList.add('cinematicjs-video-control-timer');
-        _timer.textContent = '00:00:00 / 00:00:00';
-        _controls.appendChild(_timer);
-
-        this._timer = _timer;
+        this._timer = document.createElement('span');
+        this._timer.classList.add('cinematicjs-video-control-timer');
+        this._timer.textContent = '00:00:00 / 00:00:00';
+        this._controls.appendChild(this._timer);
 
         const _spacer = document.createElement('div');
         _spacer.classList.add('video-control-spacer');
-        _controls.appendChild(_spacer);
+        this._controls.appendChild(_spacer);
 
         const _volumeWrapper = document.createElement('div');
         _volumeWrapper.classList.add('cinematicjs-video-volume-wrapper');
-        _controls.appendChild(_volumeWrapper);
+        this._controls.appendChild(_volumeWrapper);
 
-        const _volumeSlider = document.createElement('input');
-        _volumeSlider.type = 'range';
-        _volumeSlider.min = '0';
-        _volumeSlider.max = '1';
-        _volumeSlider.step = '0.05';
-        _volumeSlider.value = '1';
-        _volumeSlider.classList.add('cinematicjs-video-volume-slider');
-        _volumeWrapper.appendChild(_volumeSlider);
+        this._volumeSlider = document.createElement('input');
+        this._volumeSlider.type = 'range';
+        this._volumeSlider.min = '0';
+        this._volumeSlider.max = '1';
+        this._volumeSlider.step = '0.05';
+        this._volumeSlider.value = '1';
+        this._volumeSlider.classList.add('cinematicjs-video-volume-slider');
+        _volumeWrapper.appendChild(this._volumeSlider);
 
-        this._volumeSlider = _volumeSlider;
-
-        const _volumeButton = document.createElement('div');
-        _volumeButton.classList.add('cinematicjs-video-control-button');
-        _volumeButton.title = this.options.translations.mute;
-        Cinematic.renderButtonIcon(_volumeButton, 'sound');
-        _volumeWrapper.appendChild(_volumeButton);
-
-        this._volumeButton = _volumeButton;
+        this._volumeButton = document.createElement('div');
+        this._volumeButton.classList.add('cinematicjs-video-control-button');
+        this._volumeButton.title = this.options.translations.mute;
+        Cinematic.renderButtonIcon(this._volumeButton, 'sound');
+        _volumeWrapper.appendChild(this._volumeButton);
 
         const _settingsWrapper = document.createElement('div');
         _settingsWrapper.classList.add('cinematicjs-video-control-dropdown');
-        _controls.appendChild(_settingsWrapper);
+        this._controls.appendChild(_settingsWrapper);
 
         const _settingsButton = document.createElement('div');
         _settingsButton.classList.add('cinematicjs-video-control-button');
@@ -412,20 +378,16 @@ class Cinematic {
         _dropDownContent.classList.add('cinematicjs-video-dropdown-content');
         _settingsWrapper.appendChild(_dropDownContent);
 
-        const _qualitySettingsSection = document.createElement('div');
-        _qualitySettingsSection.classList.add('cinematicjs-video-dropdown-section');
-        _dropDownContent.appendChild(_qualitySettingsSection);
-
-        this._qualitySettingsSection = _qualitySettingsSection;
+        this._qualitySettingsSection = document.createElement('div');
+        this._qualitySettingsSection.classList.add('cinematicjs-video-dropdown-section');
+        _dropDownContent.appendChild(this._qualitySettingsSection);
 
         const _qualitySettingsHeading = document.createElement('h1');
         _qualitySettingsHeading.textContent = this.options.translations.quality;
-        _qualitySettingsSection.appendChild(_qualitySettingsHeading);
+        this._qualitySettingsSection.appendChild(_qualitySettingsHeading);
 
-        const _qualitySettingsContainer = document.createElement('div');
-        _qualitySettingsSection.appendChild(_qualitySettingsContainer);
-
-        this._qualitySettingsContainer = _qualitySettingsContainer;
+        this._qualitySettingsContainer = document.createElement('div');
+        this._qualitySettingsSection.appendChild(this._qualitySettingsContainer);
 
         this.renderQualityOptions();
 
@@ -437,66 +399,52 @@ class Cinematic {
         _speedSettingsHeading.textContent = this.options.translations.playbackSpeed;
         _speedSettingsSection.appendChild(_speedSettingsHeading);
 
-        const _speedSettingsContainer = document.createElement('div');
-        _speedSettingsSection.appendChild(_speedSettingsContainer);
-
-        this._speedSettingsContainer = _speedSettingsContainer;
+        this._speedSettingsContainer = document.createElement('div');
+        _speedSettingsSection.appendChild(this._speedSettingsContainer);
 
         this.renderPlaybackSpeedOptions();
 
         if (this.options.deeplink) {
-            const _deeplinkButton = document.createElement('div');
-            _deeplinkButton.classList.add('cinematicjs-video-control-button');
-            _deeplinkButton.title = this.options.translations.deeplink;
-            _deeplinkButton.dataset.copiedText = this.options.translations.deeplinkCopied;
-            Cinematic.renderButtonIcon(_deeplinkButton, 'deeplink');
-            _controls.appendChild(_deeplinkButton);
-
-            this._deeplinkButton = _deeplinkButton;
+            this._deeplinkButton = document.createElement('div');
+            this._deeplinkButton.classList.add('cinematicjs-video-control-button');
+            this._deeplinkButton.title = this.options.translations.deeplink;
+            this._deeplinkButton.dataset.copiedText = this.options.translations.deeplinkCopied;
+            Cinematic.renderButtonIcon(this._deeplinkButton, 'deeplink');
+            this._controls.appendChild(this._deeplinkButton);
         }
 
-        const _cuesContainer = document.createElement('div');
-        _cuesContainer.classList.add('cinematicjs-video-cues-container');
-        _cuesContainer.classList.add('cinematicjs-hidden');
-        this._container.appendChild(_cuesContainer);
+        this._cuesContainer = document.createElement('div');
+        this._cuesContainer.classList.add('cinematicjs-video-cues-container');
+        this._cuesContainer.classList.add('cinematicjs-hidden');
+        this._container.appendChild(this._cuesContainer);
 
-        this._cuesContainer = _cuesContainer;
+        this._cues = document.createElement('div');
+        this._cues.classList.add('video-cues');
+        this._cues.classList.add('cinematicjs-hidden');
+        this._cuesContainer.appendChild(this._cues);
 
-        const _cues = document.createElement('div');
-        _cues.classList.add('video-cues');
-        _cues.classList.add('cinematicjs-hidden');
-        _cuesContainer.appendChild(_cues);
-
-        this._cues = _cues;
-
-        const _captionsButton = document.createElement('div');
-        _captionsButton.classList.add('cinematicjs-video-control-button');
-        _captionsButton.title = this.options.translations.showSubtitles;
-        Cinematic.renderButtonIcon(_captionsButton, 'expanded-cc');
-        _controls.appendChild(_captionsButton);
-
-        this._captionsButton = _captionsButton;
+        this._captionsButton = document.createElement('div');
+        this._captionsButton.classList.add('cinematicjs-video-control-button');
+        this._captionsButton.title = this.options.translations.showSubtitles;
+        Cinematic.renderButtonIcon(this._captionsButton, 'expanded-cc');
+        this._controls.appendChild(this._captionsButton);
 
         this.prepareSubtitles();
 
         if (this.pipEnabled) {
-            const _pipButton = document.createElement('div');
-            _pipButton.classList.add('cinematicjs-video-control-button');
-            _pipButton.title = this.options.translations.pictureInPicture;
-            Cinematic.renderButtonIcon(_pipButton, 'inpicture');
-            _controls.appendChild(_pipButton);
-
-            this._pipButton = _pipButton;
+            this._pipButton = document.createElement('div');
+            this._pipButton.classList.add('cinematicjs-video-control-button');
+            this._pipButton.title = this.options.translations.pictureInPicture;
+            Cinematic.renderButtonIcon(this._pipButton, 'inpicture');
+            this._controls.appendChild(this._pipButton);
         }
 
         if (this.fullScreenEnabled) {
-            const _fullScreenButton = document.createElement('div');
-            _fullScreenButton.classList.add('cinematicjs-video-control-button');
-            _fullScreenButton.title = this.options.translations.fullscreen;
-            Cinematic.renderButtonIcon(_fullScreenButton, 'fullscreen');
-            _controls.appendChild(_fullScreenButton);
-
-            this._fullScreenButton = _fullScreenButton;
+            this._fullScreenButton = document.createElement('div');
+            this._fullScreenButton.classList.add('cinematicjs-video-control-button');
+            this._fullScreenButton.title = this.options.translations.fullscreen;
+            Cinematic.renderButtonIcon(this._fullScreenButton, 'fullscreen');
+            this._controls.appendChild(this._fullScreenButton);
         }
     }
 
