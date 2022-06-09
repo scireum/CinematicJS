@@ -968,6 +968,7 @@ class Cinematic {
         this._videoTitleIcon.src = currentVideo.titleIcon || '';
         this._videoTitleIcon.classList.toggle('cinematicjs-hidden', this._videoTitleIcon.src.length === 0);
         this._videoTitle.textContent = currentVideo.title || '';
+        this._videoTitle.classList.toggle('cinematicjs-clickable', !!currentVideo.description);
         this._videoDescription.textContent = currentVideo.description || '';
     }
 
