@@ -68,6 +68,8 @@ interface Translations {
     showSubtitles: string;
     hideSubtitles: string;
     pictureInPicture: string;
+    showVideoInfo: string;
+    hideVideoInfo: string;
 }
 
 class Cinematic {
@@ -102,6 +104,8 @@ class Cinematic {
             showSubtitles: 'Show Subtitles',
             hideSubtitles: 'Hide Subtitles',
             pictureInPicture: 'Picture in picture',
+            showVideoInfo: 'Show video information',
+            hideVideoInfo: 'Hide video information'
         }
     };
 
@@ -113,6 +117,7 @@ class Cinematic {
     _uiWrapper: HTMLDivElement;
     _videoTitleIcon: HTMLImageElement;
     _videoTitle: HTMLDivElement;
+    _videoInfoButton: HTMLDivElement;
     _videoDescription: HTMLDivElement;
     _controls: HTMLElement;
     _playButton: HTMLDivElement;
@@ -289,10 +294,19 @@ class Cinematic {
 
         const _videoTitle = document.createElement('div');
         _videoTitle.classList.add('cinematicjs-video-title');
-        _videoTitle.addEventListener('click', () => this._videoDescription.classList.toggle('cinematicjs-hidden'));
+        _videoTitle.addEventListener('click', () => this.handleVideoInfoToggle());
         _header.appendChild(_videoTitle);
 
         this._videoTitle = _videoTitle;
+
+        const _videoInfoButton = document.createElement('div');
+        _videoInfoButton.classList.add('cinematicjs-video-info-button');
+        _videoInfoButton.addEventListener('click', () => this.handleVideoInfoToggle());
+        _videoInfoButton.title = this.options.translations.showVideoInfo;
+        Cinematic.renderButtonIcon(_videoInfoButton, 'info');
+        _header.appendChild(_videoInfoButton);
+
+        this._videoInfoButton = _videoInfoButton;
 
         const _headerSpacer = document.createElement('div');
         _headerSpacer.classList.add('cinematicjs-video-header-spacer');
@@ -585,6 +599,15 @@ class Cinematic {
                 _option.classList.remove('active');
             }
         });
+    }
+
+    private handleVideoInfoToggle() {
+        this._videoDescription.classList.toggle('cinematicjs-hidden');
+        if (this._videoDescription.classList.contains('cinematicjs-hidden')) {
+            this._videoInfoButton.title = this.options.translations.showVideoInfo;
+        } else {
+            this._videoInfoButton.title = this.options.translations.hideVideoInfo;
+        }
     }
 
     private prepareSubtitles() {
@@ -969,6 +992,7 @@ class Cinematic {
         this._videoTitleIcon.classList.toggle('cinematicjs-hidden', this._videoTitleIcon.src.length === 0);
         this._videoTitle.textContent = currentVideo.title || '';
         this._videoTitle.classList.toggle('cinematicjs-clickable', !!currentVideo.description);
+        this._videoInfoButton.classList.toggle('cinematicjs-hidden', !currentVideo.description);
         this._videoDescription.textContent = currentVideo.description || '';
     }
 

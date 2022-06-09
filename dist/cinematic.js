@@ -75,6 +75,8 @@ var Cinematic = /** @class */ (function () {
                 showSubtitles: 'Show Subtitles',
                 hideSubtitles: 'Hide Subtitles',
                 pictureInPicture: 'Picture in picture',
+                showVideoInfo: 'Show video information',
+                hideVideoInfo: 'Hide video information'
             }
         };
         this._sources = [];
@@ -199,9 +201,16 @@ var Cinematic = /** @class */ (function () {
         this._videoTitleIcon = _videoTitleIcon;
         var _videoTitle = document.createElement('div');
         _videoTitle.classList.add('cinematicjs-video-title');
-        _videoTitle.addEventListener('click', function () { return _this._videoDescription.classList.toggle('cinematicjs-hidden'); });
+        _videoTitle.addEventListener('click', function () { return _this.handleVideoInfoToggle(); });
         _header.appendChild(_videoTitle);
         this._videoTitle = _videoTitle;
+        var _videoInfoButton = document.createElement('div');
+        _videoInfoButton.classList.add('cinematicjs-video-info-button');
+        _videoInfoButton.addEventListener('click', function () { return _this.handleVideoInfoToggle(); });
+        _videoInfoButton.title = this.options.translations.showVideoInfo;
+        Cinematic.renderButtonIcon(_videoInfoButton, 'info');
+        _header.appendChild(_videoInfoButton);
+        this._videoInfoButton = _videoInfoButton;
         var _headerSpacer = document.createElement('div');
         _headerSpacer.classList.add('cinematicjs-video-header-spacer');
         _header.appendChild(_headerSpacer);
@@ -433,6 +442,15 @@ var Cinematic = /** @class */ (function () {
                 _option.classList.remove('active');
             }
         });
+    };
+    Cinematic.prototype.handleVideoInfoToggle = function () {
+        this._videoDescription.classList.toggle('cinematicjs-hidden');
+        if (this._videoDescription.classList.contains('cinematicjs-hidden')) {
+            this._videoInfoButton.title = this.options.translations.showVideoInfo;
+        }
+        else {
+            this._videoInfoButton.title = this.options.translations.hideVideoInfo;
+        }
     };
     Cinematic.prototype.prepareSubtitles = function () {
         var _oldTrack = this._video.querySelector('track');
@@ -790,6 +808,7 @@ var Cinematic = /** @class */ (function () {
         this._videoTitleIcon.classList.toggle('cinematicjs-hidden', this._videoTitleIcon.src.length === 0);
         this._videoTitle.textContent = currentVideo.title || '';
         this._videoTitle.classList.toggle('cinematicjs-clickable', !!currentVideo.description);
+        this._videoInfoButton.classList.toggle('cinematicjs-hidden', !currentVideo.description);
         this._videoDescription.textContent = currentVideo.description || '';
     };
     Cinematic.prototype.handlePlayerResize = function () {
