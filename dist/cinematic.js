@@ -557,6 +557,7 @@ var Cinematic = /** @class */ (function () {
             else {
                 Cinematic.switchButtonIcon(_this._playButton, 'repeat');
                 _this._playButton.title = me.options.translations.restart;
+                _this.showControls();
             }
         });
         this._video.addEventListener('progress', function () {

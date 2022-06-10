@@ -708,6 +708,7 @@ class Cinematic {
             } else {
                 Cinematic.switchButtonIcon(this._playButton, 'repeat');
                 this._playButton.title = me.options.translations.restart;
+                this.showControls();
             }
         });
 
