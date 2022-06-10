@@ -58,6 +58,11 @@
     left: 0;
     right: 0;
     transition: visibility 0.5s ease-in, opacity 0.5s ease-out;
+    pointer-events: none;
+}
+
+.cinematicjs-ui-wrapper * {
+    pointer-events: all;
 }
 
 /*region Header*/
@@ -79,18 +84,33 @@
 }
 
 .cinematicjs-video-header .cinematicjs-video-title {
+    margin-right: 8px;
     color: #ffffff;
-    cursor: pointer;
+    cursor: default;
     opacity: 0.9;
     transition: opacity .1s ease-in-out;
     text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
 }
 
-.cinematicjs-video-header .cinematicjs-video-title:hover {
+.cinematicjs-video-header .cinematicjs-video-title.cinematicjs-clickable:hover {
     opacity: 1;
 }
 
 .cinematicjs-video-header .cinematicjs-video-description:hover {
+    opacity: 1;
+}
+
+.cinematicjs-video-header .cinematicjs-video-info-button {
+    color: #ffffff;
+    cursor: pointer;
+    flex-grow: 0;
+    opacity: 0.9;
+    transition: opacity .1s ease-in-out;
+    text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
+    line-height: 8px;
+}
+
+.cinematicjs-video-header .cinematicjs-video-info-button:hover {
     opacity: 1;
 }
 
@@ -164,7 +184,7 @@
     opacity: 1;
 }
 
-.cinematicjs-video-control-button svg, .cinematicjs-video-close-button svg {
+.cinematicjs-video-control-button svg, .cinematicjs-video-close-button svg, .cinematicjs-video-info-button svg {
     display: inline-block;
     width: 18px;
     height: 18px;
@@ -455,6 +475,10 @@ html:-ms-fullscreen {
 .cinematicjs-hidden {
     visibility: hidden;
     opacity: 0;
+}
+
+.cinematicjs-clickable {
+    cursor: pointer !important;
 }
 
 /*endregion*/
