@@ -846,7 +846,7 @@ class Cinematic {
             });
         }
 
-        this._video.addEventListener('keyup', event => {
+        this._video.addEventListener('keydown', event => {
             const {key} = event;
 
             event.preventDefault();
