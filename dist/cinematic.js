@@ -690,7 +690,7 @@ var Cinematic = /** @class */ (function () {
                 (_a = _this.options.closeCallback) === null || _a === void 0 ? void 0 : _a.apply(_this);
             });
         }
-        this._video.addEventListener('keyup', function (event) {
+        this._video.addEventListener('keydown', function (event) {
             var key = event.key;
             event.preventDefault();
             event.stopPropagation();
