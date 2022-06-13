@@ -76,6 +76,7 @@ var Cinematic = /** @class */ (function () {
                 showSubtitles: 'Show Subtitles',
                 hideSubtitles: 'Hide Subtitles',
                 pictureInPicture: 'Picture in picture',
+                chromecast: 'Stream',
                 showVideoInfo: 'Show video information',
                 hideVideoInfo: 'Hide video information'
             }
@@ -211,6 +212,20 @@ var Cinematic = /** @class */ (function () {
         var _headerSpacer = document.createElement('div');
         _headerSpacer.classList.add('cinematicjs-video-header-spacer');
         _header.appendChild(_headerSpacer);
+        this._chromecastButton = document.createElement('div');
+        this._chromecastButton.classList.add('cinematicjs-video-control-button');
+        this._chromecastButton.classList.add('cinematicjs-hidden');
+        this._chromecastButton.title = this.options.translations.chromecast;
+        this._chromecastButton.addEventListener('click', function () { return _this._video.remote.prompt(); });
+        Cinematic.renderButtonIcon(this._chromecastButton, 'chromecast');
+        _header.appendChild(this._chromecastButton);
+        if (this._video.remote) {
+            this._video.remote.watchAvailability(function (available) {
+                _this._chromecastButton.classList.toggle('cinematicjs-hidden', !available);
+            }).catch(function () {
+                _this._chromecastButton.classList.add('cinematicjs-hidden');
+            });
+        }
         if (this.options.closeCallback) {
             this._closeButton = document.createElement('div');
             this._closeButton.classList.add('cinematicjs-video-close-button');
