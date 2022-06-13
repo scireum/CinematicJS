@@ -54,6 +54,7 @@ var Cinematic = /** @class */ (function () {
             startTime: 0,
             deeplink: '',
             rememberVolume: false,
+            rememberQuality: false,
             quality: '720p',
             sources: [],
             video: null,
@@ -96,6 +97,12 @@ var Cinematic = /** @class */ (function () {
         }
         this._container = _passedContainer;
         this.quality = this.options.quality;
+        if (this.options.rememberQuality) {
+            var storedQuality = this.readFromLocalStore('quality');
+            if (storedQuality) {
+                this.quality = storedQuality;
+            }
+        }
         if ('pictureInPictureEnabled' in document) {
             this.pipEnabled = true;
         }
@@ -376,6 +383,9 @@ var Cinematic = /** @class */ (function () {
         }
         if (!newSource) {
             return;
+        }
+        if (this.options.rememberQuality) {
+            this.writeToLocalStore('quality', newQuality);
         }
         this._qualitySettingsContainer.childNodes.forEach(function (_option) {
             if (_option.dataset.quality === newQuality) {
