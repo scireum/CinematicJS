@@ -38,6 +38,7 @@ Polyfills for Array.prototype.forEach and NodeList.prototype.forEach.
 | subtitles        | The relative or absolute URL pointing to the video captions VTT file                                              | string   | null |
 | autoplay         | Starts the video playback directly when 'true' is passed                                                          | boolean  | false |
 | rememberVolume   | Saves and Restores the volume and mute state via local storage when 'true' is passed                              | boolean  | false |
+| rememberQuality  | Saves and Restores the playback quality via local storage when 'true' is passed                              | boolean  | false |
 | startTime        | Starts the video playback offset by the given number of seconds                                                   | number   | 0 |
 | deeplink         | Shows a deeplink button that copies the url to clipboard on click when filled                                     | string   | '' |
 | deeplinkCallback | A function that is called when the deeplink button is clicked - if it returns false, the copy action is supressed | function | - |
@@ -51,15 +52,15 @@ array of objects is
 passed to the `sources` parameter. The order of the objects also determines their order in the quality setting dropdown.
 Each object has the following structure:
 
-| Name | Description |
-|---|---|
-| quality | Identifier and also name of the quality option shown in the dropdown |
+| Name    | Description                                                                          |
+|---------|--------------------------------------------------------------------------------------|
+| quality | Identifier and also name of the quality option shown in the dropdown                 |
 | sources | A list of nested objects describing the different formats. Structure described below |
 
-| Name | Description |
-|---|---|
-| type | The mime time of the video file format, for example `video/mp4` |
-| sources | The actual URI pointing to the video file |
+| Name    | Description                                                     |
+|---------|-----------------------------------------------------------------|
+| type    | The mime time of the video file format, for example `video/mp4` |
+| sources | The actual URI pointing to the video file                       |
 
 ### Sample
 
@@ -103,23 +104,23 @@ The player provides english translations as a default. With the `translations` p
 overwritten.
 The following keys can be provided:
 
-| Name | Description | Default |
-|---|---|---|
-| pause | Tooltip on the play/pause button when the video is currently playing. | Pause |
-| play | Tooltip on the play/pause button when the video is currently paused. | Play |
-| restart | Tooltip on the play/pause button when the video reached its end. | Restart |
-| mute | Tooltip on the volume button when video is currently not muted. | Mute |
-| unmute | Tooltip on the volume button when video is currently muted. | Unmute |
-| settings | Tooltip on the settings button. | Settings |
-| quality | Heading of the quality settings section. | Quality |
-| playbackSpeed | Heading of the speed settings section. | Speed |
-| close | Tooltip on the optional close button. | Close |
-| deeplink | Tooltip on the optional deeplink copy button. | Copy deeplink to clipboard |
-| deeplinkCopied | Popup that is shown when the deeplink button is pressed. | Link was copied |
-| fullscreen | Tooltip on the fullscreen button when video is currently not in fullscreen. | Fullscreen |
-| exitFullscreen | Tooltip on the fullscreen button when video is currently in fullscreen. | Exit Fullscreen |
-| showSubtitles | Tooltip on the subtitles button when video subtitles are currently hidden. | Show Subtitles |
-| hideSubtitles | Tooltip on the subtitles button when video subtitles are currently shown. | Hide Subtitles |
+| Name           | Description                                                                 | Default                    |
+|----------------|-----------------------------------------------------------------------------|----------------------------|
+| pause          | Tooltip on the play/pause button when the video is currently playing.       | Pause                      |
+| play           | Tooltip on the play/pause button when the video is currently paused.        | Play                       |
+| restart        | Tooltip on the play/pause button when the video reached its end.            | Restart                    |
+| mute           | Tooltip on the volume button when video is currently not muted.             | Mute                       |
+| unmute         | Tooltip on the volume button when video is currently muted.                 | Unmute                     |
+| settings       | Tooltip on the settings button.                                             | Settings                   |
+| quality        | Heading of the quality settings section.                                    | Quality                    |
+| playbackSpeed  | Heading of the speed settings section.                                      | Speed                      |
+| close          | Tooltip on the optional close button.                                       | Close                      |
+| deeplink       | Tooltip on the optional deeplink copy button.                               | Copy deeplink to clipboard |
+| deeplinkCopied | Popup that is shown when the deeplink button is pressed.                    | Link was copied            |
+| fullscreen     | Tooltip on the fullscreen button when video is currently not in fullscreen. | Fullscreen                 |
+| exitFullscreen | Tooltip on the fullscreen button when video is currently in fullscreen.     | Exit Fullscreen            |
+| showSubtitles  | Tooltip on the subtitles button when video subtitles are currently hidden.  | Show Subtitles             |
+| hideSubtitles  | Tooltip on the subtitles button when video subtitles are currently shown.   | Hide Subtitles             |
 
 ## Build / Development
 

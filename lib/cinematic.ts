@@ -20,6 +20,7 @@ interface Options {
     deeplink: string;
     deeplinkCallback?: Function
     rememberVolume: boolean;
+    rememberQuality: boolean;
     quality: string;
     sources: VideoQuality[];
     video: CinematicVideo | null;
@@ -83,6 +84,7 @@ class Cinematic {
         startTime: 0,
         deeplink: '',
         rememberVolume: false,
+        rememberQuality: false,
         quality: '720p',
         sources: [],
         video: null,
@@ -166,6 +168,12 @@ class Cinematic {
         this._container = _passedContainer;
 
         this.quality = this.options.quality;
+        if (this.options.rememberQuality) {
+            const storedQuality = this.readFromLocalStore('quality');
+            if (storedQuality) {
+                this.quality = storedQuality;
+            }
+        }
 
         if ('pictureInPictureEnabled' in document) {
             this.pipEnabled = true;
@@ -252,7 +260,7 @@ class Cinematic {
 
         this._overlayWrapper = document.createElement('div');
         this._overlayWrapper.classList.add('cinematicjs-video-overlay-wrapper');
-        this. _overlayWrapper.classList.add('cinematicjs-hidden');
+        this._overlayWrapper.classList.add('cinematicjs-hidden');
         this._container.appendChild(this._overlayWrapper);
 
         const _overlayContainer = document.createElement('div');
@@ -505,6 +513,10 @@ class Cinematic {
         }
         if (!newSource) {
             return;
+        }
+
+        if (this.options.rememberQuality) {
+            this.writeToLocalStore('quality', newQuality);
         }
 
         this._qualitySettingsContainer.childNodes.forEach(function (_option: HTMLElement) {
