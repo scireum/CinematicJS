@@ -130,6 +130,8 @@ class Cinematic {
     _timer: HTMLElement;
     _volumeSlider: HTMLInputElement;
     _volumeButton: HTMLDivElement;
+    _settingsWrapper: HTMLDivElement;
+    _qualitySelect: HTMLSelectElement;
     _qualitySettingsSection: HTMLDivElement;
     _qualitySettingsContainer: HTMLDivElement;
     _speedSettingsContainer: HTMLDivElement;
@@ -391,38 +393,43 @@ class Cinematic {
         Cinematic.renderButtonIcon(this._volumeButton, 'sound');
         _volumeWrapper.appendChild(this._volumeButton);
 
-        const _settingsWrapper = document.createElement('div');
-        _settingsWrapper.classList.add('cinematicjs-video-control-dropdown');
-        this._controls.appendChild(_settingsWrapper);
+        this._settingsWrapper = document.createElement('div');
+        this._settingsWrapper.classList.add('cinematicjs-video-control-dropdown');
+        this._controls.appendChild(this._settingsWrapper);
 
         const _settingsButton = document.createElement('div');
         _settingsButton.classList.add('cinematicjs-video-control-button');
         _settingsButton.title = this.options.translations.settings;
         _settingsButton.addEventListener('click', (event) => {
-            _settingsWrapper.classList.toggle('cinematicjs-dropdown-active');
+            this._settingsWrapper.classList.toggle('cinematicjs-dropdown-active');
             event.stopPropagation();
         });
         Cinematic.renderButtonIcon(_settingsButton, 'settings');
-        _settingsWrapper.appendChild(_settingsButton);
+        this._settingsWrapper.appendChild(_settingsButton);
 
         window.addEventListener('click', (event) => {
-            _settingsWrapper.classList.remove('cinematicjs-dropdown-active');
+            // Clicks inside the Dropdown should not close it again.
+            if (!(event.target instanceof Element) || !(event.target as Element).matches('.cinematicjs-video-control-dropdown, .cinematicjs-video-control-dropdown *')) {
+                this._settingsWrapper.classList.remove('cinematicjs-dropdown-active');
+            }
         });
 
         const _dropDownContent = document.createElement('div');
         _dropDownContent.classList.add('cinematicjs-video-dropdown-content');
-        _settingsWrapper.appendChild(_dropDownContent);
+        this._settingsWrapper.appendChild(_dropDownContent);
 
         this._qualitySettingsSection = document.createElement('div');
         this._qualitySettingsSection.classList.add('cinematicjs-video-dropdown-section');
         _dropDownContent.appendChild(this._qualitySettingsSection);
 
-        const _qualitySettingsHeading = document.createElement('h1');
-        _qualitySettingsHeading.textContent = this.options.translations.quality;
-        this._qualitySettingsSection.appendChild(_qualitySettingsHeading);
+        const _qualitySettingsTitle = document.createElement('span');
+        _qualitySettingsTitle.textContent = this.options.translations.quality;
+        this._qualitySettingsSection.appendChild(_qualitySettingsTitle);
 
-        this._qualitySettingsContainer = document.createElement('div');
-        this._qualitySettingsSection.appendChild(this._qualitySettingsContainer);
+        this._qualitySelect = document.createElement('select');
+        this._qualitySelect.name = 'quality';
+        this._qualitySelect.addEventListener('change', () => this.handleQualityChange(this._qualitySelect.value));
+        this._qualitySettingsSection.appendChild(this._qualitySelect);
 
         this.renderQualityOptions();
 
@@ -430,14 +437,23 @@ class Cinematic {
         _speedSettingsSection.classList.add('cinematicjs-video-dropdown-section');
         _dropDownContent.appendChild(_speedSettingsSection);
 
-        const _speedSettingsHeading = document.createElement('h1');
-        _speedSettingsHeading.textContent = this.options.translations.playbackSpeed;
-        _speedSettingsSection.appendChild(_speedSettingsHeading);
+        const _speedSettingsTitle = document.createElement('span');
+        _speedSettingsTitle.textContent = this.options.translations.playbackSpeed;
+        _speedSettingsSection.appendChild(_speedSettingsTitle);
 
-        this._speedSettingsContainer = document.createElement('div');
-        _speedSettingsSection.appendChild(this._speedSettingsContainer);
+        const _speedSelect = document.createElement('select');
+        _speedSelect.name = 'speed';
+        _speedSelect.addEventListener('change', () => this.handleSpeedChange(_speedSelect.value));
 
-        this.renderPlaybackSpeedOptions();
+        [0.5, 1.0, 1.25, 1.5, 1.75, 2.0].forEach(speedSetting => {
+            const _option = document.createElement('option');
+            _option.textContent = speedSetting + 'x';
+            _option.value = speedSetting + '';
+            _speedSelect.appendChild(_option);
+        });
+
+        _speedSelect.value = '1';
+        _speedSettingsSection.appendChild(_speedSelect);
 
         if (this.options.deeplink) {
             this._deeplinkButton = document.createElement('div');
@@ -484,47 +500,20 @@ class Cinematic {
     }
 
     private renderQualityOptions() {
-        this._qualitySettingsContainer.textContent = '';
+        this._qualitySelect.textContent = '';
 
         if (this.playlist.getCurrentVideo().sources.length > 1) {
             this.playlist.getCurrentVideo().sources.forEach(source => {
-                const _option = document.createElement('div');
-                _option.classList.add('video-quality-option');
-                _option.classList.add('cinematicjs-video-dropdown-option');
-                if (this.quality === source.quality) {
-                    _option.classList.add('active');
-                }
+                const _option = document.createElement('option');
                 _option.textContent = source.quality;
-                _option.dataset.quality = source.quality;
-
-                _option.addEventListener('click', () => this.handleQualityChange(_option.dataset.quality ?? ''));
-
-                this._qualitySettingsContainer.appendChild(_option);
+                _option.value = source.quality;
+                this._qualitySelect.appendChild(_option);
             });
 
             this._qualitySettingsSection.classList.remove('cinematicjs-hidden');
         } else {
             this._qualitySettingsSection.classList.add('cinematicjs-hidden');
         }
-    }
-
-    private renderPlaybackSpeedOptions() {
-        this._speedSettingsContainer.textContent = '';
-
-        [0.5, 1.0, 1.25, 1.5, 1.75, 2.0].forEach(speedSetting => {
-            const _option = document.createElement('div');
-            _option.classList.add('video-speed-option');
-            _option.classList.add('cinematicjs-video-dropdown-option');
-            if (this.speed === speedSetting) {
-                _option.classList.add('active');
-            }
-            _option.textContent = speedSetting + 'x';
-            _option.dataset.speed = speedSetting + '';
-
-            _option.addEventListener('click', () => this.handleSpeedChange(speedSetting));
-
-            this._speedSettingsContainer.appendChild(_option);
-        });
     }
 
     private handleQualityChange(newQuality: string) {
@@ -546,14 +535,6 @@ class Cinematic {
             this.writeToLocalStore('quality', newQuality);
         }
 
-        this._qualitySettingsContainer.childNodes.forEach(function (_option: HTMLElement) {
-            if (_option.dataset.quality === newQuality) {
-                _option.classList.add('active');
-            } else {
-                _option.classList.remove('active');
-            }
-        });
-
         const currentTime = this._video.currentTime;
         const wasPlaying = !this._video.paused;
 
@@ -572,20 +553,12 @@ class Cinematic {
         this.quality = newQuality;
     }
 
-    private handleSpeedChange(newSpeed: number) {
+    private handleSpeedChange(newSpeed: string) {
         if (!newSpeed) {
             return;
         }
-        this.speed = newSpeed;
-        this._video.playbackRate = newSpeed;
-
-        this._speedSettingsContainer.childNodes.forEach(function (_option: HTMLElement) {
-            if (_option.dataset.speed === newSpeed.toString()) {
-                _option.classList.add('active');
-            } else {
-                _option.classList.remove('active');
-            }
-        });
+        this.speed = parseInt(newSpeed);
+        this._video.playbackRate = this.speed;
     }
 
     private handleVideoInfoToggle() {
@@ -816,7 +789,8 @@ class Cinematic {
             clearTimeout(this.userInactiveTimeout);
 
             this.userInactiveTimeout = window.setTimeout(() => {
-                if (!this.userActive) {
+                // We don't want to hide the controls when the settings popup is currently open/visible.
+                if (!this.userActive && !this._settingsWrapper.classList.contains('cinematicjs-dropdown-active')) {
                     this.hideControls();
 
                     const _activeElement = document.activeElement;

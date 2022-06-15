@@ -402,29 +402,35 @@ html:-ms-fullscreen {
     display: block;
 }
 
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-section {
+    display: flex;
+    padding: 12px;
+}
+
 .cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-section+.cinematicjs-video-dropdown-section {
     border-top: 1px solid rgb(0 0 0 / 15%);
 }
 
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content h1 {
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content span {
     margin: 0px;
     font-size: 18px;
-    padding: 4px 8px;
+    font-weight: bold;
     cursor: default;
+    margin-right: 8px;
 }
 
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content .cinematicjs-video-dropdown-option {
-    padding: 8px;
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select {
+    flex-grow: 1;
+    appearance: none;
+    border: none;
+    font-size: 18px;
+    text-align: end;
+    background: transparent;
     cursor: pointer;
-    text-align: right;
 }
 
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content .cinematicjs-video-dropdown-option:hover {
-    background-color: #ffffff;
-}
-
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content .cinematicjs-video-dropdown-option.active {
-    font-weight: 600;
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select:focus {
+    outline: 0;
 }
 
 /*endregion*/
