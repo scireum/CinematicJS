@@ -287,8 +287,15 @@ var Cinematic = /** @class */ (function () {
         var _settingsButton = document.createElement('div');
         _settingsButton.classList.add('cinematicjs-video-control-button');
         _settingsButton.title = this.options.translations.settings;
+        _settingsButton.addEventListener('click', function (event) {
+            _settingsWrapper.classList.toggle('cinematicjs-dropdown-active');
+            event.stopPropagation();
+        });
         Cinematic.renderButtonIcon(_settingsButton, 'settings');
         _settingsWrapper.appendChild(_settingsButton);
+        window.addEventListener('click', function (event) {
+            _settingsWrapper.classList.remove('cinematicjs-dropdown-active');
+        });
         var _dropDownContent = document.createElement('div');
         _dropDownContent.classList.add('cinematicjs-video-dropdown-content');
         _settingsWrapper.appendChild(_dropDownContent);

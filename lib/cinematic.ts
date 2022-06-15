@@ -398,8 +398,16 @@ class Cinematic {
         const _settingsButton = document.createElement('div');
         _settingsButton.classList.add('cinematicjs-video-control-button');
         _settingsButton.title = this.options.translations.settings;
+        _settingsButton.addEventListener('click', (event) => {
+            _settingsWrapper.classList.toggle('cinematicjs-dropdown-active');
+            event.stopPropagation();
+        });
         Cinematic.renderButtonIcon(_settingsButton, 'settings');
         _settingsWrapper.appendChild(_settingsButton);
+
+        window.addEventListener('click', (event) => {
+            _settingsWrapper.classList.remove('cinematicjs-dropdown-active');
+        });
 
         const _dropDownContent = document.createElement('div');
         _dropDownContent.classList.add('cinematicjs-video-dropdown-content');

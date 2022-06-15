@@ -379,6 +379,7 @@ html:-ms-fullscreen {
 
 /*region Dropdown*/
 .cinematicjs-video-control-dropdown {
+    position: relative;
     height: 24px;
 }
 
@@ -386,6 +387,7 @@ html:-ms-fullscreen {
     display: none;
     position: absolute;
     bottom: 32px;
+    right: 0;
     min-width: 90px;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     z-index: 1;
@@ -396,7 +398,7 @@ html:-ms-fullscreen {
     text-decoration: none;
 }
 
-.cinematicjs-video-control-dropdown:hover .cinematicjs-video-dropdown-content {
+.cinematicjs-video-control-dropdown.cinematicjs-dropdown-active .cinematicjs-video-dropdown-content {
     display: block;
 }
 
