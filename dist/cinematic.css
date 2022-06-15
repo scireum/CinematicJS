@@ -300,7 +300,7 @@
     height: auto;
 }
 
-.cinematicjs-video-container[data-fullscreen=true] .cinematicjs-video-footer {
+.cinematicjs-video-container[data-fullscreen=true] .cinematicjs-ui-wrapper {
     position: absolute;
     width: 100%;
     z-index: 2147483647;
