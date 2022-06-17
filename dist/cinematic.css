@@ -268,7 +268,7 @@
     color: #000;
     border-radius: 10px;
     top: auto;
-    bottom: 100%;
+    bottom: 32px;
     transform: translate3d(-50%, 0, 0);
     font-size: 0.7rem;
     font-weight: 300;
@@ -300,7 +300,7 @@
     height: auto;
 }
 
-.cinematicjs-video-container[data-fullscreen=true] .cinematicjs-video-footer {
+.cinematicjs-video-container[data-fullscreen=true] .cinematicjs-ui-wrapper {
     position: absolute;
     width: 100%;
     z-index: 2147483647;
@@ -379,6 +379,7 @@ html:-ms-fullscreen {
 
 /*region Dropdown*/
 .cinematicjs-video-control-dropdown {
+    position: relative;
     height: 24px;
 }
 
@@ -386,6 +387,7 @@ html:-ms-fullscreen {
     display: none;
     position: absolute;
     bottom: 32px;
+    right: 0;
     min-width: 90px;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     z-index: 1;
@@ -396,33 +398,39 @@ html:-ms-fullscreen {
     text-decoration: none;
 }
 
-.cinematicjs-video-control-dropdown:hover .cinematicjs-video-dropdown-content {
+.cinematicjs-video-control-dropdown.cinematicjs-dropdown-active .cinematicjs-video-dropdown-content {
     display: block;
+}
+
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-section {
+    display: flex;
+    padding: 12px;
 }
 
 .cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-section+.cinematicjs-video-dropdown-section {
     border-top: 1px solid rgb(0 0 0 / 15%);
 }
 
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content h1 {
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content span {
     margin: 0px;
     font-size: 18px;
-    padding: 4px 8px;
+    font-weight: bold;
     cursor: default;
+    margin-right: 8px;
 }
 
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content .cinematicjs-video-dropdown-option {
-    padding: 8px;
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select {
+    flex-grow: 1;
+    appearance: none;
+    border: none;
+    font-size: 18px;
+    text-align: end;
+    background: transparent;
     cursor: pointer;
-    text-align: right;
 }
 
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content .cinematicjs-video-dropdown-option:hover {
-    background-color: #ffffff;
-}
-
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content .cinematicjs-video-dropdown-option.active {
-    font-weight: 600;
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select:focus {
+    outline: 0;
 }
 
 /*endregion*/
