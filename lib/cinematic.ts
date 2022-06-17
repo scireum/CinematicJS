@@ -557,7 +557,7 @@ class Cinematic {
         if (!newSpeed) {
             return;
         }
-        this.speed = parseInt(newSpeed);
+        this.speed = parseFloat(newSpeed);
         this._video.playbackRate = this.speed;
     }
 
