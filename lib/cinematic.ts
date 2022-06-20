@@ -571,11 +571,11 @@ class Cinematic {
         this.quality = newQuality;
     }
 
-    private handleSpeedChange(newSpeed: string) {
+    private handleSpeedChange(newSpeed: string | number) {
         if (!newSpeed) {
             return;
         }
-        this.speed = parseFloat(newSpeed);
+        this.speed = typeof newSpeed === 'string' ? parseFloat(newSpeed) : newSpeed;
         this._video.playbackRate = this.speed;
     }
 
@@ -963,6 +963,7 @@ class Cinematic {
         this.prepareSubtitles();
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
+        this.handleSpeedChange(this.speed);
         this.updateDisplayedVideoInfo();
 
         this._video.currentTime = 0;

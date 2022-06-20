@@ -433,7 +433,7 @@ var Cinematic = /** @class */ (function () {
         if (!newSpeed) {
             return;
         }
-        this.speed = parseFloat(newSpeed);
+        this.speed = typeof newSpeed === 'string' ? parseFloat(newSpeed) : newSpeed;
         this._video.playbackRate = this.speed;
     };
     Cinematic.prototype.handleVideoInfoToggle = function () {
@@ -797,6 +797,7 @@ var Cinematic = /** @class */ (function () {
         this.prepareSubtitles();
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
+        this.handleSpeedChange(this.speed);
         this.updateDisplayedVideoInfo();
         this._video.currentTime = 0;
         this._video.play();
