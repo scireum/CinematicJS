@@ -571,11 +571,11 @@ class Cinematic {
         this.quality = newQuality;
     }
 
-    private handleSpeedChange(newSpeed: string) {
+    private handleSpeedChange(newSpeed: string | number) {
         if (!newSpeed) {
             return;
         }
-        this.speed = parseFloat(newSpeed);
+        this.speed = typeof newSpeed === 'string' ? parseFloat(newSpeed) : newSpeed;
         this._video.playbackRate = this.speed;
     }
 
@@ -758,7 +758,11 @@ class Cinematic {
 
         this._video.addEventListener('click', () => {
             window.setTimeout(() => {
-                if (me._video.paused || me._video.ended) {
+                if (this._video.ended) {
+                    this.playlist.resetToBeginning();
+                    this.handleVideoChange();
+                    this.showOverlay('play', null, true);
+                } else if (me._video.paused) {
                     me._video.play();
                     this.showOverlay('play', null, true);
                 } else {
@@ -959,6 +963,7 @@ class Cinematic {
         this.prepareSubtitles();
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
+        this.handleSpeedChange(this.speed);
         this.updateDisplayedVideoInfo();
 
         this._video.currentTime = 0;

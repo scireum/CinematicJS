@@ -433,7 +433,7 @@ var Cinematic = /** @class */ (function () {
         if (!newSpeed) {
             return;
         }
-        this.speed = parseFloat(newSpeed);
+        this.speed = typeof newSpeed === 'string' ? parseFloat(newSpeed) : newSpeed;
         this._video.playbackRate = this.speed;
     };
     Cinematic.prototype.handleVideoInfoToggle = function () {
@@ -596,7 +596,12 @@ var Cinematic = /** @class */ (function () {
         });
         this._video.addEventListener('click', function () {
             window.setTimeout(function () {
-                if (me._video.paused || me._video.ended) {
+                if (_this._video.ended) {
+                    _this.playlist.resetToBeginning();
+                    _this.handleVideoChange();
+                    _this.showOverlay('play', null, true);
+                }
+                else if (me._video.paused) {
                     me._video.play();
                     _this.showOverlay('play', null, true);
                 }
@@ -792,6 +797,7 @@ var Cinematic = /** @class */ (function () {
         this.prepareSubtitles();
         this.renderQualityOptions();
         this.handleQualityChange(this.quality);
+        this.handleSpeedChange(this.speed);
         this.updateDisplayedVideoInfo();
         this._video.currentTime = 0;
         this._video.play();
