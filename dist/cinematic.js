@@ -596,7 +596,12 @@ var Cinematic = /** @class */ (function () {
         });
         this._video.addEventListener('click', function () {
             window.setTimeout(function () {
-                if (me._video.paused || me._video.ended) {
+                if (_this._video.ended) {
+                    _this.playlist.resetToBeginning();
+                    _this.handleVideoChange();
+                    _this.showOverlay('play', null, true);
+                }
+                else if (me._video.paused) {
                     me._video.play();
                     _this.showOverlay('play', null, true);
                 }

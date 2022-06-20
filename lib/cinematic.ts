@@ -758,7 +758,11 @@ class Cinematic {
 
         this._video.addEventListener('click', () => {
             window.setTimeout(() => {
-                if (me._video.paused || me._video.ended) {
+                if (this._video.ended) {
+                    this.playlist.resetToBeginning();
+                    this.handleVideoChange();
+                    this.showOverlay('play', null, true);
+                } else if (me._video.paused) {
                     me._video.play();
                     this.showOverlay('play', null, true);
                 } else {
