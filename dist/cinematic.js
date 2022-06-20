@@ -97,16 +97,6 @@ var Cinematic = /** @class */ (function () {
             throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
         }
         this._container = _passedContainer;
-        this.quality = this.options.quality;
-        if (this.options.rememberQuality) {
-            var storedQuality = this.readFromLocalStore('quality');
-            if (storedQuality) {
-                this.quality = storedQuality;
-            }
-        }
-        if ('pictureInPictureEnabled' in document) {
-            this.pipEnabled = true;
-        }
         if (this.options.playlist) {
             this.playlist = this.options.playlist;
         }
@@ -115,6 +105,16 @@ var Cinematic = /** @class */ (function () {
         }
         else {
             throw new Error('CinematicJS: Either a single `video` or a `playlist` has to be passed as options.');
+        }
+        this.quality = this.options.quality;
+        if (this.options.rememberQuality) {
+            var storedQuality = this.readFromLocalStore('quality');
+            if (storedQuality) {
+                this.quality = this.handleVideoQualityFallback(storedQuality);
+            }
+        }
+        if ('pictureInPictureEnabled' in document) {
+            this.pipEnabled = true;
         }
         this.loadIcons();
         this.renderPlayer();
@@ -311,8 +311,9 @@ var Cinematic = /** @class */ (function () {
         this._qualitySelect = document.createElement('select');
         this._qualitySelect.name = 'quality';
         this._qualitySelect.addEventListener('change', function () { return _this.handleQualityChange(_this._qualitySelect.value); });
-        this._qualitySettingsSection.appendChild(this._qualitySelect);
         this.renderQualityOptions();
+        this._qualitySelect.value = this.quality;
+        this._qualitySettingsSection.appendChild(this._qualitySelect);
         var _speedSettingsSection = document.createElement('div');
         _speedSettingsSection.classList.add('cinematicjs-video-dropdown-section');
         _dropDownContent.appendChild(_speedSettingsSection);
@@ -383,17 +384,30 @@ var Cinematic = /** @class */ (function () {
             this._qualitySettingsSection.classList.add('cinematicjs-hidden');
         }
     };
-    Cinematic.prototype.handleQualityChange = function (newQuality) {
-        var _this = this;
+    /**
+     * Falls back to the best available quality for the current video when it does not provide the given quality.
+     *
+     * @param newQuality the preferred quality to play
+     * @private
+     */
+    Cinematic.prototype.handleVideoQualityFallback = function (newQuality) {
         if (!newQuality) {
-            return;
+            return newQuality;
         }
         var currentVideo = this.playlist.getCurrentVideo();
         var newSource = currentVideo.getSourcesForQuality(newQuality);
         if (!newSource) {
             newQuality = currentVideo.getBestAvailableQuality();
-            newSource = currentVideo.getSourcesForQuality(newQuality);
         }
+        return newQuality;
+    };
+    Cinematic.prototype.handleQualityChange = function (newQuality) {
+        var _this = this;
+        if (!newQuality) {
+            return;
+        }
+        newQuality = this.handleVideoQualityFallback(newQuality);
+        var newSource = this.playlist.getCurrentVideo().getSourcesForQuality(newQuality);
         if (!newSource) {
             return;
         }
