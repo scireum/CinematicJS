@@ -172,24 +172,24 @@ class Cinematic {
         }
         this._container = _passedContainer;
 
-        this.quality = this.options.quality;
-        if (this.options.rememberQuality) {
-            const storedQuality = this.readFromLocalStore('quality');
-            if (storedQuality) {
-                this.quality = storedQuality;
-            }
-        }
-
-        if ('pictureInPictureEnabled' in document) {
-            this.pipEnabled = true;
-        }
-
         if (this.options.playlist) {
             this.playlist = this.options.playlist;
         } else if (this.options.video) {
             this.playlist = new CinematicPlaylist(false, [this.options.video]);
         } else {
             throw new Error('CinematicJS: Either a single `video` or a `playlist` has to be passed as options.');
+        }
+
+        this.quality = this.options.quality;
+        if (this.options.rememberQuality) {
+            const storedQuality = this.readFromLocalStore('quality');
+            if (storedQuality) {
+                this.quality = this.handleVideoQualityFallback(storedQuality);
+            }
+        }
+
+        if ('pictureInPictureEnabled' in document) {
+            this.pipEnabled = true;
         }
 
         this.loadIcons();
@@ -518,17 +518,33 @@ class Cinematic {
         }
     }
 
-    private handleQualityChange(newQuality: string) {
+    /**
+     * Falls back to the best available quality for the current video when it does not provide the given quality.
+     *
+     * @param newQuality the preferred quality to play
+     * @private
+     */
+    private handleVideoQualityFallback(newQuality: string) {
         if (!newQuality) {
-            return;
+            return newQuality;
         }
 
         let currentVideo = this.playlist.getCurrentVideo();
         let newSource = currentVideo.getSourcesForQuality(newQuality);
         if (!newSource) {
             newQuality = currentVideo.getBestAvailableQuality();
-            newSource = currentVideo.getSourcesForQuality(newQuality);
         }
+
+        return newQuality;
+    }
+
+    private handleQualityChange(newQuality: string) {
+        if (!newQuality) {
+            return;
+        }
+
+        newQuality = this.handleVideoQualityFallback(newQuality);
+        let newSource = this.playlist.getCurrentVideo().getSourcesForQuality(newQuality);
         if (!newSource) {
             return;
         }
