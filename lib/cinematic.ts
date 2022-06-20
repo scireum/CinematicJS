@@ -429,9 +429,11 @@ class Cinematic {
         this._qualitySelect = document.createElement('select');
         this._qualitySelect.name = 'quality';
         this._qualitySelect.addEventListener('change', () => this.handleQualityChange(this._qualitySelect.value));
-        this._qualitySettingsSection.appendChild(this._qualitySelect);
 
         this.renderQualityOptions();
+
+        this._qualitySelect.value = this.quality;
+        this._qualitySettingsSection.appendChild(this._qualitySelect);
 
         const _speedSettingsSection = document.createElement('div');
         _speedSettingsSection.classList.add('cinematicjs-video-dropdown-section');

@@ -311,8 +311,9 @@ var Cinematic = /** @class */ (function () {
         this._qualitySelect = document.createElement('select');
         this._qualitySelect.name = 'quality';
         this._qualitySelect.addEventListener('change', function () { return _this.handleQualityChange(_this._qualitySelect.value); });
-        this._qualitySettingsSection.appendChild(this._qualitySelect);
         this.renderQualityOptions();
+        this._qualitySelect.value = this.quality;
+        this._qualitySettingsSection.appendChild(this._qualitySelect);
         var _speedSettingsSection = document.createElement('div');
         _speedSettingsSection.classList.add('cinematicjs-video-dropdown-section');
         _dropDownContent.appendChild(_speedSettingsSection);
