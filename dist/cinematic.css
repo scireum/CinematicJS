@@ -163,7 +163,7 @@
 }
 
 .cinematicjs-video-controls .cinematicjs-hidden, .cinematicjs-video-controls .cinematicjs-video-control-button.cinematicjs-hidden {
-    display: none;
+    display: none !important;
 }
 
 .cinematicjs-video-controls .video-control-spacer {
