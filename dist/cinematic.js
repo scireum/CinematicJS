@@ -500,7 +500,7 @@ var Cinematic = /** @class */ (function () {
         var me = this;
         window.addEventListener('resize', function () { return _this.handlePlayerResize(); });
         this.handlePlayerResize();
-        if (ResizeObserver) {
+        if (window.ResizeObserver) {
             new ResizeObserver(function () { return _this.handlePlayerResize(); }).observe(this._container);
         }
         this._playButton.addEventListener('click', function () {

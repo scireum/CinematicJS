@@ -24,7 +24,7 @@ None :)
 
 ### Internet Explorer 11
 
-Polyfills for Array.prototype.forEach and NodeList.prototype.forEach.
+Polyfills for `Array.prototype.forEach`, `NodeList.prototype.forEach` and `Element.prototype.matches`.
 
 ## Parameters
 

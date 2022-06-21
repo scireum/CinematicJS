@@ -652,7 +652,7 @@ class Cinematic {
         window.addEventListener('resize', () => this.handlePlayerResize());
         this.handlePlayerResize();
 
-        if (ResizeObserver) {
+        if (window.ResizeObserver) {
             new ResizeObserver(() => this.handlePlayerResize()).observe(this._container);
         }
 
