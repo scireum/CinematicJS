@@ -432,7 +432,6 @@ class Cinematic {
 
         this.renderQualityOptions();
 
-        this._qualitySelect.value = this.quality;
         this._qualitySettingsSection.appendChild(this._qualitySelect);
 
         const _speedSettingsSection = document.createElement('div');
@@ -512,6 +511,7 @@ class Cinematic {
                 this._qualitySelect.appendChild(_option);
             });
 
+            this._qualitySelect.value = this.quality;
             this._qualitySettingsSection.classList.remove('cinematicjs-hidden');
         } else {
             this._qualitySettingsSection.classList.add('cinematicjs-hidden');
