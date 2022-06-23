@@ -10,6 +10,8 @@
 
 .cinematicjs-video-container, .cinematicjs-video-container * {
     box-sizing: border-box;
+    word-wrap: normal;
+    word-break: normal;
 }
 
 .cinematicjs-video-container video {
@@ -270,7 +272,7 @@
     top: auto;
     bottom: 32px;
     transform: translate3d(-50%, 0, 0);
-    font-size: 0.7rem;
+    font-size: 0.7em;
     font-weight: 300;
     padding: 0.5em 0.75em;
     background: #fff;
