@@ -429,6 +429,8 @@ html:-ms-fullscreen {
     text-align: end;
     background: transparent;
     cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 1px;
 }
 
 .cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select:focus {
