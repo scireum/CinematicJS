@@ -424,6 +424,7 @@ var Cinematic = /** @class */ (function () {
         });
         this._video.load();
         this._video.currentTime = currentTime;
+        this._video.playbackRate = this.speed;
         if (wasPlaying) {
             this._video.play();
         }
