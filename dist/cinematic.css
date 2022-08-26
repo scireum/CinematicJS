@@ -406,6 +406,7 @@ html:-ms-fullscreen {
 .cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-section {
     display: flex;
     padding: 12px;
+    justify-content: space-between;
 }
 
 .cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-section+.cinematicjs-video-dropdown-section {
@@ -421,7 +422,7 @@ html:-ms-fullscreen {
 }
 
 .cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select {
-    flex-grow: 1;
+    flex-grow: 0;
     appearance: none;
     border: none;
     font-size: 18px;
