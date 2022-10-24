@@ -164,7 +164,6 @@ var Cinematic = /** @class */ (function () {
             this._video.autoplay = true;
         }
         this._container.appendChild(this._video);
-        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || this._video.webkitSupportsFullscreen;
         var startSource = initialVideo.getSourcesForQuality(this.quality);
         if (!startSource) {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
@@ -359,13 +358,12 @@ var Cinematic = /** @class */ (function () {
             Cinematic.renderButtonIcon(this._pipButton, 'inpicture');
             this._controls.appendChild(this._pipButton);
         }
-        if (this.fullScreenEnabled) {
-            this._fullScreenButton = document.createElement('div');
-            this._fullScreenButton.classList.add('cinematicjs-video-control-button');
-            this._fullScreenButton.title = this.options.translations.fullscreen;
-            Cinematic.renderButtonIcon(this._fullScreenButton, 'fullscreen');
-            this._controls.appendChild(this._fullScreenButton);
-        }
+        this._fullScreenButton = document.createElement('div');
+        this._fullScreenButton.classList.add('cinematicjs-video-control-button');
+        this._fullScreenButton.classList.add('cinematicjs-hidden');
+        this._fullScreenButton.title = this.options.translations.fullscreen;
+        Cinematic.renderButtonIcon(this._fullScreenButton, 'fullscreen');
+        this._controls.appendChild(this._fullScreenButton);
     };
     Cinematic.prototype.renderQualityOptions = function () {
         var _this = this;
@@ -532,6 +530,8 @@ var Cinematic = /** @class */ (function () {
             if (me.options.startTime > 0) {
                 this.currentTime = me.options.startTime;
             }
+            me.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || me._video.webkitSupportsFullscreen;
+            me._fullScreenButton.classList.toggle('cinematicjs-hidden', !me.fullScreenEnabled);
         });
         this._video.addEventListener('timeupdate', function () {
             me.playedSeconds = this.currentTime;
@@ -662,11 +662,9 @@ var Cinematic = /** @class */ (function () {
             var pos = (event.clientX - rect.left) / this.offsetWidth;
             me._video.currentTime = pos * me._video.duration;
         });
-        if (this.fullScreenEnabled) {
-            this._fullScreenButton.addEventListener('click', function () { return me.toggleFullScreen(); });
-            document.addEventListener('fullscreenchange', function () { return _this.handleFullScreenChange(); });
-            document.addEventListener('webkitfullscreenchange', function () { return _this.handleFullScreenChange(); });
-        }
+        this._fullScreenButton.addEventListener('click', function () { return me.toggleFullScreen(); });
+        document.addEventListener('fullscreenchange', function () { return _this.handleFullScreenChange(); });
+        document.addEventListener('webkitfullscreenchange', function () { return _this.handleFullScreenChange(); });
         if (this.options.deeplink) {
             this._deeplinkButton.addEventListener('click', function () {
                 if (!_this.options.deeplinkCallback || _this.options.deeplinkCallback.call(_this)) {

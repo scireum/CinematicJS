@@ -247,8 +247,6 @@ class Cinematic {
         }
         this._container.appendChild(this._video);
 
-        this.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || this._video.webkitSupportsFullscreen;
-
         let startSource = initialVideo.getSourcesForQuality(this.quality);
 
         if (!startSource) {
@@ -491,13 +489,12 @@ class Cinematic {
             this._controls.appendChild(this._pipButton);
         }
 
-        if (this.fullScreenEnabled) {
-            this._fullScreenButton = document.createElement('div');
-            this._fullScreenButton.classList.add('cinematicjs-video-control-button');
-            this._fullScreenButton.title = this.options.translations.fullscreen;
-            Cinematic.renderButtonIcon(this._fullScreenButton, 'fullscreen');
-            this._controls.appendChild(this._fullScreenButton);
-        }
+        this._fullScreenButton = document.createElement('div');
+        this._fullScreenButton.classList.add('cinematicjs-video-control-button');
+        this._fullScreenButton.classList.add('cinematicjs-hidden');
+        this._fullScreenButton.title = this.options.translations.fullscreen;
+        Cinematic.renderButtonIcon(this._fullScreenButton, 'fullscreen');
+        this._controls.appendChild(this._fullScreenButton);
     }
 
     private renderQualityOptions() {
@@ -687,6 +684,9 @@ class Cinematic {
             if (me.options.startTime > 0) {
                 this.currentTime = me.options.startTime;
             }
+
+            me.fullScreenEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled || me._video.webkitSupportsFullscreen;
+            me._fullScreenButton.classList.toggle('cinematicjs-hidden', !me.fullScreenEnabled);
         });
 
         this._video.addEventListener('timeupdate', function () {
@@ -835,12 +835,10 @@ class Cinematic {
             me._video.currentTime = pos * me._video.duration;
         });
 
-        if (this.fullScreenEnabled) {
-            this._fullScreenButton.addEventListener('click', () => me.toggleFullScreen());
+        this._fullScreenButton.addEventListener('click', () => me.toggleFullScreen());
 
-            document.addEventListener('fullscreenchange', () => this.handleFullScreenChange());
-            document.addEventListener('webkitfullscreenchange', () => this.handleFullScreenChange());
-        }
+        document.addEventListener('fullscreenchange', () => this.handleFullScreenChange());
+        document.addEventListener('webkitfullscreenchange', () => this.handleFullScreenChange());
 
         if (this.options.deeplink) {
             this._deeplinkButton.addEventListener('click', () => {
