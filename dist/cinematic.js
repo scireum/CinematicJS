@@ -713,6 +713,9 @@ var Cinematic = /** @class */ (function () {
         if (this.options.closeCallback) {
             this._closeButton.addEventListener('click', function () {
                 var _a;
+                if (_this.isFullScreen()) {
+                    _this.toggleFullScreen();
+                }
                 (_a = _this.options.closeCallback) === null || _a === void 0 ? void 0 : _a.apply(_this);
             });
         }

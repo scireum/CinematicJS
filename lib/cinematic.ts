@@ -876,6 +876,9 @@ class Cinematic {
 
         if (this.options.closeCallback) {
             this._closeButton.addEventListener('click', () => {
+                if (this.isFullScreen()) {
+                    this.toggleFullScreen();
+                }
                 this.options.closeCallback?.apply(this);
             });
         }
