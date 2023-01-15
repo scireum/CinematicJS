@@ -399,6 +399,11 @@ html:-ms-fullscreen {
     text-decoration: none;
 }
 
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select {
+    padding: 0;
+    width: 60px;
+}
+
 .cinematicjs-video-control-dropdown.cinematicjs-dropdown-active .cinematicjs-video-dropdown-content {
     display: block;
 }
@@ -409,7 +414,7 @@ html:-ms-fullscreen {
     justify-content: space-between;
 }
 
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-section+.cinematicjs-video-dropdown-section {
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-section + .cinematicjs-video-dropdown-section {
     border-top: 1px solid rgb(0 0 0 / 15%);
 }
 
