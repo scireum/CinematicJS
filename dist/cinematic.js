@@ -24,7 +24,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -106,6 +106,7 @@ var Cinematic = /** @class */ (function () {
         else {
             throw new Error('CinematicJS: Either a single `video` or a `playlist` has to be passed as options.');
         }
+        this.filterPlayableSources();
         this.quality = this.options.quality;
         if (this.options.rememberQuality) {
             var storedQuality = this.readFromLocalStore('quality');
@@ -133,6 +134,17 @@ var Cinematic = /** @class */ (function () {
         }
         this._container.cinematic = this;
     }
+    Cinematic.prototype.filterPlayableSources = function () {
+        var _video = document.createElement('video');
+        this.playlist.videos.forEach(function (video) {
+            video.sources = video.sources.filter(function (source) {
+                source.sources = source.sources.filter(function (source) {
+                    return _video.canPlayType(source.type) !== '';
+                });
+                return source.sources.length > 0;
+            });
+        });
+    };
     Cinematic.prototype.loadIcons = function () {
         var _iconContainer = document.createElement('span');
         _iconContainer.classList.add('cinematicjs-icon-container');

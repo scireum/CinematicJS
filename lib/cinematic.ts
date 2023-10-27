@@ -180,6 +180,8 @@ class Cinematic {
             throw new Error('CinematicJS: Either a single `video` or a `playlist` has to be passed as options.');
         }
 
+        this.filterPlayableSources();
+
         this.quality = this.options.quality;
         if (this.options.rememberQuality) {
             const storedQuality = this.readFromLocalStore('quality');
@@ -211,6 +213,20 @@ class Cinematic {
         }
 
         this._container.cinematic = this as Cinematic;
+    }
+
+    filterPlayableSources() {
+        const _video = document.createElement('video');
+        this.playlist.videos.forEach(video => {
+            // Only keep qualities with at least one playable source
+            video.sources = video.sources.filter(source => {
+                // Only keep sources that may be playable by the browser
+                source.sources = source.sources.filter(source => {
+                    return _video.canPlayType(source.type) !== '';
+                });
+                return source.sources.length > 0;
+            });
+        });
     }
 
     loadIcons() {
