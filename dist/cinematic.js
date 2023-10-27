@@ -137,7 +137,9 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.filterPlayableSources = function () {
         var _video = document.createElement('video');
         this.playlist.videos.forEach(function (video) {
+            // Only keep qualities with at least one playable source
             video.sources = video.sources.filter(function (source) {
+                // Only keep sources that may be playable by the browser
                 source.sources = source.sources.filter(function (source) {
                     return _video.canPlayType(source.type) !== '';
                 });

@@ -133,8 +133,6 @@ class Cinematic {
     _settingsWrapper: HTMLDivElement;
     _qualitySelect: HTMLSelectElement;
     _qualitySettingsSection: HTMLDivElement;
-    _qualitySettingsContainer: HTMLDivElement;
-    _speedSettingsContainer: HTMLDivElement;
     _captionsButton: HTMLDivElement;
     _deeplinkButton: HTMLDivElement;
     _pipButton: HTMLDivElement;
