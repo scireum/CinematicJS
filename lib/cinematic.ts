@@ -115,7 +115,7 @@ class Cinematic {
 
     _container: any;
     _video: HTMLVideoElement;
-    _sources: HTMLSourceElement[] = [];
+    _sources: Map<string, HTMLSourceElement> = new Map<string, HTMLSourceElement>();
     _cues: HTMLElement;
     _cuesContainer: HTMLElement;
     _uiWrapper: HTMLDivElement;
@@ -267,13 +267,7 @@ class Cinematic {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
         }
 
-        startSource.sources.forEach(source => {
-            const _source = document.createElement('source');
-            _source.src = source.source;
-            _source.type = source.type;
-            this._video.appendChild(_source);
-            this._sources.push(_source);
-        });
+        this.updateVideoSourceElements(startSource.sources);
 
         this._overlayWrapper = document.createElement('div');
         this._overlayWrapper.classList.add('cinematicjs-video-overlay-wrapper');
@@ -511,6 +505,33 @@ class Cinematic {
         this._controls.appendChild(this._fullScreenButton);
     }
 
+    private updateVideoSourceElements(sources: VideoSource[]) {
+        const me = this;
+        sources.forEach(source => {
+            let _source = me._sources.get(source.type);
+            if (_source) {
+                // Update the existing source element
+                _source.src = source.source;
+                return;
+            } else {
+                // Create a new source element.
+                _source = document.createElement('source');
+                _source.src = source.source;
+                _source.type = source.type;
+                this._video.appendChild(_source);
+                this._sources.set(source.type, _source);
+            }
+        });
+
+        // Remove all source elements that are not contained in the new sources array.
+        this._sources.forEach((_source, type) => {
+            if (!sources.find(source => source.type === type)) {
+                this._video.removeChild(_source);
+                this._sources.delete(type);
+            }
+        });
+    }
+
     private renderQualityOptions() {
         this._qualitySelect.textContent = '';
 
@@ -567,12 +588,7 @@ class Cinematic {
         const currentTime = this._video.currentTime;
         const wasPlaying = !this._video.paused;
 
-        newSource.sources.forEach((videoFormatSource, index) => {
-            const _source = this._sources[index];
-            if (_source) {
-                _source.src = videoFormatSource.source;
-            }
-        });
+        this.updateVideoSourceElements(newSource.sources);
 
         this._video.load();
         this._video.currentTime = currentTime;

@@ -81,7 +81,7 @@ var Cinematic = /** @class */ (function () {
                 hideVideoInfo: 'Hide video information'
             }
         };
-        this._sources = [];
+        this._sources = new Map();
         this.totalSeconds = 0;
         this.playedSeconds = 0;
         this.volume = 0;
@@ -182,13 +182,7 @@ var Cinematic = /** @class */ (function () {
         if (!startSource) {
             throw new Error('CinematicJS: Passed quality does not match any of the passed sources.');
         }
-        startSource.sources.forEach(function (source) {
-            var _source = document.createElement('source');
-            _source.src = source.source;
-            _source.type = source.type;
-            _this._video.appendChild(_source);
-            _this._sources.push(_source);
-        });
+        this.updateVideoSourceElements(startSource.sources);
         this._overlayWrapper = document.createElement('div');
         this._overlayWrapper.classList.add('cinematicjs-video-overlay-wrapper');
         this._overlayWrapper.classList.add('cinematicjs-hidden');
@@ -379,6 +373,33 @@ var Cinematic = /** @class */ (function () {
         Cinematic.renderButtonIcon(this._fullScreenButton, 'fullscreen');
         this._controls.appendChild(this._fullScreenButton);
     };
+    Cinematic.prototype.updateVideoSourceElements = function (sources) {
+        var _this = this;
+        var me = this;
+        sources.forEach(function (source) {
+            var _source = me._sources.get(source.type);
+            if (_source) {
+                // Update the existing source element
+                _source.src = source.source;
+                return;
+            }
+            else {
+                // Create a new source element.
+                _source = document.createElement('source');
+                _source.src = source.source;
+                _source.type = source.type;
+                _this._video.appendChild(_source);
+                _this._sources.set(source.type, _source);
+            }
+        });
+        // Remove all source elements that are not contained in the new sources array.
+        this._sources.forEach(function (_source, type) {
+            if (!sources.find(function (source) { return source.type === type; })) {
+                _this._video.removeChild(_source);
+                _this._sources.delete(type);
+            }
+        });
+    };
     Cinematic.prototype.renderQualityOptions = function () {
         var _this = this;
         this._qualitySelect.textContent = '';
@@ -414,7 +435,6 @@ var Cinematic = /** @class */ (function () {
         return newQuality;
     };
     Cinematic.prototype.handleQualityChange = function (newQuality) {
-        var _this = this;
         if (!newQuality) {
             return;
         }
@@ -428,12 +448,7 @@ var Cinematic = /** @class */ (function () {
         }
         var currentTime = this._video.currentTime;
         var wasPlaying = !this._video.paused;
-        newSource.sources.forEach(function (videoFormatSource, index) {
-            var _source = _this._sources[index];
-            if (_source) {
-                _source.src = videoFormatSource.source;
-            }
-        });
+        this.updateVideoSourceElements(newSource.sources);
         this._video.load();
         this._video.currentTime = currentTime;
         this._video.playbackRate = this.speed;
