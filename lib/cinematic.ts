@@ -515,23 +515,23 @@ class Cinematic {
                 _source.src = source.source;
                 _previousSource = _source;
                 return;
-            } else {
-                // Create a new source element.
-                _source = document.createElement('source');
-                _source.src = source.source;
-                _source.type = source.type;
-                this._sources.set(source.type, _source);
-
-                if (_previousSource) {
-                    // Insert the new source element after the previous one.
-                    _previousSource.insertAdjacentElement('afterend', _source);
-                } else {
-                    // Insert the first source element at the beginning of the video element.
-                    this._video.insertBefore(_source, this._video.firstChild);
-                }
-
-                _previousSource = _source;
             }
+
+            // Create a new source element.
+            _source = document.createElement('source');
+            _source.src = source.source;
+            _source.type = source.type;
+            this._sources.set(source.type, _source);
+
+            if (_previousSource) {
+                // Insert the new source element after the previous one.
+                _previousSource.insertAdjacentElement('afterend', _source);
+            } else {
+                // Insert the first source element at the beginning of the video element.
+                this._video.insertBefore(_source, this._video.firstChild);
+            }
+
+            _previousSource = _source;
         });
 
         // Remove all source elements that are not contained in the new sources array.
