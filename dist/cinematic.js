@@ -376,11 +376,13 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.updateVideoSourceElements = function (sources) {
         var _this = this;
         var me = this;
+        var _previousSource = null;
         sources.forEach(function (source) {
             var _source = me._sources.get(source.type);
             if (_source) {
                 // Update the existing source element
                 _source.src = source.source;
+                _previousSource = _source;
                 return;
             }
             else {
@@ -388,8 +390,15 @@ var Cinematic = /** @class */ (function () {
                 _source = document.createElement('source');
                 _source.src = source.source;
                 _source.type = source.type;
-                _this._video.appendChild(_source);
                 _this._sources.set(source.type, _source);
+                if (_previousSource) {
+                    _previousSource.insertAdjacentElement('afterend', _source);
+                }
+                else {
+                    // Insert the first source element at the beginning of the video element.
+                    _this._video.insertBefore(_source, _this._video.firstChild);
+                }
+                _previousSource = _source;
             }
         });
         // Remove all source elements that are not contained in the new sources array.
