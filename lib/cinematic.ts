@@ -507,20 +507,31 @@ class Cinematic {
 
     private updateVideoSourceElements(sources: VideoSource[]) {
         const me = this;
+        let _previousSource: HTMLSourceElement | null = null;
         sources.forEach(source => {
             let _source = me._sources.get(source.type);
             if (_source) {
                 // Update the existing source element
                 _source.src = source.source;
+                _previousSource = _source;
                 return;
-            } else {
-                // Create a new source element.
-                _source = document.createElement('source');
-                _source.src = source.source;
-                _source.type = source.type;
-                this._video.appendChild(_source);
-                this._sources.set(source.type, _source);
             }
+
+            // Create a new source element.
+            _source = document.createElement('source');
+            _source.src = source.source;
+            _source.type = source.type;
+            this._sources.set(source.type, _source);
+
+            if (_previousSource) {
+                // Insert the new source element after the previous one.
+                _previousSource.insertAdjacentElement('afterend', _source);
+            } else {
+                // Insert the first source element at the beginning of the video element.
+                this._video.insertBefore(_source, this._video.firstChild);
+            }
+
+            _previousSource = _source;
         });
 
         // Remove all source elements that are not contained in the new sources array.
