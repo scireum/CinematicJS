@@ -488,6 +488,14 @@ html:-ms-fullscreen {
 
 /*endregion*/
 
+/*region SVG icons*/
+.cinematicjs-icon-container {
+    /* Hide the icon container so it does not mess with the page height */
+    display: none;
+}
+
+/*endregion*/
+
 /*region Helpers*/
 .cinematicjs-hidden {
     visibility: hidden;
