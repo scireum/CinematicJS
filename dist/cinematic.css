@@ -92,6 +92,11 @@
     opacity: 0.9;
     transition: opacity .1s ease-in-out;
     text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .cinematicjs-video-header .cinematicjs-video-title.cinematicjs-clickable:hover {
