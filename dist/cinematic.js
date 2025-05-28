@@ -205,6 +205,7 @@ var Cinematic = /** @class */ (function () {
         this._uiWrapper.appendChild(_header);
         this._videoTitleIcon = document.createElement('img');
         this._videoTitleIcon.classList.add('cinematicjs-video-icon');
+        this._videoTitleIcon.setAttribute('alt', 'Video Title Icon');
         _header.appendChild(this._videoTitleIcon);
         this._videoTitle = document.createElement('div');
         this._videoTitle.classList.add('cinematicjs-video-title');
