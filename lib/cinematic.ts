@@ -297,6 +297,7 @@ class Cinematic {
 
         this._videoTitleIcon = document.createElement('img');
         this._videoTitleIcon.classList.add('cinematicjs-video-icon');
+        this._videoTitleIcon.setAttribute('alt', 'Video Title Icon');
         _header.appendChild(this._videoTitleIcon);
 
         this._videoTitle = document.createElement('div');
