@@ -34,7 +34,7 @@
     display: flex;
     position: absolute;
     top: 48px;
-    bottom: 48px;
+    bottom: 80px;
     left: 32px;
     right: 32px;
     align-items: flex-end;
@@ -75,7 +75,7 @@
     background: transparent;
     padding: 8px;
     align-items: center;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.15) 82%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.5) 45%, rgba(0, 0, 0, 0.25) 82%, rgba(0, 0, 0, 0) 100%);
 }
 
 .cinematicjs-video-header .cinematicjs-video-icon {
@@ -115,9 +115,17 @@
     transition: opacity .1s ease-in-out;
     text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
     line-height: 8px;
+    border-radius: 4px;
+    padding: 2px;
 }
 
 .cinematicjs-video-header .cinematicjs-video-info-button:hover {
+    opacity: 1;
+}
+
+.cinematicjs-video-header .cinematicjs-video-info-button:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
     opacity: 1;
 }
 
@@ -132,9 +140,17 @@
     opacity: 0.9;
     transition: opacity .1s ease-in-out;
     text-shadow: 0 0 7px rgba(0, 0, 0, 0.2), 0 0 1em rgba(0, 0, 0, 0.7);
+    border-radius: 4px;
+    padding: 2px;
 }
 
 .cinematicjs-video-header .cinematicjs-video-close-button:hover {
+    opacity: 1;
+}
+
+.cinematicjs-video-header .cinematicjs-video-close-button:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
     opacity: 1;
 }
 
@@ -156,7 +172,7 @@
     display: flex;
     flex-direction: column;
     padding: 4px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.15) 82%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.5) 45%, rgba(0, 0, 0, 0.25) 82%, rgba(0, 0, 0, 0) 100%);
 }
 
 .cinematicjs-video-controls {
@@ -185,9 +201,17 @@
     flex-grow: 0;
     opacity: 0.9;
     transition: opacity .1s ease-in-out;
+    border-radius: 4px;
+    padding: 2px;
 }
 
 .cinematicjs-video-controls .cinematicjs-video-control-button:hover {
+    opacity: 1;
+}
+
+.cinematicjs-video-controls .cinematicjs-video-control-button:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
     opacity: 1;
 }
 
@@ -207,12 +231,16 @@
     position: relative;
     width: 100%;
     flex-grow: 1;
+    padding: 8px 0;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
 }
 
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-progress-bar,
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-buffer-bar {
     position: absolute;
-    top: -3px;
+    top: 50%;
+    transform: translateY(-50%);
     left: 0;
     right: 0;
     cursor: pointer;
@@ -222,7 +250,7 @@
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-buffer-bar {
     display: block;
     width: 100%;
-    height: 4px;
+    height: 6px;
     border: none;
     overflow: hidden;
     background: transparent;
@@ -234,7 +262,7 @@
 }
 
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-buffer-bar {
-    background: #ffffff20;
+    background: rgba(128, 128, 128, 0.5);
 }
 
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-progress-bar::-webkit-progress-bar {
@@ -243,22 +271,29 @@
 
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-progress-bar::-webkit-progress-value {
     background: #ffffff;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
 }
 
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-progress-bar::-moz-progress-bar {
     background: #ffffff;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
 }
 
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-buffer-bar::-webkit-progress-bar {
-    background: #ffffff20;
+    background: rgba(128, 128, 128, 0.5);
 }
 
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-buffer-bar::-webkit-progress-value {
-    background: #ffffff3a;
+    background: rgba(180, 180, 180, 0.6);
 }
 
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-buffer-bar::-moz-progress-bar {
-    background: #ffffff3a;
+    background: rgba(180, 180, 180, 0.6);
+}
+
+.cinematicjs-video-footer .cinematicjs-video-progress-wrapper:focus-within {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
 }
 
 /*endregion*/
@@ -344,7 +379,8 @@ html:-ms-fullscreen {
 }
 
 .cinematicjs-video-volume-wrapper .cinematicjs-video-volume-slider:focus {
-    outline: none;
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
 }
 
 .cinematicjs-video-volume-wrapper .cinematicjs-video-volume-slider::-webkit-slider-runnable-track {
