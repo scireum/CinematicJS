@@ -123,7 +123,11 @@
     opacity: 1;
 }
 
-.cinematicjs-video-header .cinematicjs-video-info-button:focus {
+.cinematicjs-video-header .cinematicjs-video-info-button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.cinematicjs-video-header .cinematicjs-video-info-button:focus-visible {
     outline: 2px solid rgba(255, 255, 255, 0.8);
     outline-offset: 2px;
     opacity: 1;
@@ -148,7 +152,11 @@
     opacity: 1;
 }
 
-.cinematicjs-video-header .cinematicjs-video-close-button:focus {
+.cinematicjs-video-header .cinematicjs-video-close-button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.cinematicjs-video-header .cinematicjs-video-close-button:focus-visible {
     outline: 2px solid rgba(255, 255, 255, 0.8);
     outline-offset: 2px;
     opacity: 1;
@@ -209,7 +217,11 @@
     opacity: 1;
 }
 
-.cinematicjs-video-controls .cinematicjs-video-control-button:focus {
+.cinematicjs-video-controls .cinematicjs-video-control-button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.cinematicjs-video-controls .cinematicjs-video-control-button:focus-visible {
     outline: 2px solid rgba(255, 255, 255, 0.8);
     outline-offset: 2px;
     opacity: 1;
@@ -378,7 +390,11 @@ html:-ms-fullscreen {
     display: initial;
 }
 
-.cinematicjs-video-volume-wrapper .cinematicjs-video-volume-slider:focus {
+.cinematicjs-video-volume-wrapper .cinematicjs-video-volume-slider:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.cinematicjs-video-volume-wrapper .cinematicjs-video-volume-slider:focus-visible {
     outline: 2px solid rgba(255, 255, 255, 0.8);
     outline-offset: 2px;
 }
@@ -479,8 +495,24 @@ html:-ms-fullscreen {
     text-underline-offset: 1px;
 }
 
-.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select:focus {
-    outline: 0;
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select:focus:not(:focus-visible) {
+    outline: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select.mouse-focus {
+    outline: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.cinematicjs-video-control-dropdown .cinematicjs-video-dropdown-content select:focus-visible:not(.mouse-focus) {
+    outline: 2px solid #000000 !important;
+    outline-offset: 2px;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 /*endregion*/

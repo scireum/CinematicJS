@@ -150,6 +150,8 @@ class Cinematic {
     quality = '';
     speed = 1;
     tracks: TextTrack | null;
+    _isChangingQuality = false;
+    _playButtonKeyboardActivated = false;
     cues: TextTrackCueList | null;
     playlist: CinematicPlaylist;
 
@@ -439,12 +441,37 @@ class Cinematic {
             // Clicks inside the Dropdown should not close it again.
             if (!(event.target instanceof Element) || !(event.target).matches('.cinematicjs-video-control-dropdown, .cinematicjs-video-control-dropdown *')) {
                 this._settingsWrapper.classList.remove('cinematicjs-dropdown-active');
+                this._settingsButton.setAttribute('aria-expanded', 'false');
             }
         });
 
         const _dropDownContent = document.createElement('div');
         _dropDownContent.classList.add('cinematicjs-video-dropdown-content');
         this._settingsWrapper.appendChild(_dropDownContent);
+
+        // Adds keyboard support for closing the dropdown with Escape
+        _dropDownContent.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                this._settingsWrapper.classList.remove('cinematicjs-dropdown-active');
+                this._settingsButton.setAttribute('aria-expanded', 'false');
+                this._settingsButton.focus();
+            }
+        });
+
+        // Close dropdown when focus moves outside of it
+        _dropDownContent.addEventListener('focusout', (e: FocusEvent) => {
+            // Use setTimeout to allow the browser to update document.activeElement
+            setTimeout(() => {
+                const activeElement = document.activeElement;
+                // Check if the new focus target is outside the dropdown
+                if (activeElement && !this._settingsWrapper.contains(activeElement)) {
+                    this._settingsWrapper.classList.remove('cinematicjs-dropdown-active');
+                    this._settingsButton.setAttribute('aria-expanded', 'false');
+                }
+            }, 0);
+        });
 
         this._qualitySettingsSection = document.createElement('div');
         this._qualitySettingsSection.classList.add('cinematicjs-video-dropdown-section');
@@ -456,7 +483,31 @@ class Cinematic {
 
         this._qualitySelect = document.createElement('select');
         this._qualitySelect.name = 'quality';
-        this._qualitySelect.addEventListener('change', () => this.handleQualityChange(this._qualitySelect.value));
+        this._qualitySelect.setAttribute('aria-label', this.options.translations.quality);
+        this._qualitySelect.setAttribute('tabindex', '0');
+        this._qualitySelect.addEventListener('change', () => {
+            this.handleQualityChange(this._qualitySelect.value);
+            // Return focus to quality select after change
+            setTimeout(() => {
+                this._qualitySelect.focus();
+            }, 100);
+        });
+
+        // Track mouse interactions to prevent focus styles on click
+        let isMouseDown = false;
+        this._qualitySelect.addEventListener('mousedown', () => {
+            isMouseDown = true;
+            this._qualitySelect.classList.add('mouse-focus');
+        });
+        this._qualitySelect.addEventListener('focus', () => {
+            if (!isMouseDown) {
+                this._qualitySelect.classList.remove('mouse-focus');
+            }
+            isMouseDown = false;
+        });
+        this._qualitySelect.addEventListener('blur', () => {
+            this._qualitySelect.classList.remove('mouse-focus');
+        });
 
         this.renderQualityOptions();
 
@@ -472,7 +523,31 @@ class Cinematic {
 
         const _speedSelect = document.createElement('select');
         _speedSelect.name = 'speed';
-        _speedSelect.addEventListener('change', () => this.handleSpeedChange(_speedSelect.value));
+        _speedSelect.setAttribute('aria-label', this.options.translations.playbackSpeed);
+        _speedSelect.setAttribute('tabindex', '0');
+        _speedSelect.addEventListener('change', () => {
+            this.handleSpeedChange(_speedSelect.value);
+            // Return focus to speed select after change
+            setTimeout(() => {
+                _speedSelect.focus();
+            }, 100);
+        });
+
+        // Track mouse interactions to prevent focus styles on click
+        let speedMouseDown = false;
+        _speedSelect.addEventListener('mousedown', () => {
+            speedMouseDown = true;
+            _speedSelect.classList.add('mouse-focus');
+        });
+        _speedSelect.addEventListener('focus', () => {
+            if (!speedMouseDown) {
+                _speedSelect.classList.remove('mouse-focus');
+            }
+            speedMouseDown = false;
+        });
+        _speedSelect.addEventListener('blur', () => {
+            _speedSelect.classList.remove('mouse-focus');
+        });
 
         for (const speedSetting of [0.5, 1, 1.25, 1.5, 1.75, 2]) {
             const _option = document.createElement('option');
@@ -630,6 +705,9 @@ class Cinematic {
         const currentTime = this._video.currentTime;
         const wasPlaying = !this._video.paused;
 
+        // Set flag to prevent focus changes during quality change
+        this._isChangingQuality = true;
+
         this.updateVideoSourceElements(newSource.sources);
 
         this._video.load();
@@ -639,6 +717,11 @@ class Cinematic {
             this._video.play();
         }
         this.quality = newQuality;
+
+        // Reset flag after quality change completes
+        setTimeout(() => {
+            this._isChangingQuality = false;
+        }, 200);
     }
 
     private handleSpeedChange(newSpeed: string | number) {
@@ -741,7 +824,8 @@ class Cinematic {
             new ResizeObserver(() => this.handlePlayerResize()).observe(this._container);
         }
 
-        addButtonHandler(this._playButton, () => {
+        addButtonHandler(this._playButton, (event) => {
+            this._playButtonKeyboardActivated = event instanceof KeyboardEvent;
             if (this._video.ended) {
                 this.playlist.resetToBeginning();
                 this.handleVideoChange();
@@ -761,6 +845,22 @@ class Cinematic {
             this._settingsWrapper.classList.toggle('cinematicjs-dropdown-active');
             const isExpanded = this._settingsWrapper.classList.contains('cinematicjs-dropdown-active');
             this._settingsButton.setAttribute('aria-expanded', isExpanded.toString());
+
+            // Only focus the select element when opening via keyboard, not mouse
+            if (isExpanded && event instanceof KeyboardEvent) {
+                setTimeout(() => {
+                    if (!this._qualitySettingsSection.classList.contains('cinematicjs-hidden')) {
+                        this._qualitySelect.focus();
+                    } else {
+                        // If quality select is hidden, focus speed select
+                        const speedSelect = this._settingsWrapper.querySelector('select[name="speed"]') as HTMLSelectElement;
+                        if (speedSelect) {
+                            speedSelect.focus();
+                        }
+                    }
+                }, 0);
+            }
+
             if (event) {
                 event.stopPropagation();
             }
@@ -825,16 +925,33 @@ class Cinematic {
             Cinematic.switchButtonIcon(me._playButton, 'pause');
             me._playButton.title = me.options.translations.pause;
             me._playButton.setAttribute('aria-label', me.options.translations.pause);
-            me._video.focus();
+
+            // Don't change focus during quality changes
+            if (!me._isChangingQuality) {
+                // Only focus the video if the play button wasn't activated via keyboard
+                if (!me._playButtonKeyboardActivated) {
+                    me._video.focus();
+                } else {
+                    // Keep focus on the play button for keyboard users
+                    me._playButton.focus();
+                }
+            }
+            me._playButtonKeyboardActivated = false;
 
             // Shows the timer even when the video container is invisible during initialization of the player
             this.handlePlayerResize();
         });
 
-        this._video.addEventListener('pause', function () {
+        this._video.addEventListener('pause', () => {
             Cinematic.switchButtonIcon(me._playButton, 'play');
             me._playButton.title = me.options.translations.play;
             me._playButton.setAttribute('aria-label', me.options.translations.play);
+
+            // Return focus to the play button if it was keyboard activated
+            if (me._playButtonKeyboardActivated) {
+                me._playButton.focus();
+            }
+            me._playButtonKeyboardActivated = false;
         });
 
         this._video.addEventListener('ended', () => {
@@ -1297,6 +1414,11 @@ class Cinematic {
             }, 2000);
         }
         fakeElem.remove();
+
+        // Return focus to the button after copying
+        if (_element) {
+            _element.focus();
+        }
 
         /* Try alternative */
         const copy = function (event: ClipboardEvent) {
