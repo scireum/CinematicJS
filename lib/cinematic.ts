@@ -807,9 +807,9 @@ class Cinematic {
         const me = this;
 
         // Helper function to add both click and keyboard support to buttons
-        const addButtonHandler = (button: HTMLElement, handler: (event?: Event) => void) => {
-            button.addEventListener('click', (e) => handler(e));
-            button.addEventListener('keydown', (e: KeyboardEvent) => {
+        const addButtonHandler = (_button: HTMLElement, handler: (event?: Event) => void) => {
+            _button.addEventListener('click', (e) => handler(e));
+            _button.addEventListener('keydown', (e: KeyboardEvent) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     handler(e);
@@ -1079,8 +1079,8 @@ class Cinematic {
         }, 250);
 
         this._progressBar.addEventListener('click', function (event) {
-            const target = event.target as HTMLElement;
-            const rect = target.getBoundingClientRect();
+            const _target = event.target as HTMLElement;
+            const rect = _target.getBoundingClientRect();
             const pos = (event.clientX - rect.left) / this.offsetWidth;
             me._video.currentTime = pos * me._video.duration;
         });
