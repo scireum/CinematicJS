@@ -450,10 +450,10 @@ class Cinematic {
         this._settingsWrapper.appendChild(_dropDownContent);
 
         // Adds keyboard support for closing the dropdown with Escape
-        _dropDownContent.addEventListener('keydown', (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                e.stopPropagation();
+        _dropDownContent.addEventListener('keydown', (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                event.stopPropagation();
                 this._settingsWrapper.classList.remove('cinematicjs-dropdown-active');
                 this._settingsWrapper.ariaExpanded = 'false';
                 this._settingsButton.focus();
@@ -461,7 +461,7 @@ class Cinematic {
         });
 
         // Close dropdown when focus moves outside of it
-        _dropDownContent.addEventListener('focusout', (e: FocusEvent) => {
+        _dropDownContent.addEventListener('focusout', (event: FocusEvent) => {
             // Use setTimeout to allow the browser to update document.activeElement
             setTimeout(() => {
                 const activeElement = document.activeElement;
@@ -808,11 +808,11 @@ class Cinematic {
 
         // Helper function to add both click and keyboard support to buttons
         const addButtonHandler = (_button: HTMLElement, handler: (event?: Event) => void) => {
-            _button.addEventListener('click', (e) => handler(e));
-            _button.addEventListener('keydown', (e: KeyboardEvent) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handler(e);
+            _button.addEventListener('click', (event) => handler(event));
+            _button.addEventListener('keydown', (event: KeyboardEvent) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handler(event);
                 }
             });
         };
@@ -1310,8 +1310,8 @@ class Cinematic {
             if (globalThis.localStorage) {
                 globalThis.localStorage.setItem('cinematic-js-' + name, value);
             }
-        } catch (e) {
-            console.log('CinematicJS: Cannot write to local store', {name: name, value: value, error: e});
+        } catch (error) {
+            console.log('CinematicJS: Cannot write to local store', {name: name, value: value, error: error});
         }
     }
 
@@ -1320,8 +1320,8 @@ class Cinematic {
             if (globalThis.localStorage) {
                 return globalThis.localStorage.getItem('cinematic-js-' + name);
             }
-        } catch (e) {
-            console.log('CinematicJS: Cannot read from local store', {name: name, error: e});
+        } catch (error) {
+            console.log('CinematicJS: Cannot read from local store', {name: name, error: error});
         }
         return null;
     }
