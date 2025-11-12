@@ -327,7 +327,7 @@ class Cinematic {
         this._chromecastButton.classList.add('cinematicjs-video-control-button', 'cinematicjs-hidden');
         this._chromecastButton.role = 'button';
         this._chromecastButton.tabIndex = 0;
-        this._chromecastButton.ariaLabel = this.options.translations.showVideoInfo;
+        this._chromecastButton.ariaLabel = this.options.translations.chromecast;
         this._chromecastButton.title = this.options.translations.chromecast;
         Cinematic.renderButtonIcon(this._chromecastButton, 'chromecast');
         _header.appendChild(this._chromecastButton);
