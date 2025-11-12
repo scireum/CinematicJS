@@ -241,7 +241,7 @@ class Cinematic {
         request.onload = () => {
             const svg = request?.responseXML?.documentElement;
             // Don't render anything that is not an SVG, e.g. an HTML error page
-            if (svg && svg.nodeName === 'svg') {
+            if (svg?.nodeName === 'svg') {
                 _iconContainer.appendChild(svg);
             }
         }
@@ -849,14 +849,14 @@ class Cinematic {
             // Only focus the select element when opening via keyboard, not mouse
             if (isExpanded && event instanceof KeyboardEvent) {
                 setTimeout(() => {
-                    if (!this._qualitySettingsSection.classList.contains('cinematicjs-hidden')) {
-                        this._qualitySelect.focus();
-                    } else {
+                    if (this._qualitySettingsSection.classList.contains('cinematicjs-hidden')) {
                         // If quality select is hidden, focus speed select
                         const speedSelect = this._settingsWrapper.querySelector('select[name="speed"]') as HTMLSelectElement;
                         if (speedSelect) {
                             speedSelect.focus();
                         }
+                    } else {
+                        this._qualitySelect.focus();
                     }
                 }, 0);
             }
@@ -929,11 +929,11 @@ class Cinematic {
             // Don't change focus during quality changes
             if (!me._isChangingQuality) {
                 // Only focus the video if the play button wasn't activated via keyboard
-                if (!me._playButtonKeyboardActivated) {
-                    me._video.focus();
-                } else {
+                if (me._playButtonKeyboardActivated) {
                     // Keep focus on the play button for keyboard users
                     me._playButton.focus();
+                } else {
+                    me._video.focus();
                 }
             }
             me._playButtonKeyboardActivated = false;

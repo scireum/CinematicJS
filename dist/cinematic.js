@@ -161,7 +161,7 @@ var Cinematic = /** @class */ (function () {
             var _a;
             var svg = (_a = request === null || request === void 0 ? void 0 : request.responseXML) === null || _a === void 0 ? void 0 : _a.documentElement;
             // Don't render anything that is not an SVG, e.g. an HTML error page
-            if (svg && svg.nodeName === 'svg') {
+            if ((svg === null || svg === void 0 ? void 0 : svg.nodeName) === 'svg') {
                 _iconContainer.appendChild(svg);
             }
         };
@@ -335,17 +335,17 @@ var Cinematic = /** @class */ (function () {
         _dropDownContent.classList.add('cinematicjs-video-dropdown-content');
         this._settingsWrapper.appendChild(_dropDownContent);
         // Adds keyboard support for closing the dropdown with Escape
-        _dropDownContent.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                e.stopPropagation();
+        _dropDownContent.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                event.stopPropagation();
                 _this._settingsWrapper.classList.remove('cinematicjs-dropdown-active');
                 _this._settingsWrapper.ariaExpanded = 'false';
                 _this._settingsButton.focus();
             }
         });
         // Close dropdown when focus moves outside of it
-        _dropDownContent.addEventListener('focusout', function (e) {
+        _dropDownContent.addEventListener('focusout', function (event) {
             // Use setTimeout to allow the browser to update document.activeElement
             setTimeout(function () {
                 var activeElement = document.activeElement;
@@ -651,12 +651,12 @@ var Cinematic = /** @class */ (function () {
         var _this = this;
         var me = this;
         // Helper function to add both click and keyboard support to buttons
-        var addButtonHandler = function (button, handler) {
-            button.addEventListener('click', function (e) { return handler(e); });
-            button.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handler(e);
+        var addButtonHandler = function (_button, handler) {
+            _button.addEventListener('click', function (event) { return handler(event); });
+            _button.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handler(event);
                 }
             });
         };
@@ -689,15 +689,15 @@ var Cinematic = /** @class */ (function () {
             // Only focus the select element when opening via keyboard, not mouse
             if (isExpanded && event instanceof KeyboardEvent) {
                 setTimeout(function () {
-                    if (!_this._qualitySettingsSection.classList.contains('cinematicjs-hidden')) {
-                        _this._qualitySelect.focus();
-                    }
-                    else {
+                    if (_this._qualitySettingsSection.classList.contains('cinematicjs-hidden')) {
                         // If quality select is hidden, focus speed select
                         var speedSelect = _this._settingsWrapper.querySelector('select[name="speed"]');
                         if (speedSelect) {
                             speedSelect.focus();
                         }
+                    }
+                    else {
+                        _this._qualitySelect.focus();
                     }
                 }, 0);
             }
@@ -760,12 +760,12 @@ var Cinematic = /** @class */ (function () {
             // Don't change focus during quality changes
             if (!me._isChangingQuality) {
                 // Only focus the video if the play button wasn't activated via keyboard
-                if (!me._playButtonKeyboardActivated) {
-                    me._video.focus();
-                }
-                else {
+                if (me._playButtonKeyboardActivated) {
                     // Keep focus on the play button for keyboard users
                     me._playButton.focus();
+                }
+                else {
+                    me._video.focus();
                 }
             }
             me._playButtonKeyboardActivated = false;
@@ -890,8 +890,8 @@ var Cinematic = /** @class */ (function () {
             }, 2000);
         }, 250);
         this._progressBar.addEventListener('click', function (event) {
-            var target = event.target;
-            var rect = target.getBoundingClientRect();
+            var _target = event.target;
+            var rect = _target.getBoundingClientRect();
             var pos = (event.clientX - rect.left) / this.offsetWidth;
             me._video.currentTime = pos * me._video.duration;
         });
@@ -1114,8 +1114,8 @@ var Cinematic = /** @class */ (function () {
                 globalThis.localStorage.setItem('cinematic-js-' + name, value);
             }
         }
-        catch (e) {
-            console.log('CinematicJS: Cannot write to local store', { name: name, value: value, error: e });
+        catch (error) {
+            console.log('CinematicJS: Cannot write to local store', { name: name, value: value, error: error });
         }
     };
     Cinematic.prototype.readFromLocalStore = function (name) {
@@ -1124,8 +1124,8 @@ var Cinematic = /** @class */ (function () {
                 return globalThis.localStorage.getItem('cinematic-js-' + name);
             }
         }
-        catch (e) {
-            console.log('CinematicJS: Cannot read from local store', { name: name, error: e });
+        catch (error) {
+            console.log('CinematicJS: Cannot read from local store', { name: name, error: error });
         }
         return null;
     };
