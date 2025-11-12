@@ -170,14 +170,14 @@ var Cinematic = /** @class */ (function () {
     Cinematic.prototype.renderPlayer = function () {
         var _this = this;
         this._container.classList.add('cinematicjs-video-container');
-        this._container.setAttribute('role', 'region');
-        this._container.setAttribute('aria-label', 'Video player');
+        this._container.role = 'region';
+        this._container.ariaLabel = 'Video player';
         var initialVideo = this.playlist.getCurrentVideo();
         this._video = document.createElement('video');
         this._video.preload = 'metadata';
         this._video.tabIndex = 0;
         this._video.playsInline = true;
-        this._video.setAttribute('aria-label', 'Video player');
+        this._video.ariaLabel = 'Video player';
         // Suppress the unwanted right-click context menu of the video element itself
         this._video.oncontextmenu = function () { return false; };
         if (this.options.autoplay) {
@@ -217,10 +217,10 @@ var Cinematic = /** @class */ (function () {
         _header.appendChild(this._videoTitle);
         this._videoInfoButton = document.createElement('div');
         this._videoInfoButton.classList.add('cinematicjs-video-info-button');
-        this._videoInfoButton.setAttribute('role', 'button');
-        this._videoInfoButton.setAttribute('tabindex', '0');
-        this._videoInfoButton.setAttribute('aria-label', this.options.translations.showVideoInfo);
-        this._videoInfoButton.setAttribute('aria-expanded', 'false');
+        this._videoInfoButton.role = 'button';
+        this._videoInfoButton.tabIndex = 0;
+        this._videoInfoButton.ariaLabel = this.options.translations.showVideoInfo;
+        this._videoInfoButton.ariaExpanded = 'false';
         this._videoInfoButton.title = this.options.translations.showVideoInfo;
         Cinematic.renderButtonIcon(this._videoInfoButton, 'info');
         _header.appendChild(this._videoInfoButton);
@@ -229,9 +229,9 @@ var Cinematic = /** @class */ (function () {
         _header.appendChild(_headerSpacer);
         this._chromecastButton = document.createElement('div');
         this._chromecastButton.classList.add('cinematicjs-video-control-button', 'cinematicjs-hidden');
-        this._chromecastButton.setAttribute('role', 'button');
-        this._chromecastButton.setAttribute('tabindex', '0');
-        this._chromecastButton.setAttribute('aria-label', this.options.translations.chromecast);
+        this._chromecastButton.role = 'button';
+        this._chromecastButton.tabIndex = 0;
+        this._chromecastButton.ariaLabel = this.options.translations.showVideoInfo;
         this._chromecastButton.title = this.options.translations.chromecast;
         Cinematic.renderButtonIcon(this._chromecastButton, 'chromecast');
         _header.appendChild(this._chromecastButton);
@@ -245,9 +245,9 @@ var Cinematic = /** @class */ (function () {
         if (this.options.closeCallback) {
             this._closeButton = document.createElement('div');
             this._closeButton.classList.add('cinematicjs-video-close-button');
-            this._closeButton.setAttribute('role', 'button');
-            this._closeButton.setAttribute('tabindex', '0');
-            this._closeButton.setAttribute('aria-label', this.options.translations.close);
+            this._closeButton.role = 'button';
+            this._closeButton.tabIndex = 0;
+            this._closeButton.ariaLabel = this.options.translations.close;
             this._closeButton.title = this.options.translations.close;
             Cinematic.renderButtonIcon(this._closeButton, 'close');
             _header.appendChild(this._closeButton);
@@ -267,12 +267,12 @@ var Cinematic = /** @class */ (function () {
         _progressWrapper.appendChild(this._bufferBar);
         this._progressBar = document.createElement('progress');
         this._progressBar.classList.add('cinematicjs-video-progress-bar');
-        this._progressBar.setAttribute('role', 'slider');
-        this._progressBar.setAttribute('aria-label', 'Video progress');
-        this._progressBar.setAttribute('aria-valuemin', '0');
-        this._progressBar.setAttribute('aria-valuemax', '100');
-        this._progressBar.setAttribute('aria-valuenow', '0');
-        this._progressBar.setAttribute('tabindex', '0');
+        this._progressBar.role = 'slider';
+        this._progressBar.tabIndex = 0;
+        this._progressBar.ariaLabel = 'Video progress';
+        this._progressBar.ariaValueMin = '0';
+        this._progressBar.ariaValueMax = '100';
+        this._progressBar.ariaValueNow = '0';
         this._progressBar.value = 0;
         _progressWrapper.appendChild(this._progressBar);
         this._controls = document.createElement('div');
@@ -280,9 +280,9 @@ var Cinematic = /** @class */ (function () {
         _footer.appendChild(this._controls);
         this._playButton = document.createElement('div');
         this._playButton.classList.add('cinematicjs-video-control-button');
-        this._playButton.setAttribute('role', 'button');
-        this._playButton.setAttribute('tabindex', '0');
-        this._playButton.setAttribute('aria-label', this.options.translations.play);
+        this._playButton.role = 'button';
+        this._playButton.tabIndex = 0;
+        this._playButton.ariaLabel = this.options.translations.play;
         Cinematic.renderButtonIcon(this._playButton, 'play');
         this._controls.appendChild(this._playButton);
         this._timer = document.createElement('span');
@@ -301,14 +301,14 @@ var Cinematic = /** @class */ (function () {
         this._volumeSlider.max = '1';
         this._volumeSlider.step = '0.05';
         this._volumeSlider.value = '1';
-        this._volumeSlider.setAttribute('aria-label', 'Volume');
+        this._volumeSlider.ariaLabel = 'Volume';
         this._volumeSlider.classList.add('cinematicjs-video-volume-slider');
         _volumeWrapper.appendChild(this._volumeSlider);
         this._volumeButton = document.createElement('div');
         this._volumeButton.classList.add('cinematicjs-video-control-button');
-        this._volumeButton.setAttribute('role', 'button');
-        this._volumeButton.setAttribute('tabindex', '0');
-        this._volumeButton.setAttribute('aria-label', this.options.translations.mute);
+        this._volumeButton.role = 'button';
+        this._volumeButton.tabIndex = 0;
+        this._volumeButton.ariaLabel = this.options.translations.mute;
         this._volumeButton.title = this.options.translations.mute;
         Cinematic.renderButtonIcon(this._volumeButton, 'sound');
         _volumeWrapper.appendChild(this._volumeButton);
@@ -317,10 +317,10 @@ var Cinematic = /** @class */ (function () {
         this._controls.appendChild(this._settingsWrapper);
         this._settingsButton = document.createElement('div');
         this._settingsButton.classList.add('cinematicjs-video-control-button');
-        this._settingsButton.setAttribute('role', 'button');
-        this._settingsButton.setAttribute('tabindex', '0');
-        this._settingsButton.setAttribute('aria-label', this.options.translations.settings);
-        this._settingsButton.setAttribute('aria-expanded', 'false');
+        this._settingsButton.role = 'button';
+        this._settingsButton.tabIndex = 0;
+        this._settingsButton.ariaLabel = this.options.translations.mute;
+        this._settingsButton.ariaExpanded = 'false';
         this._settingsButton.title = this.options.translations.settings;
         Cinematic.renderButtonIcon(this._settingsButton, 'settings');
         this._settingsWrapper.appendChild(this._settingsButton);
@@ -328,7 +328,7 @@ var Cinematic = /** @class */ (function () {
             // Clicks inside the Dropdown should not close it again.
             if (!(event.target instanceof Element) || !(event.target).matches('.cinematicjs-video-control-dropdown, .cinematicjs-video-control-dropdown *')) {
                 _this._settingsWrapper.classList.remove('cinematicjs-dropdown-active');
-                _this._settingsButton.setAttribute('aria-expanded', 'false');
+                _this._settingsButton.ariaExpanded = 'false';
             }
         });
         var _dropDownContent = document.createElement('div');
@@ -340,7 +340,7 @@ var Cinematic = /** @class */ (function () {
                 e.preventDefault();
                 e.stopPropagation();
                 _this._settingsWrapper.classList.remove('cinematicjs-dropdown-active');
-                _this._settingsButton.setAttribute('aria-expanded', 'false');
+                _this._settingsWrapper.ariaExpanded = 'false';
                 _this._settingsButton.focus();
             }
         });
@@ -352,7 +352,7 @@ var Cinematic = /** @class */ (function () {
                 // Check if the new focus target is outside the dropdown
                 if (activeElement && !_this._settingsWrapper.contains(activeElement)) {
                     _this._settingsWrapper.classList.remove('cinematicjs-dropdown-active');
-                    _this._settingsButton.setAttribute('aria-expanded', 'false');
+                    _this._settingsButton.ariaExpanded = 'false';
                 }
             }, 0);
         });
@@ -364,8 +364,8 @@ var Cinematic = /** @class */ (function () {
         this._qualitySettingsSection.appendChild(_qualitySettingsTitle);
         this._qualitySelect = document.createElement('select');
         this._qualitySelect.name = 'quality';
-        this._qualitySelect.setAttribute('aria-label', this.options.translations.quality);
-        this._qualitySelect.setAttribute('tabindex', '0');
+        this._qualitySelect.ariaLabel = this.options.translations.quality;
+        this._qualitySelect.tabIndex = 0;
         this._qualitySelect.addEventListener('change', function () {
             _this.handleQualityChange(_this._qualitySelect.value);
             // Return focus to quality select after change
@@ -398,8 +398,8 @@ var Cinematic = /** @class */ (function () {
         _speedSettingsSection.appendChild(_speedSettingsTitle);
         var _speedSelect = document.createElement('select');
         _speedSelect.name = 'speed';
-        _speedSelect.setAttribute('aria-label', this.options.translations.playbackSpeed);
-        _speedSelect.setAttribute('tabindex', '0');
+        _speedSelect.ariaLabel = this.options.translations.playbackSpeed;
+        _speedSelect.tabIndex = 0;
         _speedSelect.addEventListener('change', function () {
             _this.handleSpeedChange(_speedSelect.value);
             // Return focus to speed select after change
@@ -434,9 +434,9 @@ var Cinematic = /** @class */ (function () {
         if (this.options.deeplink) {
             this._deeplinkButton = document.createElement('div');
             this._deeplinkButton.classList.add('cinematicjs-video-control-button');
-            this._deeplinkButton.setAttribute('role', 'button');
-            this._deeplinkButton.setAttribute('tabindex', '0');
-            this._deeplinkButton.setAttribute('aria-label', this.options.translations.deeplink);
+            this._deeplinkButton.role = 'button';
+            this._deeplinkButton.tabIndex = 0;
+            this._deeplinkButton.ariaLabel = this.options.translations.deeplink;
             this._deeplinkButton.title = this.options.translations.deeplink;
             this._deeplinkButton.dataset.copiedText = this.options.translations.deeplinkCopied;
             Cinematic.renderButtonIcon(this._deeplinkButton, 'deeplink');
@@ -450,10 +450,10 @@ var Cinematic = /** @class */ (function () {
         this._cuesContainer.appendChild(this._cues);
         this._captionsButton = document.createElement('div');
         this._captionsButton.classList.add('cinematicjs-video-control-button');
-        this._captionsButton.setAttribute('role', 'button');
-        this._captionsButton.setAttribute('tabindex', '0');
-        this._captionsButton.setAttribute('aria-label', this.options.translations.showSubtitles);
-        this._captionsButton.setAttribute('aria-pressed', 'false');
+        this._captionsButton.role = 'button';
+        this._captionsButton.tabIndex = 0;
+        this._captionsButton.ariaLabel = this.options.translations.showSubtitles;
+        this._captionsButton.ariaPressed = 'false';
         this._captionsButton.title = this.options.translations.showSubtitles;
         Cinematic.renderButtonIcon(this._captionsButton, 'expanded-cc');
         this._controls.appendChild(this._captionsButton);
@@ -461,18 +461,18 @@ var Cinematic = /** @class */ (function () {
         if (this.pipEnabled) {
             this._pipButton = document.createElement('div');
             this._pipButton.classList.add('cinematicjs-video-control-button');
-            this._pipButton.setAttribute('role', 'button');
-            this._pipButton.setAttribute('tabindex', '0');
-            this._pipButton.setAttribute('aria-label', this.options.translations.pictureInPicture);
+            this._pipButton.role = 'button';
+            this._pipButton.tabIndex = 0;
+            this._pipButton.ariaLabel = this.options.translations.pictureInPicture;
             this._pipButton.title = this.options.translations.pictureInPicture;
             Cinematic.renderButtonIcon(this._pipButton, 'inpicture');
             this._controls.appendChild(this._pipButton);
         }
         this._fullScreenButton = document.createElement('div');
         this._fullScreenButton.classList.add('cinematicjs-video-control-button', 'cinematicjs-hidden');
-        this._fullScreenButton.setAttribute('role', 'button');
-        this._fullScreenButton.setAttribute('tabindex', '0');
-        this._fullScreenButton.setAttribute('aria-label', this.options.translations.fullscreen);
+        this._fullScreenButton.role = 'button';
+        this._fullScreenButton.tabIndex = 0;
+        this._fullScreenButton.ariaLabel = this.options.translations.fullscreen;
         this._fullScreenButton.title = this.options.translations.fullscreen;
         Cinematic.renderButtonIcon(this._fullScreenButton, 'fullscreen');
         this._controls.appendChild(this._fullScreenButton);
@@ -588,13 +588,13 @@ var Cinematic = /** @class */ (function () {
         var isHidden = this._videoDescription.classList.contains('cinematicjs-hidden');
         if (isHidden) {
             this._videoInfoButton.title = this.options.translations.showVideoInfo;
-            this._videoInfoButton.setAttribute('aria-label', this.options.translations.showVideoInfo);
-            this._videoInfoButton.setAttribute('aria-expanded', 'false');
+            this._videoInfoButton.ariaLabel = this.options.translations.showVideoInfo;
+            this._videoInfoButton.ariaExpanded = 'false';
         }
         else {
             this._videoInfoButton.title = this.options.translations.hideVideoInfo;
-            this._videoInfoButton.setAttribute('aria-label', this.options.translations.hideVideoInfo);
-            this._videoInfoButton.setAttribute('aria-expanded', 'true');
+            this._videoInfoButton.ariaLabel = this.options.translations.hideVideoInfo;
+            this._videoInfoButton.ariaExpanded = 'true';
         }
     };
     Cinematic.prototype.prepareSubtitles = function () {
@@ -685,7 +685,7 @@ var Cinematic = /** @class */ (function () {
         addButtonHandler(this._settingsButton, function (event) {
             _this._settingsWrapper.classList.toggle('cinematicjs-dropdown-active');
             var isExpanded = _this._settingsWrapper.classList.contains('cinematicjs-dropdown-active');
-            _this._settingsButton.setAttribute('aria-expanded', isExpanded.toString());
+            _this._settingsButton.ariaExpanded = isExpanded.toString();
             // Only focus the select element when opening via keyboard, not mouse
             if (isExpanded && event instanceof KeyboardEvent) {
                 setTimeout(function () {
@@ -726,7 +726,7 @@ var Cinematic = /** @class */ (function () {
             me._progressBar.value = me.playedSeconds;
             // Update aria-valuenow for accessibility
             var percentage = me.totalSeconds > 0 ? Math.round((me.playedSeconds / me.totalSeconds) * 100) : 0;
-            me._progressBar.setAttribute('aria-valuenow', percentage.toString());
+            me._progressBar.ariaValueNow = percentage.toString();
             me.updateTimer();
         });
         this._video.addEventListener('volumechange', function () {
@@ -739,12 +739,12 @@ var Cinematic = /** @class */ (function () {
                 _this._volumeSlider.value = '0';
                 Cinematic.switchButtonIcon(_this._volumeButton, 'mute');
                 _this._volumeButton.title = _this.options.translations.unmute;
-                _this._volumeButton.setAttribute('aria-label', _this.options.translations.unmute);
+                _this._volumeButton.ariaLabel = _this.options.translations.unmute;
             }
             else {
                 _this._volumeSlider.value = _this._video.volume.toString();
                 _this._volumeButton.title = _this.options.translations.mute;
-                _this._volumeButton.setAttribute('aria-label', _this.options.translations.mute);
+                _this._volumeButton.ariaLabel = _this.options.translations.mute;
                 if (_this.volume > 0.5) {
                     Cinematic.switchButtonIcon(_this._volumeButton, 'sound');
                 }
@@ -756,7 +756,7 @@ var Cinematic = /** @class */ (function () {
         this._video.addEventListener('play', function () {
             Cinematic.switchButtonIcon(me._playButton, 'pause');
             me._playButton.title = me.options.translations.pause;
-            me._playButton.setAttribute('aria-label', me.options.translations.pause);
+            me._playButton.ariaLabel = me.options.translations.pause;
             // Don't change focus during quality changes
             if (!me._isChangingQuality) {
                 // Only focus the video if the play button wasn't activated via keyboard
@@ -775,7 +775,7 @@ var Cinematic = /** @class */ (function () {
         this._video.addEventListener('pause', function () {
             Cinematic.switchButtonIcon(me._playButton, 'play');
             me._playButton.title = me.options.translations.play;
-            me._playButton.setAttribute('aria-label', me.options.translations.play);
+            me._playButton.ariaLabel = me.options.translations.play;
             // Return focus to the play button if it was keyboard activated
             if (me._playButtonKeyboardActivated) {
                 me._playButton.focus();
@@ -790,7 +790,7 @@ var Cinematic = /** @class */ (function () {
             else {
                 Cinematic.switchButtonIcon(_this._playButton, 'repeat');
                 _this._playButton.title = me.options.translations.restart;
-                _this._playButton.setAttribute('aria-label', me.options.translations.restart);
+                _this._playButton.ariaLabel = me.options.translations.restart;
                 _this.showControls();
             }
         });
@@ -909,14 +909,14 @@ var Cinematic = /** @class */ (function () {
             me._cuesContainer.classList.toggle('cinematicjs-hidden');
             if (me.captionsEnabled) {
                 me._captionsButton.title = me.options.translations.showSubtitles;
-                me._captionsButton.setAttribute('aria-label', me.options.translations.showSubtitles);
-                me._captionsButton.setAttribute('aria-pressed', 'false');
+                me._captionsButton.ariaLabel = me.options.translations.showSubtitles;
+                me._captionsButton.ariaPressed = 'false';
                 Cinematic.switchButtonIcon(me._captionsButton, 'expanded-cc');
             }
             else {
                 me._captionsButton.title = me.options.translations.hideSubtitles;
-                me._captionsButton.setAttribute('aria-label', me.options.translations.hideSubtitles);
-                me._captionsButton.setAttribute('aria-pressed', 'true');
+                me._captionsButton.ariaLabel = me.options.translations.hideSubtitles;
+                me._captionsButton.ariaPressed = 'true';
                 Cinematic.switchButtonIcon(me._captionsButton, 'cc');
             }
             me.captionsEnabled = !me.captionsEnabled;
@@ -1154,13 +1154,13 @@ var Cinematic = /** @class */ (function () {
             this._container.dataset.fullscreen = true;
             Cinematic.switchButtonIcon(this._fullScreenButton, 'closefullscreen');
             this._fullScreenButton.title = this.options.translations.exitFullscreen;
-            this._fullScreenButton.setAttribute('aria-label', this.options.translations.exitFullscreen);
+            this._fullScreenButton.ariaLabel = this.options.translations.exitFullscreen;
         }
         else {
             this._container.dataset.fullscreen = false;
             Cinematic.switchButtonIcon(this._fullScreenButton, 'fullscreen');
             this._fullScreenButton.title = this.options.translations.fullscreen;
-            this._fullScreenButton.setAttribute('aria-label', this.options.translations.fullscreen);
+            this._fullScreenButton.ariaLabel = this.options.translations.fullscreen;
         }
     };
     Cinematic.prototype.showControls = function () {
@@ -1197,7 +1197,7 @@ var Cinematic = /** @class */ (function () {
         fakeElem.style[document.documentElement.getAttribute('dir') == 'rtl' ? 'right' : 'left'] = '-9999px';
         // Move element to the same position vertically
         fakeElem.style.top = (window.scrollY || document.documentElement.scrollTop) + 'px';
-        fakeElem.setAttribute('readonly', '');
+        fakeElem.readOnly = true;
         fakeElem.value = text;
         document.body.appendChild(fakeElem);
         fakeElem.focus();
