@@ -70,11 +70,11 @@
 /*region Header*/
 .cinematicjs-video-header {
     display: flex;
-    flex-wrap: wrap;
     list-style-type: none;
     background: transparent;
     padding: 8px;
     align-items: center;
+    gap: 4px;
 }
 
 .cinematicjs-video-header .cinematicjs-video-icon {
@@ -192,10 +192,7 @@
     display: flex;
     align-items: center;
     margin-top: 4px;
-}
-
-.cinematicjs-video-controls > * {
-    margin: 4px;
+    gap: 4px;
 }
 
 .cinematicjs-video-controls .cinematicjs-hidden, .cinematicjs-video-controls .cinematicjs-video-control-button.cinematicjs-hidden {
@@ -206,7 +203,7 @@
     flex-grow: 1;
 }
 
-.cinematicjs-video-controls .cinematicjs-video-control-button {
+.cinematicjs-video-header .cinematicjs-video-control-button, .cinematicjs-video-controls .cinematicjs-video-control-button {
     display: flex;
     align-items: center;
     color: #ffffff;
@@ -246,21 +243,21 @@
 
 /*region Progress / Buffer Bar*/
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
     position: relative;
     width: 100%;
     flex-grow: 1;
-    padding: 8px 0;
+    padding: 4px;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 50vh;
 }
 
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-progress-bar,
 .cinematicjs-video-footer .cinematicjs-video-progress-wrapper .cinematicjs-video-buffer-bar {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 6px;
-    right: 6px;
+    grid-area: 1 / 1;
+    width: 100%;
     cursor: pointer;
 }
 
