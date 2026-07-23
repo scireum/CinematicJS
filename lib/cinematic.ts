@@ -13,7 +13,7 @@ interface HTMLVideoElement {
 }
 
 interface Options {
-    selector: string;
+    selector: string | Element;
     baseUri: string;
     autoplay: boolean;
     startTime: number;
@@ -167,7 +167,9 @@ class Cinematic {
     constructor(options: Options) {
         this.options = {...this.defaults, ...options};
 
-        const _passedContainer = document.querySelector(this.options.selector);
+        const _passedContainer = this.options.selector instanceof Element
+            ? this.options.selector
+            : document.querySelector(this.options.selector);
         if (!_passedContainer) {
             throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
         }

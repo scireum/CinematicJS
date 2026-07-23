@@ -28,29 +28,28 @@ Polyfills for `Array.prototype.forEach`, `NodeList.prototype.forEach` and `Eleme
 
 ## Parameters
 
-| Name             | Description                                                                                                       | Type     | Default |
-|------------------|-------------------------------------------------------------------------------------------------------------------|----------|--|
-| selector         | A selector query string pointing to the div the player should be rendered in                                      | string   | '' |
-| baseUri          | The absolute URL pointing to the base directory of the library (used for loading icons, ...)                      | string   | '' |
-| poster           | The relative or absolute URL pointing to the video preview image                                                  | string   | '' |
-| sources          | A list of all video qualities and their sources. Structure described below                                        | array    | - '
-| quality          | The name of the quality that should be loaded initially                                                           | string   | - |
-| subtitles        | The relative or absolute URL pointing to the video captions VTT file                                              | string   | null |
-| autoplay         | Starts the video playback directly when 'true' is passed                                                          | boolean  | false |
-| rememberVolume   | Saves and Restores the volume and mute state via local storage when 'true' is passed                              | boolean  | false |
-| rememberQuality  | Saves and Restores the playback quality via local storage when 'true' is passed                              | boolean  | false |
-| startTime        | Starts the video playback offset by the given number of seconds                                                   | number   | 0 |
-| deeplink         | Shows a deeplink button that copies the url to clipboard on click when filled                                     | string   | '' |
-| deeplinkCallback | A function that is called when the deeplink button is clicked - if it returns false, the copy action is supressed | function | - |
-| closeCallback    | Shows a close button that invokes the provided callback on clicked when filled                                    | function | - |
-| translations     | Can be provided to overwrite the default english translations. Structure described below                          | object   | - |
+| Name             | Description                                                                                                       | Type                  | Default |
+|------------------|-------------------------------------------------------------------------------------------------------------------|-----------------------|---------|
+| selector         | A selector query string or DOM element pointing to the div the player should be rendered in                       | string &#124; Element | ''      |
+| baseUri          | The absolute URL pointing to the base directory of the library (used for loading icons, ...)                      | string                | ''      |
+| poster           | The relative or absolute URL pointing to the video preview image                                                  | string                | ''      |
+| sources          | A list of all video qualities and their sources. Structure described below                                        | array                 | - '     |
+| quality          | The name of the quality that should be loaded initially                                                           | string                | -       |
+| subtitles        | The relative or absolute URL pointing to the video captions VTT file                                              | string                | null    |
+| autoplay         | Starts the video playback directly when 'true' is passed                                                          | boolean               | false   |
+| rememberVolume   | Saves and Restores the volume and mute state via local storage when 'true' is passed                              | boolean               | false   |
+| rememberQuality  | Saves and Restores the playback quality via local storage when 'true' is passed                                   | boolean               | false   |
+| startTime        | Starts the video playback offset by the given number of seconds                                                   | number                | 0       |
+| deeplink         | Shows a deeplink button that copies the url to clipboard on click when filled                                     | string                | ''      |
+| deeplinkCallback | A function that is called when the deeplink button is clicked - if it returns false, the copy action is supressed | function              | -       |
+| closeCallback    | Shows a close button that invokes the provided callback on clicked when filled                                    | function              | -       |
+| translations     | Can be provided to overwrite the default english translations. Structure described below                          | object                | -       |
 
 ## Sources
 
 Upon initialization of the player multiple video qualities with multiple source formats can be provided. For this an
-array of objects is
-passed to the `sources` parameter. The order of the objects also determines their order in the quality setting dropdown.
-Each object has the following structure:
+array of objects is passed to the `sources` parameter. The order of the objects also determines their order in the
+quality setting dropdown. Each object has the following structure:
 
 | Name    | Description                                                                          |
 |---------|--------------------------------------------------------------------------------------|
@@ -101,8 +100,7 @@ new Cinematic({
 ## Translations
 
 The player provides english translations as a default. With the `translations` parameter described above these can be
-overwritten.
-The following keys can be provided:
+overwritten. The following keys can be provided:
 
 | Name           | Description                                                                 | Default                    |
 |----------------|-----------------------------------------------------------------------------|----------------------------|

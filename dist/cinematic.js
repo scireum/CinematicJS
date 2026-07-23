@@ -94,7 +94,9 @@ var Cinematic = /** @class */ (function () {
         this.pipEnabled = false;
         this.userActive = false;
         this.options = __assign(__assign({}, this.defaults), options);
-        var _passedContainer = document.querySelector(this.options.selector);
+        var _passedContainer = this.options.selector instanceof Element
+            ? this.options.selector
+            : document.querySelector(this.options.selector);
         if (!_passedContainer) {
             throw new Error('CinematicJS: Passed selector does not point to a DOM element.');
         }
