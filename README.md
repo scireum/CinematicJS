@@ -30,7 +30,7 @@ Polyfills for `Array.prototype.forEach`, `NodeList.prototype.forEach` and `Eleme
 
 | Name             | Description                                                                                                       | Type     | Default |
 |------------------|-------------------------------------------------------------------------------------------------------------------|----------|--|
-| selector         | A selector query string pointing to the div the player should be rendered in                                      | string   | '' |
+| selector         | A selector query string or DOM element pointing to the div the player should be rendered in                       | string &#124; Element | '' |
 | baseUri          | The absolute URL pointing to the base directory of the library (used for loading icons, ...)                      | string   | '' |
 | poster           | The relative or absolute URL pointing to the video preview image                                                  | string   | '' |
 | sources          | A list of all video qualities and their sources. Structure described below                                        | array    | - '
